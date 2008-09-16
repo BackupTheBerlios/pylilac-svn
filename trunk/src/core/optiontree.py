@@ -47,13 +47,16 @@ class OptionTree:
 		else:
 			return False
 
-	def expand(self):
+	def expand(self, reversed = False):
 		if self.element is None:
 			head = []
 		else:
 			head = [self.element]
 		if self.__successors:
-			return [head + x for x in reduce(list.__add__, [successor.expand() for successor in self.__successors])]
+			if reversed:
+				return [x + head for x in reduce(list.__add__, [successor.expand(reversed) for successor in self.__successors])]
+			else:
+				return [head + x for x in reduce(list.__add__, [successor.expand(reversed) for successor in self.__successors])]
 		else:
 			return [head]
 
