@@ -11,8 +11,7 @@ A module to manage Extended Backus-Naur (EBNF) rules.
 
 __docformat__ = "epytext en"
 
-from fsa import FSA
-from parser2 import Parser
+from fsa import FSA, Parser
 
 class GrammarError(ValueError):
 	"""

@@ -12,7 +12,7 @@ The module offers the high-level interfaces to internal structures.
 
 __docformat__ = "epytext en" 
 
-from parser2 import ParseError
+from fsa import ParseError
 
 
 class ExpressionParseError(StandardError):
