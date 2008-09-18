@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Expression management: reading (comprehension), translating, writing (composition).
+A module for expression management: reading (comprehension), translating, writing (composition).
 
 The module offers the high-level interfaces to internal structures.
 
@@ -12,7 +12,7 @@ The module offers the high-level interfaces to internal structures.
 
 __docformat__ = "epytext en" 
 
-from parser import ParseError
+from parser2 import ParseError
 
 
 class ExpressionParseError(StandardError):
@@ -67,8 +67,9 @@ class ExpressionReader:
 
 	def __call__(self, stream):
 		"""
-		The tokenizer transforms streams into token sequences, then the parser transforms them into syntax trees.
+		Transform a stream into a list of syntax trees.
 
+		The tokenizer transforms streams into token sequences, then the parser transforms them into syntax trees.
 
 		@param stream: The stream to read, usually a string.
 		@type stream: C{str}

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Lexicon management: Word and Headword.
+A module for lexicon management: Word and Headword.
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}

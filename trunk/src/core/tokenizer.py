@@ -1,7 +1,8 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 """
-A tokenizer to split a stream into speech units.
+A tokenizer to split a stream into tokens.
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
@@ -22,11 +23,11 @@ class Tokenizer:
 			self.__tokendict = TokenDict(dict, separator)
 		else:
 			self.__tokendict = BaseTokenDict(dict, separator)
-	def get_token(self, stream, position):
+	def _get_token(self, stream, position):
 		return self.__tokendict.get_token(stream, position)
 	def __call__(self, stream, position = 0):
 		node = OptionTree()
-		for token, new_pos in self.get_token(stream, position):
+		for token, new_pos in self._get_token(stream, position):
 			successor = self(stream, new_pos)
 			successor.element = token
 			node.append(successor)
@@ -34,7 +35,6 @@ class Tokenizer:
 
 def __test():
 	t = Tokenizer({"a": ["1"], "b": ["2"]})
-	print t.get_token("a a b b a", 2)
 	c = t("a a b b a a")
 	print c
 	t2 = Tokenizer({"ala": ["ALA"], "mi": ["MI"], "pona": ["PONA"], "mi ala": ["MIALA"]})

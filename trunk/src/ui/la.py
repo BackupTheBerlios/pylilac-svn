@@ -15,16 +15,10 @@ class LAFrame(wx.Frame):
 		# begin wxGlade: LAFrame.__init__
 		kwds["style"] = wx.DEFAULT_FRAME_STYLE
 		wx.Frame.__init__(self, *args, **kwds)
-		self.la_frame_window = wx.SplitterWindow(self, -1, style=wx.SP_NOBORDER)
-		self.right_window_pane = wx.Panel(self.la_frame_window, -1)
-		self.overview_notebook = wx.Notebook(self.right_window_pane, -1, style=wx.NB_LEFT)
-		self.detail_notebook = wx.Notebook(self.right_window_pane, -1, style=wx.NB_LEFT)
-		self.left_window_pane = wx.Panel(self.la_frame_window, -1)
-		self.left_notebook = wx.Notebook(self.left_window_pane, -1, style=0)
+		self.la_notebook = wx.Notebook(self, -1, style=0)
 		
 		# Menu Bar
 		self.la_frame_menubar = wx.MenuBar()
-		self.SetMenuBar(self.la_frame_menubar)
 		self.file_menu = wx.Menu()
 		self.open_menu = wx.MenuItem(self.file_menu, wx.ID_OPEN, "Open", "", wx.ITEM_NORMAL)
 		self.file_menu.AppendItem(self.open_menu)
@@ -60,15 +54,18 @@ class LAFrame(wx.Frame):
 		self.tools_menu.AppendItem(self.filter_editor_menu)
 		self.language_reader_menu = wx.MenuItem(self.tools_menu, wx.NewId(), "Language Reader", "", wx.ITEM_NORMAL)
 		self.tools_menu.AppendItem(self.language_reader_menu)
+		self.bilingual_interpreter_menu = wx.MenuItem(self.tools_menu, wx.NewId(), "Bilingual Interpreter", "", wx.ITEM_NORMAL)
+		self.tools_menu.AppendItem(self.bilingual_interpreter_menu)
 		self.la_frame_menubar.Append(self.tools_menu, "&Tools")
 		self.help_menu = wx.Menu()
 		self.about_menu = wx.MenuItem(self.help_menu, wx.ID_ABOUT, "About", "", wx.ITEM_NORMAL)
 		self.help_menu.AppendItem(self.about_menu)
 		self.la_frame_menubar.Append(self.help_menu, "&Help")
+		self.SetMenuBar(self.la_frame_menubar)
 		# Menu Bar end
-		self.left_notebook_language_pane = wx.Panel(self.left_notebook, -1)
-		self.detail_notebook_pane_1 = wx.Panel(self.detail_notebook, -1)
-		self.overview_notebook_pane_1 = wx.Panel(self.overview_notebook, -1)
+		self.la_language_pane = wx.Panel(self.la_notebook, -1)
+		self.la_lexicon_pane = wx.Panel(self.la_notebook, -1)
+		self.la_grammar_pane = wx.Panel(self.la_notebook, -1)
 
 		self.__set_properties()
 		self.__do_layout()
@@ -86,6 +83,7 @@ class LAFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnRunConceptBrowser, self.concept_browser_menu)
 		self.Bind(wx.EVT_MENU, self.OnRunFilterEditor, self.filter_editor_menu)
 		self.Bind(wx.EVT_MENU, self.OnRunLanguageReader, self.language_reader_menu)
+		self.Bind(wx.EVT_MENU, self.OnRunBilingualInterpreter, self.bilingual_interpreter_menu)
 		self.Bind(wx.EVT_MENU, self.OnAbout, self.about_menu)
 		# end wxGlade
 
@@ -108,18 +106,10 @@ class LAFrame(wx.Frame):
 	def __do_layout(self):
 		# begin wxGlade: LAFrame.__do_layout
 		la_frame_sizer = wx.BoxSizer(wx.VERTICAL)
-		right_sizer = wx.BoxSizer(wx.VERTICAL)
-		left_sizer = wx.BoxSizer(wx.HORIZONTAL)
-		self.left_notebook.AddPage(self.left_notebook_language_pane, "tab1")
-		left_sizer.Add(self.left_notebook, 1, wx.EXPAND, 0)
-		self.left_window_pane.SetSizer(left_sizer)
-		self.detail_notebook.AddPage(self.detail_notebook_pane_1, "tab1")
-		right_sizer.Add(self.detail_notebook, 1, wx.EXPAND, 0)
-		self.overview_notebook.AddPage(self.overview_notebook_pane_1, "tab1")
-		right_sizer.Add(self.overview_notebook, 1, wx.EXPAND, 0)
-		self.right_window_pane.SetSizer(right_sizer)
-		self.la_frame_window.SplitVertically(self.left_window_pane, self.right_window_pane)
-		la_frame_sizer.Add(self.la_frame_window, 1, wx.EXPAND, 0)
+		self.la_notebook.AddPage(self.la_language_pane, "Language")
+		self.la_notebook.AddPage(self.la_lexicon_pane, "Lexicon")
+		self.la_notebook.AddPage(self.la_grammar_pane, "Grammar")
+		la_frame_sizer.Add(self.la_notebook, 1, wx.EXPAND, 0)
 		self.SetSizer(la_frame_sizer)
 		self.Layout()
 		# end wxGlade
@@ -185,6 +175,10 @@ class LAFrame(wx.Frame):
 		print "Event handler `OnRunLanguageReader' not implemented!"
 		event.Skip()
 
+	def OnRunBilingualInterpreter(self, event): # wxGlade: LAFrame.<event_handler>
+		print "Event handler `OnRunBilingualInterpreter' not implemented"
+		event.Skip()
+
 	def OnAbout(self, event): # wxGlade: LAFrame.<event_handler>
 		d= wx.MessageDialog( self, " A sample editor \n in wxPython","About Sample Editor", wx.OK)
 		# Create a message dialog box
@@ -205,7 +199,6 @@ class CBFrame(wx.Frame):
 		
 		# Menu Bar
 		self.cb_frame_menubar = wx.MenuBar()
-		self.SetMenuBar(self.cb_frame_menubar)
 		self.file_menu = wx.Menu()
 		self.reload_menu = wx.MenuItem(self.file_menu, wx.ID_REVERT_TO_SAVED, "&Reload", "", wx.ITEM_NORMAL)
 		self.file_menu.AppendItem(self.reload_menu)
@@ -231,6 +224,7 @@ class CBFrame(wx.Frame):
 		self.delete_menu = wx.MenuItem(self.edit_menu, wx.ID_REMOVE, "&Delete concept", "", wx.ITEM_NORMAL)
 		self.edit_menu.AppendItem(self.delete_menu)
 		self.cb_frame_menubar.Append(self.edit_menu, "&Edit")
+		self.SetMenuBar(self.cb_frame_menubar)
 		# Menu Bar end
 		self.concept_tree_ctrl = wx.gizmos.TreeListCtrl(self, -1, style=wx.TR_HAS_BUTTONS|wx.TR_NO_LINES|wx.TR_LINES_AT_ROOT|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_HIDE_ROOT|wx.TR_DEFAULT_STYLE|wx.SUNKEN_BORDER)
 		self.baseconcept_label = wx.StaticText(self.panel_1, -1, "Lineage")
@@ -405,8 +399,11 @@ class CBFrame(wx.Frame):
 
 	def __fill_controls(self):
 		old_dirty = self.__get_dirty()
-		
-		concept = self.data.taxonomy.get(self.current)
+
+		if self.current == "[Root]":
+			concept = Concept("", "", "0-n", "")
+		else:
+			concept = self.data.taxonomy.get(self.current)
 		self.baseconcept_text.SetValue(Utilities.nvl(concept.baseconcept, ""))
 		self.derivation_text.SetValue(Utilities.nvl(concept.derivation, ""))
 		self.interlingua_text.SetValue(concept.interlingua)
@@ -496,7 +493,7 @@ class CBFrame(wx.Frame):
 		#dlg = wx.FileDialog(self, message="Save file as ...", defaultDir=os.getcwd(), defaultFile="", wildcard=wildcard, style=wx.SAVE)
 		dlg = wx.FileDialog(self, "Export taxonomy as...", wildcard = "CSV files (*.csv)|*.csv|All files|*.*"
 , style = wx.SAVE)
-		#               self, parent, message, defaultDir, defaultFile, wildcard, style, pos
+
 		if dlg.ShowModal() == wx.ID_OK:
 			path = dlg.GetPath()
 			try:

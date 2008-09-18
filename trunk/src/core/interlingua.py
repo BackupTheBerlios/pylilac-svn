@@ -1,6 +1,18 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 """
+A module to manage the I{machine interlingua} used to express universal concepts.
+
+A machine interlingua is an artificial language designed specifically for use as an interlingua in machine translation.
+Such a language must be designed to meet two primary goals:
+  - it must be easier to accurately translate from the source natural language into the interlingua than into another natural language
+ - it must be computationally easy to accurately translate from the interlingua into the target language
+In other words, mapping between natural languages and the interlingua must be both accurate and made as easy as possible.
+
+For an example of machine interlingua, see U{The Lexical Semantics of a Machine Translation Interlingua <http://www.eskimo.com/~ram/lexical_semantics.html>}.
+
+@see: Literal
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
@@ -11,14 +23,17 @@ __docformat__ = "epytext en"
 import pickle
 
 class Interlingua:
+	"""
+	A representation for a machine interlingua.
+
+	"""
 	def __init__(self, name):
 		"""
 		Create an interlingua object.
-		It encapsulate serialization and high-leven functionality.
+		It encapsulates serialization and high-leven functionality.
 
 		@type name: str
-		@param name:
-			The interlingua name.
+		@param name: The interlingua name.
 		"""
 		self.name = name
 		self.p_o_s = []
@@ -30,6 +45,12 @@ class Interlingua:
 		return (self.name, self.p_o_s, self.arg_struct, self.taxonomy)
 
 	def save(self, filename = None):
+		"""
+		Save the interlingua object to a file, using the L{pickle<pickle.dump>} module.
+
+		@param filename: The file name to use; if not specified the name of the language with the C{ilt} extension will be used..
+		@type stream: str
+		"""
 		if filename is None:
 			filename = "%s.ilt" % self.name
 		f = open(filename, "wb")
@@ -38,6 +59,13 @@ class Interlingua:
 		f.close()
 
 	def load(self, filename = None):
+		"""
+		Load the interlingua object from a file, using the L{pickle<pickle.load>} module.
+		The internal status of the onject is changed to the loaded values.
+
+		@param filename: The file name to use; if not specified the name of the language with the C{ilt} extension will be used..
+		@type stream: str
+		"""
 		if filename is None:
 			filename = "%s.ilt" % self.name
 		f = open(filename, "rb")
@@ -47,7 +75,38 @@ class Interlingua:
 
 
 class Concept:
+	"""
+	A  universal concept with its attributes:
+	  - representation in the interlingua
+	  - part of speech (PoS)
+	  - argument structure
+	  - English meaning
+	  - base concept it's derived from and type of derivation
+	  - notes
+
+	"""
 	def __init__(self, interlingua, p_o_s, arg_struct, meaning, baseconcept = None, derivation = None):
+		"""
+		Create a record to contain the data of a concept.
+
+		@param interlingua: Representation using the interlingua.
+		@type interlingua: str
+		@param p_o_s: Part of speech:
+			- C{'N'}: noun
+			- C{'V'}: verb
+			- C{'A'}: adverb
+			- C{'D'}: disjunct
+			- C{'C'}: conjunction
+		@type p_o_s: str
+		@param arg_struct: Argument structure (and dynamicity), which specified the relationship stated between agent, patient and focus.
+		@type arg_struct: str
+		@param meaning: Representation using the interlingua.
+		@type meaning: str
+		@param base_concept: The base concept from which the concept is derived.
+		@type base_concept: str
+		@param derivation: The way the concept is derived from its base concept: derivate, changed, affixed, modified, and so on.
+		@type derivation: str
+		"""
 		self.interlingua = interlingua
 		self.p_o_s = p_o_s
 		self.arg_struct = arg_struct
@@ -62,12 +121,25 @@ class Concept:
 	
 
 class Taxonomy:
+	"""
+	A  hierarchy of concepts (I{taxa}).
+
+	"""
 	def __init__(self):
 		self.__nodes = {}
 		self.__tree = {None: {}}
 	def get(self, key):
 		return self.__nodes[key]
 	def set(self, concept):
+		"""
+		Add or updates a concept in the taxonomy.
+
+		If a concept having the given interlingua representation exists, it's replaced.
+		Otherwise, the given concept is added.
+
+		@param concept: The taxon to add to the taxonomy.
+		@type concept: Concept
+		"""
 		old_concept = self.__nodes.get(concept.interlingua)
 		key = concept.interlingua
 		self.__nodes[key] = concept
@@ -104,6 +176,15 @@ class Taxonomy:
 			self.__nodes = []
 			self.__tree = {None: {}}
 	def subconcepts(self, key):
+		"""
+		Retrieve the subconcepts of the taxon having the given key.
+
+		@param key: The interlingua representation of the base concept.
+		@type key: str
+		@return: The list of subconcepts.
+		@rtype: list(Concept)
+		@raise ValueError: If no taxa having the given key exist. 
+		"""
 		if key is not None and not self.__nodes.has_key(key):
 			raise ValueError(key)
 		if self.__tree.has_key(key):
