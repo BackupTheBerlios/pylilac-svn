@@ -49,12 +49,12 @@ class ExpressionParseError(StandardError):
 		
 class ExpressionReader:
 	"""
-	An expression reader, combining a L{tokenizer<tokenizer.Tokenizer>} and a L{parser<parser.Parser>}.
+	An expression reader, combining a L{tokenizer<tokenizer.Tokenizer>} and a L{parser<fsa.Parser>}.
 
 	"""
 	def __init__(self, tokenizer, parser):
 		"""
-		Construct a new expression reader, coordinating the given L{tokenizer<tokenizer.Tokenizer>} and L{parser<parser.Parser>}.
+		Construct a new expression reader, coordinating the given L{tokenizer<tokenizer.Tokenizer>} and L{parser<fsa.Parser>}.
 
 		@param tokenizer: The tokenizer (or scanner) to use.
 		@type tokenizer: tokenizer.Tokenizer

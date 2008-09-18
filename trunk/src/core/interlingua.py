@@ -46,10 +46,10 @@ class Interlingua:
 
 	def save(self, filename = None):
 		"""
-		Save the interlingua object to a file, using the L{pickle<pickle.dump>} module.
+		Save the interlingua object to a file, using the L{pickle} module.
 
 		@param filename: The file name to use; if not specified the name of the language with the C{ilt} extension will be used..
-		@type stream: str
+		@type filename: str
 		"""
 		if filename is None:
 			filename = "%s.ilt" % self.name
@@ -60,11 +60,11 @@ class Interlingua:
 
 	def load(self, filename = None):
 		"""
-		Load the interlingua object from a file, using the L{pickle<pickle.load>} module.
+		Load the interlingua object from a file, using the L{pickle} module.
 		The internal status of the onject is changed to the loaded values.
 
 		@param filename: The file name to use; if not specified the name of the language with the C{ilt} extension will be used..
-		@type stream: str
+		@type filename: str
 		"""
 		if filename is None:
 			filename = "%s.ilt" % self.name
@@ -102,8 +102,8 @@ class Concept:
 		@type arg_struct: str
 		@param meaning: Representation using the interlingua.
 		@type meaning: str
-		@param base_concept: The base concept from which the concept is derived.
-		@type base_concept: str
+		@param baseconcept: The base concept from which the concept is derived.
+		@type baseconcept: str
 		@param derivation: The way the concept is derived from its base concept: derivate, changed, affixed, modified, and so on.
 		@type derivation: str
 		"""
