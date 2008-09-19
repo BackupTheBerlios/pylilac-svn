@@ -54,6 +54,7 @@ The technique is based on the representation in form of graph of the different s
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@todo: an unordered concatenation operation M{&}
 
 """
 

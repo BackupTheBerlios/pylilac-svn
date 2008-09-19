@@ -23,7 +23,7 @@ class Headword:
 	
 	Usually, headword are the I{entry words} in dictionaries and encyclopediae.
 	"""
-	def __init__(self, entry_word, id, p_o_s, attributes = None, gloss = None):
+	def __init__(self, entry_word, id, p_o_s, categories = None, gloss = None):
 		"""
 		Create a headword in a specific language for the I{entry word} specified.
 
@@ -50,11 +50,11 @@ class Headword:
 		    A string which indicates the I{part of speech} to which the headword belongs to in the specific language.
 
 		    The I{part of speech} is the general classification of the word: usually it distinguish nouns from verbs &c..
-		@type attributes: dict (srt, str)
-		@param attributes:
-		    The attributes of the headword; default is the empty dictionary.
+		@type categories: dict (srt, str)
+		@param categories:
+		    The categories of the headword; default is the empty dictionary.
 
-		    Attributes can specify better the features of a particular I{part of speech}.
+		    categories can specify better the features of a particular I{part of speech}.
 		@type gloss: str
 		@param gloss:
 		    The meaning and the translation technique, referring to the I{interlingua}.
@@ -65,7 +65,7 @@ class Headword:
 		self.entry_word = entry_word
 		self.id = Utilities.nvl(id, 1)
 		self.p_o_s = p_o_s
-		self.attributes = Utilities.nvl(attributes, {})
+		self.categories = Utilities.nvl(categories, {})
 		self.gloss = gloss
 
 	def __eq__(self, other):
@@ -73,7 +73,7 @@ class Headword:
 		Compares memberwise two headwords.
 		"""
 		if isinstance(other, Headword):
-			return self.entry_word == other.entry_word and self.id == other.id and self.p_o_s == other.p_o_s and self.attributes == other.attributes
+			return self.entry_word == other.entry_word and self.id == other.id and self.p_o_s == other.p_o_s and self.categories == other.categories
 		else:
 			return False
 	def __ne__(self, other):
@@ -100,9 +100,9 @@ class Word:
 	"""
 	A single unit of language which has meaning and can be expressed.
 	"""
-	def __init__(self, form, headword, attributes = None):
+	def __init__(self, form, headword, categories = None):
 		"""
-		Create a word with its form, its L{headword<Headword>} and its attributes.
+		Create a word with its form, its L{headword<Headword>} and its categories.
 
 		Example::
 			Word(u"heart", Headword("eng", u"heart", 1, "noun", None, "kawcesi"))
@@ -116,23 +116,23 @@ class Word:
 		@type headword:  Headword
 		@param headword:
 		    A headword
-		@type attributes: dict (srt, str)
-		@param attributes: 
-		    The attributes of the word; default is the empty dictionary.
+		@type categories: dict (srt, str)
+		@param categories: 
+		    The categories of the word; default is the empty dictionary.
 
-		    Attributes can indicate word declensions or modifications.
+		    Categories can indicate word declensions or modifications.
 	
 		"""
 		self.form = form
 		self.headword = headword
-		self.attributes = Utilities.nvl(attributes, {})
+		self.categories = Utilities.nvl(categories, {})
 
 	def __eq__(self, other):
 		"""
-		Compares two words: form, headword and attributes.
+		Compares two words: form, headword and categories.
 		"""
 		if isinstance(other, Word):
-			return self.form == other.form and self.headword == other.headword and self.attributes == other.attributes
+			return self.form == other.form and self.headword == other.headword and self.categories == other.categories
 		else:
 			return False
 	def __ne__(self, other):
