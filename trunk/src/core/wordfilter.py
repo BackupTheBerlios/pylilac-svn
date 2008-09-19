@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -40,7 +40,7 @@ class WordFilter(Literal):
 				if test is not None and name in categories:
 					v = categories[name]
 					if v is not None:
-						if isinstance(test, AttributeFilter):
+						if isinstance(test, CategoryFilter):
 							if not test.match(v): return False
 						else:
 							if test != v: return False
@@ -123,7 +123,7 @@ class WordCategoryFilter(WordFilter):
 		#may be useful storing more than 'word' field
 		fsa.add_transition(initial, self, final, tag + (self.content[3],))
 
-class AttributeFilter:
+class CategoryFilter:
 
 	FUNCTIONS = {}
 	FUNCTIONS["in"] = (lambda x, parameter: x in parameter, "%s")
@@ -146,8 +146,8 @@ class AttributeFilter:
 def __test():
 	from lexicon import Headword
 	lx = WordCategoryFilter("noun")
-	lx1 = WordCategoryFilter("noun", {"gender": "m"}, {"number": AttributeFilter("in", ["pl","s"])})
-	lx2 = WordCategoryFilter("noun", {"gender": AttributeFilter("ni", ["m"])})
+	lx1 = WordCategoryFilter("noun", {"gender": "m"}, {"number": CategoryFilter("in", ["pl","s"])})
+	lx2 = WordCategoryFilter("noun", {"gender": CategoryFilter("ni", ["m"])})
 	lx3 = WordFilter(Word("man", Headword("man", 1, "n")))
 	w = Word("man", Headword("man", 1, "noun", {"gender": "m"}))
 	print `lx1`

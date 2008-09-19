@@ -12,6 +12,7 @@ import utilities
 from grammar import Grammar
 from lexicon import Lexicon
 from expression import ExpressionReader
+from gzip import GzipFile
 import pickle
 
 class Language:
@@ -42,7 +43,7 @@ class Language:
 	def save(self, filename = None):
 		if filename is None:
 			filename = "%s.lg" % self.code
-		f = open(filename, "wb")
+		f = GzipFile(filename, "wb")
 		pickle.dump(self.__tuple(), f, 2)
 		f.flush()
 		f.close()
@@ -50,7 +51,7 @@ class Language:
 	def load(self, filename = None):
 		if filename is None:
 			filename = "%s.lg" % self.code
-		f = open(filename, "rb")
+		f = GzipFile(filename, "rb")
 		tuple = pickle.load(f)
 		self.code, self.name, self.english_name, self.properties, self.p_o_s, self.categories, self.grammar, self.lexicon = tuple
 		f.close()
