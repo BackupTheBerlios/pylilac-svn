@@ -30,12 +30,14 @@ class Language:
 		self.name = unicode(code)
 		self.english_name = None
 		self.properties = {"separator": " "}
+		self.p_o_s = []
+		self.categories = {}
 		self.grammar = Grammar(code)
 		self.lexicon = Lexicon()
 
 
 	def __tuple(self):
-		return (self.code, self.name, self.english_name, self.properties, self.grammar, self.lexicon)
+		return (self.code, self.name, self.english_name, self.properties, self.p_o_s, self.categories, self.grammar, self.lexicon)
 
 	def save(self, filename = None):
 		if filename is None:
@@ -50,7 +52,7 @@ class Language:
 			filename = "%s.lg" % self.code
 		f = open(filename, "rb")
 		tuple = pickle.load(f)
-		self.code, self.name, self.english_name, self.properties, self.grammar, self.lexicon = tuple
+		self.code, self.name, self.english_name, self.properties, self.p_o_s, self.categories, self.grammar, self.lexicon = tuple
 		f.close()
 
 	def read(self, stream):

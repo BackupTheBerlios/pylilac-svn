@@ -160,8 +160,8 @@ class Particle(Word):
 
 	For example, I{li} in Toki Pona.
 	"""
-	def __init__(self, form, id):
-		Word.__init__(self, form, Headword(form, id, None))
+	def __init__(self, form, id, p_o_s):
+		Word.__init__(self, form, Headword(form, id, p_o_s))
 	def __repr__(self):
 		return self.form
 

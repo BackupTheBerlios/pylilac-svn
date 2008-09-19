@@ -128,7 +128,7 @@ class Grammar:
 			raise GrammarError("No starting symbol defined")
 		descend(self.starting)
 
-	def compile(self, force = False, ignore_cyclic = False):
+	def compile(self, ignore_loops = False, force = False):
 		"""
 		Compile the set of rules into a Finite State Automaton (FSA).
 
@@ -136,15 +136,18 @@ class Grammar:
 		The result will be kept available inside a private member until the rules are modified or the grammar reset.
 
 		The algorithm calls recursively the L{bnf._Symbol.insert_transitions} method.
+
+		@param force: recompile grammar if it's already been compiled and validated
+		@param ignore_loops: check for cyclic references is skipped, and recursion is unrolled up to 32 levels
 		"""
 
 		if force or not self.__valid and self.__compiled is None:
 			self.__valid = False
-			if ignore_cyclic:
+			if ignore_loops:
 				max_levels = 32 #pretty deep, but it should takes seconds
 			else:
-				max_levels = 40 #it can takes minutes, but a lot of languages with no recursion need this
-			self._browse(ignore_cyclic)
+				max_levels = 64 #it can takes minutes, but a lot of languages with no recursion need this
+			self._browse(ignore_loops)
 
 			nfa = FSA()
 			initial = nfa.add_state()
@@ -224,7 +227,7 @@ def _test():
 	print "e can only be a main"
 	print "e e can be pre main or main post"
 	print y
-	c = y.compile()
+	c = y.compile(True)
 	print c
 
 
