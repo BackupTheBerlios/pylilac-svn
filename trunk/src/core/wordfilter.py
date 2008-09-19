@@ -1,4 +1,5 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 """
 A module for filters to be used in grammars.
@@ -80,7 +81,7 @@ class WordFilter(Literal):
 		r.append("}")
 		return "".join(r)
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 40):
 		#instead of fsa.add_transition(initial, self, final, tag + (None,))
 		#may be useful storing more than 'word' field
 		fsa.add_transition(initial, self, final, tag + (self.content[0],))
@@ -117,7 +118,7 @@ class WordCategoryFilter(WordFilter):
 		r.append("}")
 		return "".join(r)
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 40):
 		#instead of fsa.add_transition(initial, self, final, tag + (None,))
 		#may be useful storing more than 'word' field
 		fsa.add_transition(initial, self, final, tag + (self.content[3],))

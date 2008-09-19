@@ -118,8 +118,9 @@ class Grammar:
 				raise UndefinedSymbolError(lhs)
 			rhs = self.__rules[lhs]
 			for dep in rhs.dependencies():
-				if dep in ancestors and not ignore_recursion:
-					raise CyclicReferenceError(lhs, dep)
+				if dep in ancestors:
+					if not ignore_recursion:
+						raise CyclicReferenceError(lhs, dep)
 				else:
 					descend(dep, ancestors + (lhs,))
 
@@ -127,7 +128,7 @@ class Grammar:
 			raise GrammarError("No starting symbol defined")
 		descend(self.starting)
 
-	def compile(self, force = False, max_levels = None):
+	def compile(self, force = False, ignore_cyclic = False):
 		"""
 		Compile the set of rules into a Finite State Automaton (FSA).
 
@@ -139,13 +140,10 @@ class Grammar:
 
 		if force or not self.__valid and self.__compiled is None:
 			self.__valid = False
-
-			if max_levels is None:
-				ignore_cyclic = False
-				max_levels = 100
+			if ignore_cyclic:
+				max_levels = 32 #pretty deep, but it should takes seconds
 			else:
-				ignore_cyclic = True
-				if max_levels > 100: max_levels = 100
+				max_levels = 40 #it can takes minutes, but a lot of languages with no recursion need this
 			self._browse(ignore_cyclic)
 
 			nfa = FSA()
