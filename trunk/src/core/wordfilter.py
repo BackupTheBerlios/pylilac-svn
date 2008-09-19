@@ -17,12 +17,12 @@ from bnf import Literal
 
 class WordFilter(Literal):
 	"""
-	Regarded parameters: form, headword key, word.attributes
+	Regarded parameters: form, headword key, word.categories
 	"""
 	def __init__(self, word):
 		if not isinstance(word, Word):
 			raise TypeError(word)
-		Literal.__init__(self, (word.form, word.headword.entry_word, word.headword.id, None, None, word.attributes))
+		Literal.__init__(self, (word.form, word.headword.entry_word, word.headword.id, None, None, word.categories))
 
 	def __hash__(self):
 		def dict_hash(x, i):
@@ -33,11 +33,11 @@ class WordFilter(Literal):
 		return hash(self.content[:-2]) ^ dict_hash(self.content[4], 2) ^ dict_hash(self.content[5], 4)
 
 
-	def _test_attr(self, filter_attributes, attributes):
-		if filter_attributes is not None:
-			for name, test in filter_attributes.iteritems():
-				if test is not None and name in attributes:
-					v = attributes[name]
+	def _test_attr(self, filter_categories, categories):
+		if filter_categories is not None:
+			for name, test in filter_categories.iteritems():
+				if test is not None and name in categories:
+					v = categories[name]
 					if v is not None:
 						if isinstance(test, AttributeFilter):
 							if not test.match(v): return False
@@ -58,9 +58,9 @@ class WordFilter(Literal):
 			return False
 		if not none_or_equal(self.content[3], word.headword.p_o_s):
 			return False
-		if not self._test_attr(self.content[4], word.headword.attributes):
+		if not self._test_attr(self.content[4], word.headword.categories):
 			return False
-		if not self._test_attr(self.content[5], word.attributes):
+		if not self._test_attr(self.content[5], word.categories):
 			return False
 		return True
 
@@ -88,10 +88,10 @@ class WordFilter(Literal):
 
 class WordCategoryFilter(WordFilter):
 	"""
-	Regarded parameters: form, headword.language, headword.p_o_s, headword.attributes, (word.)attributes
+	Regarded parameters: form, headword.language, headword.p_o_s, headword.categories, word.categories
 	"""
-	def __init__(self, p_o_s = None, headword_attributes = None, attributes = None):
-		Literal.__init__(self, (None, None, None, p_o_s, headword_attributes, attributes))
+	def __init__(self, p_o_s = None, headword_categories = None, categories = None):
+		Literal.__init__(self, (None, None, None, p_o_s, headword_categories, categories))
 
 	def __str__(self):
 		if self.content[3] is None:

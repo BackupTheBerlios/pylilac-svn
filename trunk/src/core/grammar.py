@@ -103,7 +103,7 @@ class Grammar:
 
 		
 
-	def _browse(self):
+	def _browse(self, ignore_recursion = False):
 		"""
 		Check for anomalies in the grammar.
 
@@ -118,7 +118,7 @@ class Grammar:
 				raise UndefinedSymbolError(lhs)
 			rhs = self.__rules[lhs]
 			for dep in rhs.dependencies():
-				if dep in ancestors:
+				if dep in ancestors and ignore_recursion == False:
 					raise CyclicReferenceError(lhs, dep)
 				else:
 					descend(dep, ancestors + (lhs,))
@@ -139,7 +139,7 @@ class Grammar:
 
 		if force or not self.__valid and self.__compiled is None:
 			self.__valid = False
-			self._browse()
+			self._browse(False)
 
 			nfa = FSA()
 			initial = nfa.add_state()

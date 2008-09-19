@@ -127,6 +127,9 @@ class _Symbol:
 	def __nonzero__(self):
 		return True
 
+	def __mul__(self, closure):
+		raise TypeError("Symbol doesn't support closures")
+
 class Reference(_Symbol):
 	"""
 	A non-terminal symbol.
@@ -159,6 +162,7 @@ class Reference(_Symbol):
 		return frozenset([self.reference])
 
 	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
+		#if max_levels == 0: return
 		tag = Utilities.nvl(tag, ())
 		rhs = grammar[self.reference]
 		rhs.insert_transitions(grammar, fsa, initial, final, tag + (self.reference,))
@@ -203,6 +207,7 @@ class Literal(_Symbol):
 		return token
 
 	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
+		#if max_levels == 0: return
 		fsa.add_transition(initial, self, final, tag)
 
 
@@ -263,19 +268,21 @@ class _Expression(_Symbol):
 
 	
 	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
-		def concatenation_insert_transitions(symbols, grammar, fsa, initial, final, tag = None):
-			tag = Utilities.nvl(tag, ())
+		def concatenation_insert_transitions(symbols, grammar, fsa, initial, final):
 			prev = initial
 			for n, symbol in enumerate(symbols):
 				if n + 1 == len(symbols):
 					next = final
 				else:
 					next = fsa.add_state()
+				print symbol
 				symbol.insert_transitions(grammar, fsa, prev, next, tag)
 				prev = next
+				
+		#if max_levels == 0: return
 		tag = Utilities.nvl(tag, ())
 		for concatenation in self.__fsot:
-			concatenation_insert_transitions(concatenation, grammar, fsa, initial, final, tag)
+			concatenation_insert_transitions(concatenation, grammar, fsa, initial, final)
 
 class _Closure(Reference):
 	"""
@@ -285,13 +292,13 @@ class _Closure(Reference):
 	for example, the code to represent M{Z ::= (X Y)*} is:
 	
 		>>> g["Z"] = Reference("XY") * KLEENE_CLOSURE
-		>>> ["XY"] = Reference("X") + Reference("Y")
+		>>> g["XY"] = Reference("X") + Reference("Y")
 
 
 	Typical closures
 	================
 
-	When it's not quantified by a closure, an expression must occur only once.
+	When it's not quantified by a closure, an expression must occur once.
 	
 	In other words, its cardinality is 1.
 
@@ -349,6 +356,7 @@ class _Closure(Reference):
 	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
 		def insert_reference_transitions(initial_node, final_node):
 			Reference.insert_transitions(self, grammar, fsa, initial_node, final_node, tag)
+			
 		def insert_back():
 			# initial -> b super;
 			# b -> initial epsilon;
@@ -359,6 +367,7 @@ class _Closure(Reference):
 			fsa.add_transition(back_end, EPSILON_SYMBOL, initial)
 			fsa.add_transition(back_end, EPSILON_SYMBOL, final)
 
+		#if max_levels == 0 : return
 		if self.__forward:
 			fsa.add_transition(initial, EPSILON_SYMBOL, final)
 		if self.__back:
@@ -436,6 +445,7 @@ class _Epsilon(Literal):
 		return "e"
 
 	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
+		#if max_levels == 0: return
 		fsa.add_transition(initial, EPSILON_SYMBOL, final, tag)
 
 	def __nonzero__(self):
