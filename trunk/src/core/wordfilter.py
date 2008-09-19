@@ -80,7 +80,7 @@ class WordFilter(Literal):
 		r.append("}")
 		return "".join(r)
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
 		#instead of fsa.add_transition(initial, self, final, tag + (None,))
 		#may be useful storing more than 'word' field
 		fsa.add_transition(initial, self, final, tag + (self.content[0],))
@@ -117,7 +117,7 @@ class WordCategoryFilter(WordFilter):
 		r.append("}")
 		return "".join(r)
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
 		#instead of fsa.add_transition(initial, self, final, tag + (None,))
 		#may be useful storing more than 'word' field
 		fsa.add_transition(initial, self, final, tag + (self.content[3],))

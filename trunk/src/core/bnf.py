@@ -118,7 +118,7 @@ class _Symbol:
 		"""
 		return frozenset()
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
 		"""
 		Inserts a sub-FSA in a L{FSA<fsa.FSA>} according to the rules in a L{grammar<grammar.Grammar>}.
 		"""
@@ -161,11 +161,11 @@ class Reference(_Symbol):
 	def dependencies(self):
 		return frozenset([self.reference])
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
-		#if max_levels == 0: return
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
+		if max_levels == 0: return
 		tag = Utilities.nvl(tag, ())
 		rhs = grammar[self.reference]
-		rhs.insert_transitions(grammar, fsa, initial, final, tag + (self.reference,))
+		rhs.insert_transitions(grammar, fsa, initial, final, tag + (self.reference,), max_levels - 1)
 
 	def __mul__(self, closure):
 		return _Closure(self, closure)
@@ -206,8 +206,7 @@ class Literal(_Symbol):
 	def process(self, token):
 		return token
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
-		#if max_levels == 0: return
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
 		fsa.add_transition(initial, self, final, tag)
 
 
@@ -267,7 +266,7 @@ class _Expression(_Symbol):
 		return frozenset(dep)
 
 	
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
 		def concatenation_insert_transitions(symbols, grammar, fsa, initial, final):
 			prev = initial
 			for n, symbol in enumerate(symbols):
@@ -275,11 +274,10 @@ class _Expression(_Symbol):
 					next = final
 				else:
 					next = fsa.add_state()
-				print symbol
-				symbol.insert_transitions(grammar, fsa, prev, next, tag)
+				symbol.insert_transitions(grammar, fsa, prev, next, tag, max_levels - 1)
 				prev = next
 				
-		#if max_levels == 0: return
+		if max_levels == 0: return
 		tag = Utilities.nvl(tag, ())
 		for concatenation in self.__fsot:
 			concatenation_insert_transitions(concatenation, grammar, fsa, initial, final)
@@ -353,9 +351,9 @@ class _Closure(Reference):
 		self.__forward, self.__back = forward_back
 
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
 		def insert_reference_transitions(initial_node, final_node):
-			Reference.insert_transitions(self, grammar, fsa, initial_node, final_node, tag)
+			Reference.insert_transitions(self, grammar, fsa, initial_node, final_node, tag, max_levels - 1)
 			
 		def insert_back():
 			# initial -> b super;
@@ -367,7 +365,7 @@ class _Closure(Reference):
 			fsa.add_transition(back_end, EPSILON_SYMBOL, initial)
 			fsa.add_transition(back_end, EPSILON_SYMBOL, final)
 
-		#if max_levels == 0 : return
+		if max_levels == 0 : return
 		if self.__forward:
 			fsa.add_transition(initial, EPSILON_SYMBOL, final)
 		if self.__back:
@@ -444,8 +442,7 @@ class _Epsilon(Literal):
 	def __repr__(self):
 		return "e"
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
-		#if max_levels == 0: return
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
 		fsa.add_transition(initial, EPSILON_SYMBOL, final, tag)
 
 	def __nonzero__(self):
