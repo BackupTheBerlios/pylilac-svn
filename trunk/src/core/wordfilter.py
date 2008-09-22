@@ -18,7 +18,7 @@ from bnf import Literal
 
 class WordFilter(Literal):
 	"""
-	Regarded parameters: form, headword key, word.categories
+	Regarded parameters: form, headword entry word and ID, word.categories
 	"""
 	def __init__(self, word):
 		if not isinstance(word, Word):
@@ -89,32 +89,34 @@ class WordFilter(Literal):
 
 class WordCategoryFilter(WordFilter):
 	"""
-	Regarded parameters: form, headword.language, headword.p_o_s, headword.categories, word.categories
+	Regarded parameters: headword.p_o_s, headword.categories, word.categories
 	"""
 	def __init__(self, p_o_s = None, headword_categories = None, categories = None):
 		Literal.__init__(self, (None, None, None, p_o_s, headword_categories, categories))
 
 	def __str__(self):
-		if self.content[3] is None:
+		p_o_s = self.content[3]
+		if p_o_s is None:
 			return "{*}"
 		else:
-			return "{%s}" % self.content[3]
+			return "{%s}" % p_o_s
 		
 
 	def __repr__(self):
+		p_o_s, headword_categories, categories = self.content[3:5]
 		r = []
 		r.append("{")
-		if self.content[3] is None:
+		if self.p_o_s is None:
 			r.append("*")
 		else:
-			r.append(self.content[3])
-		if self.content[4]:
+			r.append(p_o_s)
+		if headword_categories:
 			r.append(" ")
-			r.append(`self.content[4]`)
-		elif self.content[5]:
+			r.append(`headword_categories`)
+		elif categories:
 			r.append(" {}")
-		if self.content[5]:
-			r.append(`self.content[5]`)
+		if categories:
+			r.append(`categories`)
 		r.append("}")
 		return "".join(r)
 
