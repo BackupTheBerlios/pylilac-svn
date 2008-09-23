@@ -265,7 +265,7 @@ class FSA:
 				f[2] = ">"
 			return "".join(f)
 		def format_transition(transition):
-			EPSILON_REPR = u"\x25B"
+			EPSILON_REPR = u"\u025B"
 			if transition[3] is None:
 				tag = ""
 			else:
