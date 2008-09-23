@@ -172,6 +172,7 @@ class Lexicon:
 		self.__words = {}
 		self.__compiled = None
 		self.__valid = False
+		
 	def compile(self, properties = None, force = False):
 		if properties is None:
 			properties = {}
@@ -180,23 +181,28 @@ class Lexicon:
 			self.__compiled = Tokenizer(self.__words, properties)
 			self.__valid = True
 		return self.__compiled
+		
 	def reset(self):
 		del self.__compiled
 		self.__compiled = None
 		self.__valid = False
+		
 	def add_word(self, word):
 		headword = word.headword
 		if headword:
 			word.headword = self.add_headword(headword)
 		self.__words.setdefault(word.form, []).append(word)
 		return word
+		
 	def remove_word(self, word):
 		ws = self.__words[word.form]
 		if word in ws:
 			ws.remove(word)
+			
 	def get_word(self, form):
 		ws = self.__words.get(form, [])
 		return ws
+		
 	def add_headword(self, headword):
 		k = (headword.entry_word, headword.id)
 		if k in self.__headwords:
@@ -207,12 +213,23 @@ class Lexicon:
 		else:
 			self.__headwords[k] = headword
 		return headword
+		
 	def remove_headword(self, headword):
 		k = (headword.entry_word, headword.id)
 		if k in self.__headwords:
 			del self.__headwords[k]
+			
 	def get_headword(self, headword):
 		return self.__headwords.get((headword.entry_word, headword.id))
+		
+	def find_words(self, filter):
+		f = []
+		for i in self.__words.itervalues():
+			for j in i:
+				if filter.match(j):
+					f.append(j)
+		return f
+	
 	def __repr__(self):
 		return `self.__words`
 
