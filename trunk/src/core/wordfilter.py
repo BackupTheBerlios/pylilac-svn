@@ -103,10 +103,10 @@ class WordCategoryFilter(WordFilter):
 		
 
 	def __repr__(self):
-		p_o_s, headword_categories, categories = self.content[3:5]
+		p_o_s, headword_categories, categories = self.content[3:6]
 		r = []
 		r.append("{")
-		if self.p_o_s is None:
+		if p_o_s is None:
 			r.append("*")
 		else:
 			r.append(p_o_s)

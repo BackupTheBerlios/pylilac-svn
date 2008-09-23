@@ -233,7 +233,6 @@ class FSA:
 		if not label:
 			tag = None
 		self.__transitions.append((start, label, end, tag))
-		#DEBUG print self
 
 	def remove_transitions(self, start, label, end):
 		"""
@@ -266,7 +265,7 @@ class FSA:
 				f[2] = ">"
 			return "".join(f)
 		def format_transition(transition):
-			EPSILON_REPR = "ε"
+			EPSILON_REPR = u"\x25B"
 			if transition[3] is None:
 				tag = ""
 			else:
@@ -311,6 +310,34 @@ class FSA:
 	def __instance(self):
 		return self.__class__()
 
+	def is_reduced(self):
+		t = set()
+		for start, label, e, tag in self.__transitions:
+			if label == EPSILON:
+				return False
+			if (start, label, tag) in t:
+				return False
+			else:
+				t.add((start, label, tag))
+		return True
+
+	def is_minimized(self):
+		EXIT = None
+		for start, label, end, tag in self.__transitions:
+			state = start_dict.setdefault(start, []).append((label, end, tag))
+		for state in self.__final_states:
+			start_dict.setdefault(state, []).append(EXIT)
+
+		t = set()
+		for v in start_dict.itervalues():
+			fv = frozenset(v)
+			if fv in t:
+				return False
+			else:
+				t.add(fv)
+		
+		return True
+
 	def reduced(self):
 		"""
 		Return an FSA I{equivalent} to the current, having no S{epsilon} or reduplicated transitions.
@@ -319,12 +346,12 @@ class FSA:
 		@return: The reduced equivalent FSA.
 		"""
 		def move(starts, label, tag):
-			return [end for s, l, end, t in self.__transitions if s in starts and l == label and t == tag]#State.__eq__, Label.__eq__, Tag.__eq__
+			return [end for s, l, end, t in self.__transitions if s in starts and l == label and t == tag] #State.__eq__, Label.__eq__, Tag.__eq__
 		def tr_from(starts):
 			d = set()
 			for s, label, e, tag in self.__transitions:
-				if s in starts and label != EPSILON:#State.__eq__, Label.__eq__
-					d.add((label, tag))#Label.__eq__, Tag.__eq__
+				if s in starts and label != EPSILON: #State.__eq__, Label.__eq__
+					d.add((label, tag))            #Label.__eq__, Tag.__eq__
 			return d
 			
 		dfa = self.__instance()
@@ -338,7 +365,6 @@ class FSA:
 		
 		while index < len(nfa_states):
 			dfa_state, nfas = nfa_states[index]
-			#DEBUG print dfa_state, nfas
 			for exit, tag in tr_from(nfas):
 				k = self.epsilon_closure(move(nfas, exit, tag))
 				existing_new_node = groupings.get(k)
@@ -431,10 +457,10 @@ def _sec_elem(x, y):
 class Parser:
 	"""
 	An FSA adapter.
-	It encapsulates an FSA, the I{match} logics and the I{process} logics.
+	It encapsulates a copy of the FSA, the I{match} logics and the I{process} logics.
 	"""
 	def __init__(self, fsa, match = None, process = None):
-		self.__fsa = fsa
+		self.__fsa = fsa.reduced().minimized()
 		if match is None:
 			self.__match = _eq
 		else:
@@ -453,19 +479,20 @@ class Parser:
 		@return: A set of states reachable by the transitions having the given label.
 		@raise StateError: Fired if the state does not exist.
 		"""
-		return [end for l, end, t in self.transitions_from(start) if self.__match(l, token)]
-	
+
+		return [end for l, end, t in self.__fsa.transitions_from(start) if self.__match(l, token)]
+
 	def __call__(self, tokens):
-		def parse_from(tokens, index, state):
+		def parse_from(fsa, tokens, index, state):
 			output = OptionTree()
 			expected_final = index == len(tokens)
-			is_final = state in self.__fsa.get_final()
+			is_final = state in fsa.get_final()
 			if expected_final:
 				if is_final:
 					return output
 				else:
 					raise ExpectedStopError(tokens[:index+1], state)
-			transitions = self.__fsa.transitions_from(state)
+			transitions = fsa.transitions_from(state)
 			token = tokens[index]
 			matching = [(label, end, tag) for label, end, tag in transitions if self.__match(label, token)]
 			if len(matching) == 0:
@@ -474,7 +501,7 @@ class Parser:
 			m_pe = None
 			for label, end, tag in matching:
 				try:
-					following = parse_from(tokens, index + 1, end) 
+					following = parse_from(fsa, tokens, index + 1, end) 
 					following.element = (self.__process(label, token), tag)
 					output.append(following)
 				except ParseError, pe:
@@ -486,14 +513,24 @@ class Parser:
 				else:
 					raise ParseError(tokens[:index+1], state)
 			return output
-		
-		return parse_from(tokens, 0, self.__fsa.get_initial())
+
+
+		return parse_from(self.__fsa, tokens, 0, self.__fsa.get_initial())
 	
-	
-	def __repr__(self):
-		return repr(self.__fsa)
 
 def __test():
+	def add_word(fsa, word):
+		s = word + " "
+		for i, c in enumerate(s):
+			if i == len(s) - 1:
+				fsa.add_transition(s[:i], c, fsa.get_initial(), word)
+				break
+			else:
+				fsa.add_transition(s[:i], c, s[:i+1])
+
+		
+		
+
 	#accepts e|a(a|b)*b
 	eaabb = FSA()
 	eaabb.add_transition(0, EPSILON, 2, None)
@@ -529,7 +566,29 @@ def __test():
 	print td
 	print td.reduced()
 	print td.reduced().minimized()
-	
+	print "Td is red", td.is_reduced()
+	print "Td.red is red", td.reduced().is_reduced()
+
+	f = FSA() #vi, vivo, vi do
+	f.add_state("")
+	f.set_initial("")
+	f.set_final("")
+
+
+	add_word(f, "vi")
+	add_word(f, "vivo")
+
+	add_word(f, "do")
+	add_word(f, "vi do")
+
+	p = Parser(f)
+
+	utt = p("vi do ").expand()
+	utt2 = []
+	for u in utt:
+		utt2.append([y[1] for y in u if y[1] is not None])
+	print utt2
+
 
 if __name__ == "__main__":
 	__test()

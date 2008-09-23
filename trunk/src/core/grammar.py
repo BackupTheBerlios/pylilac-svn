@@ -158,8 +158,7 @@ class Grammar:
 			s = self.__rules[self.starting]
 			s.insert_transitions(self, nfa, initial, final, None, max_levels)
 
-			rfa = nfa.reduced().minimized()
-			self.__compiled = Parser(rfa, call_match_method, call_process_method)
+			self.__compiled = Parser(nfa, call_match_method, call_process_method)
 			self.__valid = True
 		return self.__compiled
 
