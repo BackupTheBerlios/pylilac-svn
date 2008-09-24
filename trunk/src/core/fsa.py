@@ -265,7 +265,7 @@ class FSA:
 				f[2] = ">"
 			return "".join(f)
 		def format_transition(transition):
-			EPSILON_REPR = u"\u025B"
+			EPSILON_REPR = "E"
 			if transition[3] is None:
 				tag = ""
 			else:
@@ -519,16 +519,29 @@ class Parser:
 	
 
 def __test():
-	def add_word(fsa, word):
-		s = word + " "
+	def add_token(fsa, str):
+		s = str + " "
 		for i, c in enumerate(s):
 			if i == len(s) - 1:
-				fsa.add_transition(s[:i], c, fsa.get_initial(), word)
+				fsa.add_transition(s[:i], c, fsa.get_initial(), str)
 				break
 			else:
 				fsa.add_transition(s[:i], c, s[:i+1])
 
-		
+	def tokenize(parser, dict, stream):
+		def explode_list(dict, lst, pos):
+			t = OptionTree()
+			if pos < len(lst):
+				for obj in dict[lst[pos]]:
+					c = explode_list(dict, lst, pos + 1)		
+					c.element = obj
+					t.append(c)
+			return t
+		p = parser(stream + " ")
+		ot = OptionTree()
+		for u in p.expand():
+			ot.append(explode_list(dict, [y[1] for y in u if y[1] is not None], 0))
+		return ot
 		
 
 	#accepts e|a(a|b)*b
@@ -575,19 +588,18 @@ def __test():
 	f.set_final("")
 
 
-	add_word(f, "vi")
-	add_word(f, "vivo")
+	add_token(f, "vi")
+	add_token(f, "vivo")
 
-	add_word(f, "do")
-	add_word(f, "vi do")
+	add_token(f, "do")
+	add_token(f, "vi do")
 
 	p = Parser(f)
 
-	utt = p("vi do ").expand()
-	utt2 = []
-	for u in utt:
-		utt2.append([y[1] for y in u if y[1] is not None])
-	print utt2
+
+	d = {"vi":["vi1", "vi2"], "do":["do1","do2","do3"], "vi do": ["vi do"]}
+
+	print tokenize(p, d, "vi do")
 
 
 if __name__ == "__main__":
