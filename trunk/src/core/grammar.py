@@ -174,60 +174,7 @@ class Grammar:
 
 
 def _test():
-	"""
-	Toki Pona grammar::
-
-		<sentence> ::= [<sentence-adverb> "la"] <pron-or-subject> <predicate>
-		<pron-or-subject> ::= "mi" | "sina" | <subject> "li"
-		<sentence-adverb> ::= <noun-phrase> 
-		<subject> ::= <noun-phrase> | <compound-subject>
-		<compound-subject> ::= <subject> "en" <subject> S{equiv} <subject> ::= <noun-phrase> ("en" <noun-phrase>)*
-		<predicate> ::= <verb-phrase> | <compound-predicate>
-		<compound-predicate> ::= <predicate> "li" <predicate> S{equiv} <predicate> ::= <verb-phrase> ("li" <verb-phrase>)*
-		<noun-phrase> ::= <noun> <adjective>* 
-		<verb-phrase> ::= <verb> <adverb>* <direct-object>*
-		<direct-object> ::= "e" <noun-phrase>
-	"""
-
-	from bnf import Reference, EPSILON_SYMBOL, KLEENE_CLOSURE, OPTIONAL_CLOSURE, Literal
-	from lexicon import Particle, Word, Headword
-	from wordfilter import WordCategoryFilter, WordFilter, AttributeFilter
-
-	g = Grammar("Toki pona")
-
-	_particles = {"la": Particle("la", 1), "li": Particle("li", 1), "en": Particle("en", 1), "li2": Particle("li", 2), "e": Particle("e", 1)}
-	_words = {"mi": Word("mi", Headword("mi", 1, "pronoun")), "sina": Word("sina", Headword("sina", 1, "pronoun"))}
-
-	g["sentence"] = (Reference("sentence-adverb") + WordFilter(_particles["la"]) | EPSILON_SYMBOL) + Reference("pron-or-subject") + Reference("predicate")
-	g["pron-or-subject"] = WordFilter(_words["mi"]) | WordFilter(_words["sina"]) | Reference("subject") + WordFilter(_particles["li"])
-	g["sentence-adverb"] = Reference("noun-phrase")
-	g["subject"] = Reference("noun-phrase") + Reference("subject-specification") * KLEENE_CLOSURE
-	g["predicate"] = Reference("verb-phrase") + Reference("predicate-specification") * KLEENE_CLOSURE
-	g["subject-specification"] = WordFilter(_particles["en"]) + Reference("noun-phrase")
-	g["predicate-specification"] = WordFilter(_particles["li2"]) + Reference("verb-phrase")
-	g["noun-phrase"] = WordCategoryFilter("noun") + Reference("adjective") * KLEENE_CLOSURE
-	g["verb-phrase"] = WordCategoryFilter("verb") + Reference("adverb") * KLEENE_CLOSURE + Reference("direct-object") * KLEENE_CLOSURE
-	g["adjective"] = WordCategoryFilter("adjective")
-	g["adverb"] = WordCategoryFilter("adverb")
-	g["direct-object"] = WordFilter(_particles["e"]) + Reference("noun-phrase")
-	#g["transitive-verb*"] = WordCategoryFilter("verb", {"transitive": "y"})
-	#g["intransitive-verb*"] = WordCategoryFilter("verb", {"transitive": AttributeFilter("ne", ["y"])})
-	#g["noun*"] = WordCategoryFilter("noun")
-	#g["noun**"] = WordCategoryFilter("noun")
-	
-	
-	print g.compile(True)
-
-	y = Grammar("A-A")
-	y["sentence"] = Reference("pre") * OPTIONAL_CLOSURE + Reference("main") + Reference("post") * OPTIONAL_CLOSURE
-	y["pre"] = Literal("e")
-	y["post"] = y["pre"]
-	y["main"] = Literal("e") | Literal("o")
-	print "e can only be a main"
-	print "e e can be pre main or main post"
-	print y
-	c = y.compile(True)
-	print c
+	pass
 
 
 if __name__ == "__main__":
