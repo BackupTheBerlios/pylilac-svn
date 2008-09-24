@@ -183,7 +183,7 @@ class Taxonomy:
 		@type key: str
 		@return: The list of subconcepts.
 		@rtype: list(Concept)
-		@raise ValueError: If no taxa having the given key exist. 
+		@raise ValueError: If no taxa having the given key exist.
 		"""
 		if key is not None and not self.__nodes.has_key(key):
 			raise ValueError(key)

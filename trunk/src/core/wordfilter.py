@@ -34,23 +34,23 @@ class WordFilter(Literal):
 		return hash(self.content[:-2]) ^ dict_hash(self.content[4], 2) ^ dict_hash(self.content[5], 4)
 
 
-	def _test_attr(self, filter_categories, categories):
-		if filter_categories is not None:
-			for name, test in filter_categories.iteritems():
-				if test is not None and name in categories:
-					v = categories[name]
-					if v is not None:
-						if isinstance(test, CategoryFilter):
-							if not test.match(v): return False
-						else:
-							if test != v: return False
-		return True
-
 
 	def match(self, word): 
+		def test_attr(filter_categories, categories):
+			if filter_categories is not None:
+				for name, test in filter_categories.iteritems():
+					if test is not None and name in categories:
+						v = categories[name]
+						if v is not None:
+							if isinstance(test, CategoryFilter):
+								if not test.match(v): return False
+							else:
+								if test != v: return False
+			return True
 		def none_or_equal(v, w):
 			if v is None: return True
 			else: return v == w
+
 		if not none_or_equal(self.content[0], word.form):
 			return False
 		if not none_or_equal(self.content[1], word.headword.entry_word):
@@ -59,9 +59,9 @@ class WordFilter(Literal):
 			return False
 		if not none_or_equal(self.content[3], word.headword.p_o_s):
 			return False
-		if not self._test_attr(self.content[4], word.headword.categories):
+		if not test_attr(self.content[4], word.headword.categories):
 			return False
-		if not self._test_attr(self.content[5], word.categories):
+		if not test_attr(self.content[5], word.categories):
 			return False
 		return True
 

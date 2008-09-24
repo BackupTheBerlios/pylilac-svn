@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import wx
+import wx.grid
 import wx.gizmos
 import graphics
-#import core.language
+import os
 from core.interlingua import Interlingua, Concept
 from core.utilities import Utilities
+from core.language import Language
 
 
 
@@ -16,12 +18,15 @@ class LAFrame(wx.Frame):
 		kwds["style"] = wx.DEFAULT_FRAME_STYLE
 		wx.Frame.__init__(self, *args, **kwds)
 		self.la_notebook = wx.Notebook(self, -1, style=0)
+		self.la_lexicon_pane = wx.Panel(self.la_notebook, -1)
 		
 		# Menu Bar
 		self.la_frame_menubar = wx.MenuBar()
 		self.file_menu = wx.Menu()
 		self.open_menu = wx.MenuItem(self.file_menu, wx.ID_OPEN, "Open", "", wx.ITEM_NORMAL)
 		self.file_menu.AppendItem(self.open_menu)
+		self.save_menu = wx.MenuItem(self.file_menu, wx.ID_SAVE, "Save as...", "", wx.ITEM_NORMAL)
+		self.file_menu.AppendItem(self.save_menu)
 		self.file_menu.AppendSeparator()
 		self.exit_menu = wx.MenuItem(self.file_menu, wx.ID_EXIT, "Exit\tAlt+F4", "", wx.ITEM_NORMAL)
 		self.file_menu.AppendItem(self.exit_menu)
@@ -48,7 +53,7 @@ class LAFrame(wx.Frame):
 		self.view_menu.AppendItem(self.overview_menu)
 		self.la_frame_menubar.Append(self.view_menu, "&View")
 		self.tools_menu = wx.Menu()
-		self.concept_browser_menu = wx.MenuItem(self.tools_menu, wx.NewId(), "Concept browser", "", wx.ITEM_NORMAL)
+		self.concept_browser_menu = wx.MenuItem(self.tools_menu, wx.NewId(), "Concept Browser", "", wx.ITEM_NORMAL)
 		self.tools_menu.AppendItem(self.concept_browser_menu)
 		self.filter_editor_menu = wx.MenuItem(self.tools_menu, wx.NewId(), "Filter Editor", "", wx.ITEM_NORMAL)
 		self.tools_menu.AppendItem(self.filter_editor_menu)
@@ -64,13 +69,17 @@ class LAFrame(wx.Frame):
 		self.SetMenuBar(self.la_frame_menubar)
 		# Menu Bar end
 		self.la_language_pane = wx.Panel(self.la_notebook, -1)
-		self.la_lexicon_pane = wx.Panel(self.la_notebook, -1)
+		self.headwords_grid = wx.grid.Grid(self.la_lexicon_pane, -1, size=(1, 1))
+		self.grid_3 = wx.grid.Grid(self.la_lexicon_pane, -1, size=(1, 1))
+		self.button_2 = wx.Button(self.la_lexicon_pane, -1, "button_2")
+		self.button_3 = wx.Button(self.la_lexicon_pane, -1, "button_3")
 		self.la_grammar_pane = wx.Panel(self.la_notebook, -1)
 
 		self.__set_properties()
 		self.__do_layout()
 
 		self.Bind(wx.EVT_MENU, self.OnOpen, self.open_menu)
+		self.Bind(wx.EVT_MENU, self.OnSave, self.save_menu)
 		self.Bind(wx.EVT_MENU, self.OnExit, self.exit_menu)
 		self.Bind(wx.EVT_MENU, self.OnUndo, self.undo_menu)
 		self.Bind(wx.EVT_MENU, self.OnRedo, self.redo_menu)
@@ -91,6 +100,7 @@ class LAFrame(wx.Frame):
 		self.__filename = ""
 		self.__dirname = ""
 		self.__full_path =  ""
+		self.data =  Language()
 
 		self.__cb_frame = None
 
@@ -99,6 +109,19 @@ class LAFrame(wx.Frame):
 		self.SetTitle("Lilac - Language Architect")
 		self.SetSize((737, 534))
 		self.SetToolTipString("Lilac Language Architect")
+		self.headwords_grid.CreateGrid(10, 5)
+		self.headwords_grid.EnableDragRowSize(0)
+		self.headwords_grid.SetColLabelValue(0, "Entry word")
+		self.headwords_grid.SetColSize(0, 150)
+		self.headwords_grid.SetColLabelValue(1, "ID")
+		self.headwords_grid.SetColSize(1, 40)
+		self.headwords_grid.SetColLabelValue(2, "P.o.S.")
+		self.headwords_grid.SetColSize(2, 40)
+		self.headwords_grid.SetColLabelValue(3, "Categories")
+		self.headwords_grid.SetColSize(3, 200)
+		self.headwords_grid.SetColLabelValue(4, "Gloss")
+		self.headwords_grid.SetColSize(4, 150)
+		self.grid_3.CreateGrid(10, 3)
 		# end wxGlade
 		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
 		self.SetIcon(icon)
@@ -106,6 +129,20 @@ class LAFrame(wx.Frame):
 	def __do_layout(self):
 		# begin wxGlade: LAFrame.__do_layout
 		la_frame_sizer = wx.BoxSizer(wx.VERTICAL)
+		sizer_6 = wx.BoxSizer(wx.VERTICAL)
+		grid_sizer_3 = wx.FlexGridSizer(2, 1, 0, 0)
+		grid_sizer_4 = wx.GridSizer(1, 2, 0, 0)
+		sizer_8 = wx.BoxSizer(wx.VERTICAL)
+		sizer_8.Add(self.headwords_grid, 1, wx.ALL|wx.EXPAND, 5)
+		sizer_8.Add(self.grid_3, 2, wx.ALL|wx.EXPAND, 5)
+		grid_sizer_3.Add(sizer_8, 1, wx.EXPAND, 0)
+		grid_sizer_4.Add(self.button_2, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
+		grid_sizer_4.Add(self.button_3, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
+		grid_sizer_3.Add(grid_sizer_4, 1, wx.ALL|wx.EXPAND, 20)
+		grid_sizer_3.AddGrowableRow(0)
+		grid_sizer_3.AddGrowableCol(0)
+		sizer_6.Add(grid_sizer_3, 1, wx.ALL|wx.EXPAND, 0)
+		self.la_lexicon_pane.SetSizer(sizer_6)
 		self.la_notebook.AddPage(self.la_language_pane, "Language")
 		self.la_notebook.AddPage(self.la_lexicon_pane, "Lexicon")
 		self.la_notebook.AddPage(self.la_grammar_pane, "Grammar")
@@ -117,15 +154,29 @@ class LAFrame(wx.Frame):
 	def OnOpen(self, event): # wxGlade: LAFrame.<event_handler>
 		self.__dirname = ""
 		fileType = "Lilac language files (.lg)|*.lg|Pickle files (.p)|*.p"
-		dlg = wx.FileDialog(self, "Choose a file", self.dirname, "", fileType, wx.OPEN)
+		dlg = wx.FileDialog(self, "Choose a file", self.__dirname, "", fileType, wx.OPEN)
 
 		if dlg.ShowModal() == wx.ID_OK:
 			self.__filename = dlg.GetFilename()
 			self.__dirname = dlg.GetDirectory()
-			self.__full_path =  os.path.join(self.dirname, self.filename)
+			self.__full_path =  os.path.join(self.__dirname, self.__filename)
 
 		dlg.Destroy()
-		
+		self.data.load(self.__full_path)
+
+
+	def OnSave(self, event): # wxGlade: LAFrame.<event_handler>
+		self.__dirname = ""
+		fileType = "Lilac language files (.lg)|*.lg|Pickle files (.p)|*.p"
+		dlg = wx.FileDialog(self, "Save the file", self.__dirname, self.__filename, fileType, wx.SAVE | wx.OVERWRITE_PROMPT)
+
+		if dlg.ShowModal() == wx.ID_OK:
+			self.__filename = dlg.GetFilename()
+			self.__dirname = dlg.GetDirectory()
+			self.__full_path =  os.path.join(self.__dirname, self.__filename)
+
+		dlg.Destroy()
+		self.data.save(self.__full_path)
 
 	def OnExit(self, event): # wxGlade: LAFrame.<event_handler>
 		self.Close(True)
@@ -184,6 +235,7 @@ class LAFrame(wx.Frame):
 		# Create a message dialog box
 		d.ShowModal() # Shows it
 		d.Destroy() # finally destroy it when finished.
+
 
 # end of class LAFrame
 
@@ -599,12 +651,14 @@ class FindDialog(wx.Dialog):
 		self.value_text = wx.TextCtrl(self, -1, "")
 		self.exact_check = wx.CheckBox(self, -1, "Partial match")
 		self.panel_3 = wx.Panel(self, -1)
-		self.find_button = wx.Button(self, wx.ID_OK, "")
-		self.cancel_button = wx.Button(self, wx.ID_CANCEL, "")
-		self.panel_2 = wx.Panel(self, -1)
+		self.cancel_button = wx.Button(self, -1, "&Undo")
+		self.ok_button = wx.Button(self, -1, "&Apply")
 
 		self.__set_properties()
 		self.__do_layout()
+
+		self.Bind(wx.EVT_BUTTON, self.OnUndo, self.cancel_button)
+		self.Bind(wx.EVT_BUTTON, self.OnApply, self.ok_button)
 		# end wxGlade
 
 
@@ -613,13 +667,14 @@ class FindDialog(wx.Dialog):
 		self.SetTitle("Find concept")
 		self.SetSize((400, 188))
 		self.field_combo.SetSelection(0)
-		self.find_button.SetDefault()
+		self.ok_button.Enable(False)
+		self.ok_button.SetDefault()
 		# end wxGlade
 
 	def __do_layout(self):
 		# begin wxGlade: FindDialog.__do_layout
 		sizer_5 = wx.FlexGridSizer(1, 2, 0, 0)
-		sizer_6 = wx.FlexGridSizer(3, 1, 10, 10)
+		sizer_4b = wx.GridSizer(1, 2, 0, 0)
 		grid_sizer_2 = wx.FlexGridSizer(3, 2, 5, 0)
 		grid_sizer_2.Add(self.field_label, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		grid_sizer_2.Add(self.field_combo, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
@@ -629,10 +684,9 @@ class FindDialog(wx.Dialog):
 		grid_sizer_2.Add(self.panel_3, 1, wx.EXPAND, 0)
 		grid_sizer_2.AddGrowableCol(1)
 		sizer_5.Add(grid_sizer_2, 1, wx.ALL|wx.EXPAND, 20)
-		sizer_6.Add(self.find_button, 0, 0, 0)
-		sizer_6.Add(self.cancel_button, 0, 0, 0)
-		sizer_6.Add(self.panel_2, 1, wx.EXPAND, 0)
-		sizer_5.Add(sizer_6, 1, wx.ALL|wx.EXPAND, 15)
+		sizer_4b.Add(self.cancel_button, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
+		sizer_4b.Add(self.ok_button, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 0)
+		sizer_5.Add(sizer_4b, 1, wx.ALL|wx.EXPAND, 20)
 		self.SetSizer(sizer_5)
 		sizer_5.AddGrowableCol(0)
 		self.Layout()
@@ -651,6 +705,14 @@ class FindDialog(wx.Dialog):
 		else:
 			exact = 1
 		return (value, column, exact)
+
+	def OnUndo(self, event): # wxGlade: FindDialog.<event_handler>
+		print "Event handler `OnUndo' not implemented"
+		event.Skip()
+
+	def OnApply(self, event): # wxGlade: FindDialog.<event_handler>
+		print "Event handler `OnApply' not implemented"
+		event.Skip()
 
 # end of class FindDialog
 

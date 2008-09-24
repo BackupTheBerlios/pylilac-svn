@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -132,13 +132,15 @@ class Word:
 
 	def __repr__(self):
 		"""
-		Give a verbose representation for a word.
+		Give a verbose representation for a word in the format <form>(<headword>)
 		"""
 		return "%s(%s)" % (self.form, self.headword)
 
 	def __str__(self):
 		"""
 		Give a concise representation for a word.
+
+		@return: The word's form.
 		"""
 		return self.form
 
@@ -210,7 +212,32 @@ class Lexicon:
 			
 	def get_headword(self, headword):
 		return self.__headwords.get((headword.entry_word, headword.id))
-		
+
+	def find_headwords(self, entry_word, id = None, p_o_s = None, categories = None):
+		def test_attr(filter_categories, categories):
+			if filter_categories is not None:
+				for name, test in filter_categories.iteritems():
+					if test is not None and name in categories:
+						v = categories[name]
+						if v is not None:
+							if isinstance(test, CategoryFilter):
+								if not test.match(v): return False
+							else:
+								if test != v: return False
+			return True
+		f = []
+		for i in self.__headwords.itervalues():
+			if entry_word is not None and entry_word != i.entry_word:
+				continue
+			if id is not None and id != i.id:
+				continue
+			if p_o_s is not None and p_o_s != i.p_o_s:
+				continue
+			if not test_attr(categories, i.categories):
+				continue
+			f.append(j)
+		return f
+
 	def find_words(self, filter):
 		f = []
 		for i in self.__words.itervalues():

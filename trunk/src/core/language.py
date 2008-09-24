@@ -16,7 +16,7 @@ from gzip import GzipFile
 import pickle
 
 class Language:
-	def __init__(self, code):
+	def __init__(self, code = "unknown"):
 		"""
                 Create a language object.
 		It encapsulate serialization and high-leven functionality.

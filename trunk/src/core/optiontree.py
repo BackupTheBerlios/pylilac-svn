@@ -23,6 +23,8 @@ class OptionTree:
 		self.__successors = Utilities.nvl(successors, [])
 
 	def append(self, successor):
+		if not isinstance(successor, OptionTree):
+			raise TypeError(successor)
 		self.__successors.append(successor)
 		return successor
 

@@ -100,7 +100,7 @@ def __test():
 	from lexicon import Lexicon
 	
 	qya = Lexicon()
-	telcu = Headword("telcu", 1, "N", None, "jicesi")
+	telcu = Headword("telc", 1, "N", None, "jicesi")
 	qya.add_word(Word("telco", telcu, {"number":"s", "case":"N"}))
 	maama = Headword("roccie", 1, "N", None, "zunbe")
 	qya.add_word(Word("roccie", maama, {"number":"s", "case":"N"}))
@@ -121,7 +121,7 @@ def __test():
 	tr_o = f.create_transform({"number": "s", "case": "G"}) 
 	c = tr_o.create_chain("stem-form")
 	c.append_step("ie$", "ié", True)
-	c.append_step("cu$", "qu", True)
+	c.append_step("cu$", "q", True)
 	c.append_step("[ao]?$", "o") 
 	
 	
