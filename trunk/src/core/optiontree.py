@@ -16,6 +16,7 @@ from utilities import Utilities
 class OptionTree:
 	"""
 	A container for the possible expansions of a sequence.
+	It can be populated recursively.
 	"""
 	def __init__(self, element = None, successors = None):
 		self.element = element
@@ -30,11 +31,14 @@ class OptionTree:
 			e = repr(self.element)
 		else:
 			e = ""
+	
 		if len(self.__successors)==0:
 			c = ""
 		elif len(self.__successors)==1:
+			if len(e) > 0: e += " "
 			c = repr(self.__successors[0])
 		else:
+			if len(e) > 0: e += " "
 			c = repr(self.__successors)
 		return e + c
 
