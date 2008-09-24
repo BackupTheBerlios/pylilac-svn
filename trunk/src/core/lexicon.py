@@ -83,18 +83,7 @@ class Headword:
 		return hash(self.entry_word) ^ self.id
 
 	def __repr__(self):
-		"""
-		Give a verbose representation for a headword.
-		"""
-		return "%s%d~%s" % (self.entry_word, self.id, self.gloss)
-
-	def __str__(self):
-		"""
-		Give a concise representation for a headword.
-
-		@return: the entry word.
-		"""
-		return "%s%d" % (self.entry_word, self.id)
+		return "%s.%d" % (self.entry_word, self.id)
 
 class Word:
 	"""
@@ -231,7 +220,7 @@ class Lexicon:
 		return f
 	
 	def __repr__(self):
-		return `self.__words`
+		return "[[%d headwords, %d words]]" % (len(self.__headwords), len(self.__words))
 
 def __test():
 
@@ -244,9 +233,10 @@ def __test():
 	lx.add_word(Word("moku", Headword("moku", 1, "verb", {"transitive": "n"}, "fucala")))
 	lx.add_word(Word("moku", Headword("moku", 2, "verb", {"transitive": "y"}, "fucalinza")))
 	lx.add_word(Word("jan", Headword("jan", 1, "noun", None, "becami")))
-	lx.add_word(Particle("li",1))
+	lx.add_word(Particle("li",1,"sep"))
 	print lx
-	print lx.compile({"separator":" "})
+	tk = lx.compile({"separator":" "})
+	print tk("jan li moku")
 	
 
 if __name__ == "__main__":
