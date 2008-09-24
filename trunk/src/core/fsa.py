@@ -265,7 +265,7 @@ class FSA:
 				f[2] = ">"
 			return "".join(f)
 		def format_transition(transition):
-			EPSILON_REPR = "E"
+			EPSILON_REPR = "ɛ"
 			if transition[3] is None:
 				tag = ""
 			else:
@@ -323,6 +323,7 @@ class FSA:
 
 	def is_minimized(self):
 		EXIT = None
+		start_dict = {}
 		for start, label, end, tag in self.__transitions:
 			state = start_dict.setdefault(start, []).append((label, end, tag))
 		for state in self.__final_states:
@@ -457,7 +458,7 @@ def _sec_elem(x, y):
 class Parser:
 	"""
 	An FSA adapter.
-	It encapsulates a copy of the FSA, the I{match} logics and the I{process} logics.
+	It encapsulates a reduced and minimized copy of the FSA, the I{match} logics and the I{process} logics.
 	"""
 	def __init__(self, fsa, match = None, process = None):
 		self.__fsa = fsa.reduced().minimized()
@@ -470,17 +471,6 @@ class Parser:
 		else:
 			self.__process = process
 	
-	def next_states(self, start, token):
-		"""
-		Evaluate S{delta}(C{start}, C{label}).
-
-		@param start: An existing state. 
-		@param token: The token to match.
-		@return: A set of states reachable by the transitions having the given label.
-		@raise StateError: Fired if the state does not exist.
-		"""
-
-		return [end for l, end, t in self.__fsa.transitions_from(start) if self.__match(l, token)]
 
 	def __call__(self, tokens):
 		def parse_from(fsa, tokens, index, state):
@@ -580,7 +570,8 @@ def __test():
 	print td.reduced()
 	print td.reduced().minimized()
 	print "Td is red", td.is_reduced()
-	print "Td.red is red", td.reduced().is_reduced()
+	print "Td.rm is red", td.reduced().minimized().is_reduced()
+	print "Td.rm is min", td.reduced().minimized().is_minimized()
 
 	f = FSA() #vi, vivo, vi do
 	f.add_state("")
@@ -595,7 +586,6 @@ def __test():
 	add_token(f, "vi do")
 
 	p = Parser(f)
-
 
 	d = {"vi":["vi1", "vi2"], "do":["do1","do2","do3"], "vi do": ["vi do"]}
 

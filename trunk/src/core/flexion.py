@@ -18,21 +18,16 @@ __docformat__ = "epytext en"
 class Flexion:
 	class Transform:
 		def __init__(self):
-			self.__list = []
+			self.__alternatives = []
 			
-		def append(self, name, regexp, repl):
+		def append_alternative(self, item, regexp, repl):
 			cre = re.compile(regexp, re.IGNORECASE)
-			self.__list.append((name, cre, repl, name, cre))
-			
-		def append_when(self, name, re, repl, when_name, when_regexp):
-			cre = re.compile(regexp, re.IGNORECASE)
-			wcre = re.compile(when_regexp, re.IGNORECASE)
-			self.__list.append((name, cre, repl, when_name, wcre))
+			self.__alternatives.append((item, regexp, cre, repl))
 			
 		def __call__(self, hw_p):
-			for name, cre, repl, when_name, wcre in self.__list:
-				if wcre.search(hw_p[when_name]):
-					return cre.sub(repl, hw_p[name])
+			for name, r, cre, repl in self.__alternatives:
+				if cre.search(hw_p[item]):
+					return cre.sub(repl, hw_p[item])
 			raise RuntimeError(hw_p)
 					
 	def __init__(self, lexicon, p_o_s, headword_categories = None):
@@ -43,22 +38,22 @@ class Flexion:
 		self.__paradigm_def = {}
 		self.__transforms = {}
 
-	def rename_headword(self, name):
-		self.__headword_alias = name
+	def rename_headword(self, item):
+		self.__headword_alias = item
 	
-	def define_paradigm(self, name, categories):
-		self.__paradigm_def[name] = WordCategoryFilter(self.__p_o_s, self.__headword_categories, categories)
+	def define_paradigm(self, item, categories):
+		self.__paradigm_def[item] = WordCategoryFilter(self.__p_o_s, self.__headword_categories, categories)
 
 	def paradigm(self, headword):
 		ws = self.__lexicon.find_words(WordFilter(Word(None, headword)))
 		p = {self.__headword_alias: headword.entry_word}
-		for name, wcfilter in self.__paradigm_def.iteritems():
+		for item, wcfilter in self.__paradigm_def.iteritems():
 			for w in ws:
 				if wcfilter.match(w):
-					p[name] = w.form
+					p[item] = w.form
 					break
 		return p
-
+		
 
 	def __setitem__(self, categories, transform):
 		self.__transforms[tuple(categories.items())] = transform
@@ -70,12 +65,16 @@ class Flexion:
 		del self.__transforms[tuple(categories.items())]
 
 	def __call__(self, headword):
-		ft = {}
-		p = self.paradigm(headword)
-		for cat, tr in self.__transforms.iteritems():
-			w = Word(tr(p), headword)
-			for k, v in cat: w.categories[k] = v
-			ft[cat] = w
+		def to_dict(cat):
+			d = {}
+			for k, v in cat: d[k] = v
+			return d
+
+		table = {}
+		paradigm = self.paradigm(headword)
+		for cat, transform in self.__paradigms.iteritems():
+			w = Word(transform(paradigm), headword, to_dict(cat))
+			table[cat] = w
 		return ft
 
 
