@@ -25,8 +25,10 @@ class LAFrame(wx.Frame):
 		self.file_menu = wx.Menu()
 		self.open_menu = wx.MenuItem(self.file_menu, wx.ID_OPEN, "Open", "", wx.ITEM_NORMAL)
 		self.file_menu.AppendItem(self.open_menu)
-		self.save_menu = wx.MenuItem(self.file_menu, wx.ID_SAVE, "Save as...", "", wx.ITEM_NORMAL)
+		self.save_menu = wx.MenuItem(self.file_menu, wx.ID_SAVE, "Save", "", wx.ITEM_NORMAL)
 		self.file_menu.AppendItem(self.save_menu)
+		self.saveas_menu = wx.MenuItem(self.file_menu, wx.ID_SAVEAS, "Save as...", "", wx.ITEM_NORMAL)
+		self.file_menu.AppendItem(self.saveas_menu)
 		self.file_menu.AppendSeparator()
 		self.exit_menu = wx.MenuItem(self.file_menu, wx.ID_EXIT, "Exit\tAlt+F4", "", wx.ITEM_NORMAL)
 		self.file_menu.AppendItem(self.exit_menu)
@@ -80,6 +82,7 @@ class LAFrame(wx.Frame):
 
 		self.Bind(wx.EVT_MENU, self.OnOpen, self.open_menu)
 		self.Bind(wx.EVT_MENU, self.OnSave, self.save_menu)
+		self.Bind(wx.EVT_MENU, self.OnSaveAs, self.saveas_menu)
 		self.Bind(wx.EVT_MENU, self.OnExit, self.exit_menu)
 		self.Bind(wx.EVT_MENU, self.OnUndo, self.undo_menu)
 		self.Bind(wx.EVT_MENU, self.OnRedo, self.redo_menu)
@@ -151,29 +154,42 @@ class LAFrame(wx.Frame):
 		# end wxGlade
 
 	def OnOpen(self, event): # wxGlade: LAFrame.<event_handler>
-		self.__dirname = ""
 		fileType = "Lilac language files (.lg)|*.lg|Pickle files (.p)|*.p"
-		dlg = wx.FileDialog(self, "Choose a file", self.__dirname, "", fileType, wx.OPEN)
+		dlg = wx.FileDialog(self, "Open a language file...", self.__dirname, "", fileType, wx.OPEN)
 
 		if dlg.ShowModal() == wx.ID_OK:
 			self.__filename = dlg.GetFilename()
 			self.__dirname = dlg.GetDirectory()
 			full_path =  os.path.join(self.__dirname, self.__filename)
-			self.data.load(full_path)
+			wx.BeginBusyCursor()
+			try:
+				self.data.load(full_path)
+			finally:
+				wx.EndBusyCursor()
 
 		dlg.Destroy()
 
-
 	def OnSave(self, event): # wxGlade: LAFrame.<event_handler>
-		self.__dirname = ""
+		full_path =  os.path.join(self.__dirname, self.__filename)
+		wx.BeginBusyCursor()
+		try:
+			self.data.save(full_path)
+		finally:
+			wx.EndBusyCursor()
+
+	def OnSaveAs(self, event): # wxGlade: LAFrame.<event_handler>
 		fileType = "Lilac language files (.lg)|*.lg|Pickle files (.p)|*.p"
-		dlg = wx.FileDialog(self, "Save the file", self.__dirname, self.__filename, fileType, wx.SAVE | wx.OVERWRITE_PROMPT)
+		dlg = wx.FileDialog(self, "Save the language as...", self.__dirname, self.__filename, fileType, wx.SAVE | wx.OVERWRITE_PROMPT)
 
 		if dlg.ShowModal() == wx.ID_OK:
 			self.__filename = dlg.GetFilename()
 			self.__dirname = dlg.GetDirectory()
 			full_path =  os.path.join(self.__dirname, self.__filename)
-			self.data.save(full_path)
+			wx.BeginBusyCursor()
+			try:
+				self.data.save(full_path)
+			finally:
+				wx.EndBusyCursor()
 
 		dlg.Destroy()
 
@@ -262,7 +278,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 
 
 # end of class LAFrame
-
 
 class CBFrame(wx.Frame):
 	FILENAME = "data/Latejami.ilt"
@@ -675,14 +690,12 @@ class FindDialog(wx.Dialog):
 		self.value_text = wx.TextCtrl(self, -1, "")
 		self.exact_check = wx.CheckBox(self, -1, "Partial match")
 		self.panel_3 = wx.Panel(self, -1)
-		self.cancel_button = wx.Button(self, -1, "&Undo")
-		self.ok_button = wx.Button(self, -1, "&Apply")
+		self.find_button = wx.Button(self, wx.ID_OK, "")
+		self.cancel_button = wx.Button(self, wx.ID_CANCEL, "")
+		self.panel_2 = wx.Panel(self, -1)
 
 		self.__set_properties()
 		self.__do_layout()
-
-		self.Bind(wx.EVT_BUTTON, self.OnUndo, self.cancel_button)
-		self.Bind(wx.EVT_BUTTON, self.OnApply, self.ok_button)
 		# end wxGlade
 
 
@@ -691,14 +704,13 @@ class FindDialog(wx.Dialog):
 		self.SetTitle("Find concept")
 		self.SetSize((400, 188))
 		self.field_combo.SetSelection(0)
-		self.ok_button.Enable(False)
-		self.ok_button.SetDefault()
+		self.find_button.SetDefault()
 		# end wxGlade
 
 	def __do_layout(self):
 		# begin wxGlade: FindDialog.__do_layout
 		sizer_5 = wx.FlexGridSizer(1, 2, 0, 0)
-		sizer_4b = wx.GridSizer(1, 2, 0, 0)
+		sizer_6 = wx.FlexGridSizer(3, 1, 10, 10)
 		grid_sizer_2 = wx.FlexGridSizer(3, 2, 5, 0)
 		grid_sizer_2.Add(self.field_label, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		grid_sizer_2.Add(self.field_combo, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
@@ -708,9 +720,10 @@ class FindDialog(wx.Dialog):
 		grid_sizer_2.Add(self.panel_3, 1, wx.EXPAND, 0)
 		grid_sizer_2.AddGrowableCol(1)
 		sizer_5.Add(grid_sizer_2, 1, wx.ALL|wx.EXPAND, 20)
-		sizer_4b.Add(self.cancel_button, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
-		sizer_4b.Add(self.ok_button, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 0)
-		sizer_5.Add(sizer_4b, 1, wx.ALL|wx.EXPAND, 20)
+		sizer_6.Add(self.find_button, 0, 0, 0)
+		sizer_6.Add(self.cancel_button, 0, 0, 0)
+		sizer_6.Add(self.panel_2, 1, wx.EXPAND, 0)
+		sizer_5.Add(sizer_6, 1, wx.ALL|wx.EXPAND, 15)
 		self.SetSizer(sizer_5)
 		sizer_5.AddGrowableCol(0)
 		self.Layout()
@@ -729,14 +742,6 @@ class FindDialog(wx.Dialog):
 		else:
 			exact = 1
 		return (value, column, exact)
-
-	def OnUndo(self, event): # wxGlade: FindDialog.<event_handler>
-		print "Event handler `OnUndo' not implemented"
-		event.Skip()
-
-	def OnApply(self, event): # wxGlade: FindDialog.<event_handler>
-		print "Event handler `OnApply' not implemented"
-		event.Skip()
 
 # end of class FindDialog
 
