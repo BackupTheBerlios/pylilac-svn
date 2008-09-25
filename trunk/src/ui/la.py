@@ -99,7 +99,6 @@ class LAFrame(wx.Frame):
 		# members
 		self.__filename = ""
 		self.__dirname = ""
-		self.__full_path =  ""
 		self.data =  Language()
 
 		self.__cb_frame = None
@@ -159,10 +158,10 @@ class LAFrame(wx.Frame):
 		if dlg.ShowModal() == wx.ID_OK:
 			self.__filename = dlg.GetFilename()
 			self.__dirname = dlg.GetDirectory()
-			self.__full_path =  os.path.join(self.__dirname, self.__filename)
+			full_path =  os.path.join(self.__dirname, self.__filename)
+			self.data.load(full_path)
 
 		dlg.Destroy()
-		self.data.load(self.__full_path)
 
 
 	def OnSave(self, event): # wxGlade: LAFrame.<event_handler>
@@ -173,10 +172,10 @@ class LAFrame(wx.Frame):
 		if dlg.ShowModal() == wx.ID_OK:
 			self.__filename = dlg.GetFilename()
 			self.__dirname = dlg.GetDirectory()
-			self.__full_path =  os.path.join(self.__dirname, self.__filename)
+			full_path =  os.path.join(self.__dirname, self.__filename)
+			self.data.save(full_path)
 
 		dlg.Destroy()
-		self.data.save(self.__full_path)
 
 	def OnExit(self, event): # wxGlade: LAFrame.<event_handler>
 		self.Close(True)
@@ -231,10 +230,35 @@ class LAFrame(wx.Frame):
 		event.Skip()
 
 	def OnAbout(self, event): # wxGlade: LAFrame.<event_handler>
-		d= wx.MessageDialog( self, " A sample editor \n in wxPython","About Sample Editor", wx.OK)
-		# Create a message dialog box
-		d.ShowModal() # Shows it
-		d.Destroy() # finally destroy it when finished.
+		description = """pyLilac Linguistic Laboratory is a graphic interface 
+to pyLilac libraries to explore, classify and study languages."""
+
+		licence = """pyLilac Linguistic Laboratory is free software: you can redistribute
+it and/or modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation, either version 3 of the
+License, or any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>."""
+
+
+		info = wx.AboutDialogInfo()
+
+		info.SetIcon(wx.Icon('ui/graphics/lilac.png', wx.BITMAP_TYPE_PNG))
+		info.SetName('pyLilac Linguistic Laboratory')
+		info.SetVersion('0.3.0')
+		info.SetDescription(description)
+		info.SetCopyright('(C) 2007 Paolo Olmino')
+		info.SetWebSite('http://pylilac.berlios.de')
+		info.SetLicence(licence)
+
+		wx.AboutBox(info)
+
 
 
 # end of class LAFrame
