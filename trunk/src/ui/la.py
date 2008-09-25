@@ -291,7 +291,7 @@ class CBFrame(wx.Frame):
 		# Menu Bar
 		self.cb_frame_menubar = wx.MenuBar()
 		self.file_menu = wx.Menu()
-		self.reload_menu = wx.MenuItem(self.file_menu, wx.ID_REVERT_TO_SAVED, "&Reload", "", wx.ITEM_NORMAL)
+		self.reload_menu = wx.MenuItem(self.file_menu, wx.ID_REVERT_TO_SAVED, "&Revert", "", wx.ITEM_NORMAL)
 		self.file_menu.AppendItem(self.reload_menu)
 		self.save_menu = wx.MenuItem(self.file_menu, wx.ID_SAVE, "&Save", "", wx.ITEM_NORMAL)
 		self.file_menu.AppendItem(self.save_menu)
@@ -310,7 +310,7 @@ class CBFrame(wx.Frame):
 		self.view_menu.AppendItem(self.apply_menu)
 		self.cb_frame_menubar.Append(self.view_menu, "&View")
 		self.edit_menu = wx.Menu()
-		self.new_menu = wx.MenuItem(self.edit_menu, wx.ID_NEW, "&New subconcept", "", wx.ITEM_NORMAL)
+		self.new_menu = wx.MenuItem(self.edit_menu, wx.ID_ADD, "&New subconcept", "", wx.ITEM_NORMAL)
 		self.edit_menu.AppendItem(self.new_menu)
 		self.delete_menu = wx.MenuItem(self.edit_menu, wx.ID_REMOVE, "&Delete concept", "", wx.ITEM_NORMAL)
 		self.edit_menu.AppendItem(self.delete_menu)
@@ -690,40 +690,42 @@ class FindDialog(wx.Dialog):
 		self.value_text = wx.TextCtrl(self, -1, "")
 		self.exact_check = wx.CheckBox(self, -1, "Partial match")
 		self.panel_3 = wx.Panel(self, -1)
-		self.find_button = wx.Button(self, wx.ID_OK, "")
 		self.cancel_button = wx.Button(self, wx.ID_CANCEL, "")
-		self.panel_2 = wx.Panel(self, -1)
+		self.ok_button = wx.Button(self, wx.ID_FIND, "")
 
 		self.__set_properties()
 		self.__do_layout()
+
+		self.Bind(wx.EVT_BUTTON, self.OnUndo, self.cancel_button)
+		self.Bind(wx.EVT_BUTTON, self.OnApply, self.ok_button)
 		# end wxGlade
 
 
 	def __set_properties(self):
 		# begin wxGlade: FindDialog.__set_properties
 		self.SetTitle("Find concept")
-		self.SetSize((400, 188))
+		self.SetSize((450, 188))
 		self.field_combo.SetSelection(0)
-		self.find_button.SetDefault()
+		self.ok_button.Enable(False)
+		self.ok_button.SetDefault()
 		# end wxGlade
 
 	def __do_layout(self):
 		# begin wxGlade: FindDialog.__do_layout
 		sizer_5 = wx.FlexGridSizer(1, 2, 0, 0)
-		sizer_6 = wx.FlexGridSizer(3, 1, 10, 10)
+		sizer_4 = wx.GridSizer(2, 1, 0, 0)
 		grid_sizer_2 = wx.FlexGridSizer(3, 2, 5, 0)
 		grid_sizer_2.Add(self.field_label, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		grid_sizer_2.Add(self.field_combo, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
 		grid_sizer_2.Add(self.value_label, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		grid_sizer_2.Add(self.value_text, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-		grid_sizer_2.Add(self.exact_check, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		grid_sizer_2.Add(self.exact_check, 0, wx.ALIGN_BOTTOM, 0)
 		grid_sizer_2.Add(self.panel_3, 1, wx.EXPAND, 0)
 		grid_sizer_2.AddGrowableCol(1)
 		sizer_5.Add(grid_sizer_2, 1, wx.ALL|wx.EXPAND, 20)
-		sizer_6.Add(self.find_button, 0, 0, 0)
-		sizer_6.Add(self.cancel_button, 0, 0, 0)
-		sizer_6.Add(self.panel_2, 1, wx.EXPAND, 0)
-		sizer_5.Add(sizer_6, 1, wx.ALL|wx.EXPAND, 15)
+		sizer_4.Add(self.cancel_button, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
+		sizer_4.Add(self.ok_button, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
+		sizer_5.Add(sizer_4, 1, wx.ALL|wx.EXPAND, 20)
 		self.SetSizer(sizer_5)
 		sizer_5.AddGrowableCol(0)
 		self.Layout()
@@ -742,6 +744,14 @@ class FindDialog(wx.Dialog):
 		else:
 			exact = 1
 		return (value, column, exact)
+	
+	def OnUndo(self, event): # wxGlade: FindDialog.<event_handler>
+		print "Event handler `OnUndo' not implemented"
+		event.Skip()
+	
+	def OnApply(self, event): # wxGlade: FindDialog.<event_handler>
+		print "Event handler `OnApply' not implemented"
+		event.Skip()
 
 # end of class FindDialog
 
