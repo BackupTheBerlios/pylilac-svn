@@ -18,12 +18,12 @@ from bnf import Literal
 
 class WordFilter(Literal):
 	"""
-	Regarded parameters: form, headword entry word and ID, word.categories
+	Regarded parameters: form, lemma entry word and ID, word.categories
 	"""
 	def __init__(self, word):
 		if not isinstance(word, Word):
 			raise TypeError(word)
-		Literal.__init__(self, (word.form, word.headword.entry_word, word.headword.id, None, None, word.categories))
+		Literal.__init__(self, (word.form, word.lemma.entry_form, word.lemma.id, None, None, word.categories))
 
 	def __hash__(self):
 		def dict_hash(x, i):
@@ -53,13 +53,13 @@ class WordFilter(Literal):
 
 		if not none_or_equal(self.content[0], word.form):
 			return False
-		if not none_or_equal(self.content[1], word.headword.entry_word):
+		if not none_or_equal(self.content[1], word.lemma.entry_form):
 			return False
-		if not none_or_equal(self.content[2], word.headword.id):
+		if not none_or_equal(self.content[2], word.lemma.id):
 			return False
-		if not none_or_equal(self.content[3], word.headword.p_o_s):
+		if not none_or_equal(self.content[3], word.lemma.p_o_s):
 			return False
-		if not test_attr(self.content[4], word.headword.categories):
+		if not test_attr(self.content[4], word.lemma.categories):
 			return False
 		if not test_attr(self.content[5], word.categories):
 			return False
@@ -89,10 +89,10 @@ class WordFilter(Literal):
 
 class WordCategoryFilter(WordFilter):
 	"""
-	Regarded parameters: headword.p_o_s, headword.categories, word.categories
+	Regarded parameters: lemma.p_o_s, lemma.categories, word.categories
 	"""
-	def __init__(self, p_o_s = None, headword_categories = None, categories = None):
-		Literal.__init__(self, (None, None, None, p_o_s, headword_categories, categories))
+	def __init__(self, p_o_s = None, lemma_categories = None, categories = None):
+		Literal.__init__(self, (None, None, None, p_o_s, lemma_categories, categories))
 
 	def __str__(self):
 		p_o_s = self.content[3]
@@ -103,16 +103,16 @@ class WordCategoryFilter(WordFilter):
 		
 
 	def __repr__(self):
-		p_o_s, headword_categories, categories = self.content[3:6]
+		p_o_s, lemma_categories, categories = self.content[3:6]
 		r = []
 		r.append("{")
 		if p_o_s is None:
 			r.append("*")
 		else:
 			r.append(p_o_s)
-		if headword_categories:
+		if lemma_categories:
 			r.append(" ")
-			r.append(`headword_categories`)
+			r.append(`lemma_categories`)
 		elif categories:
 			r.append(" {}")
 		if categories:
@@ -146,12 +146,12 @@ class CategoryFilter:
 		return rpr % repr(self.parameter)
 
 def __test():
-	from lexicon import Headword
+	from lexicon import Lemma
 	lx = WordCategoryFilter("noun")
 	lx1 = WordCategoryFilter("noun", {"gender": "m"}, {"number": CategoryFilter("in", ["pl","s"])})
 	lx2 = WordCategoryFilter("noun", {"gender": CategoryFilter("ni", ["m"])})
-	lx3 = WordFilter(Word("man", Headword("man", 1, "n")))
-	w = Word("man", Headword("man", 1, "noun", {"gender": "m"}))
+	lx3 = WordFilter(Word("man", Lemma("man", 1, "n")))
+	w = Word("man", Lemma("man", 1, "noun", {"gender": "m"}))
 	print `lx1`
 	print `lx2`
 	print `lx3`

@@ -9,7 +9,7 @@ A module for the generation of flexed forms.
 """
 
 import re
-from lexicon import Word, Headword
+from lexicon import Word, Lemma
 from wordfilter import WordCategoryFilter, WordFilter
 
 
@@ -55,23 +55,23 @@ class Flexion:
 					return s
 			raise RuntimeError("Transform cannot apply to %s" % `hw_p`)
 					
-	def __init__(self, lexicon, p_o_s, headword_categories = None):
+	def __init__(self, lexicon, p_o_s, lemma_categories = None):
 		self.__lexicon = lexicon
 		self.__p_o_s = p_o_s
-		self.__headword_categories = headword_categories
-		self.__headword_alias = "headword"
+		self.__lemma_categories = lemma_categories
+		self.__lemma_alias = "lemma"
 		self.__paradigm_def = {}
 		self.__transforms = []
 
-	def rename_headword(self, item):
-		self.__headword_alias = item
+	def rename_lemma(self, item):
+		self.__lemma_alias = item
 	
 	def define_paradigm(self, item, categories):
-		self.__paradigm_def[item] = WordCategoryFilter(self.__p_o_s, self.__headword_categories, categories)
+		self.__paradigm_def[item] = WordCategoryFilter(self.__p_o_s, self.__lemma_categories, categories)
 
-	def paradigm(self, headword):
-		ws = self.__lexicon.find_words(WordFilter(Word(None, headword)))
-		p = {self.__headword_alias: headword.entry_word}
+	def paradigm(self, lemma):
+		ws = self.__lexicon.find_words(WordFilter(Word(None, lemma)))
+		p = {self.__lemma_alias: lemma.entry_form}
 		for item, wcfilter in self.__paradigm_def.iteritems():
 			for w in ws:
 				if wcfilter.match(w):
@@ -86,11 +86,11 @@ class Flexion:
 		return t
 		
 
-	def __call__(self, headword):
+	def __call__(self, lemma):
 		table = []
-		paradigm = self.paradigm(headword)
+		paradigm = self.paradigm(lemma)
 		for cat, transform in self.__transforms:
-			w = Word(transform(paradigm), headword, cat)
+			w = Word(transform(paradigm), lemma, cat)
 			table.append((cat, w))
 		return table
 
@@ -100,14 +100,14 @@ def __test():
 	from lexicon import Lexicon
 	
 	qya = Lexicon()
-	telcu = Headword("telc", 1, "N", None, "jicesi")
+	telcu = Lemma("telc", 1, "N", None, "jicesi")
 	qya.add_word(Word("telco", telcu, {"number":"s", "case":"N"}))
-	maama = Headword("roccie", 1, "N", None, "zunbe")
+	maama = Lemma("roccie", 1, "N", None, "zunbe")
 	qya.add_word(Word("roccie", maama, {"number":"s", "case":"N"}))
-	nis = Headword("niss", 1, "N", None, "dona")
+	nis = Lemma("niss", 1, "N", None, "dona")
 	qya.add_word(Word("nís", nis, {"number":"s", "case":"N"}))
 	f = Flexion(qya, "N")
-	f.rename_headword("stem-form")
+	f.rename_lemma("stem-form")
 	f.define_paradigm("basic-form", {"number": "s", "case": "N"})
 	
 	print qya.find_words(WordFilter(Word("telco", telcu)))

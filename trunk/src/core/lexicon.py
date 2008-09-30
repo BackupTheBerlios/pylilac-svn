@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-A module for lexicon management: Word and Headword.
+A module for lexicon management: Word and Lemma.
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
@@ -14,27 +14,27 @@ __docformat__ = "epytext en"
 from utilities import Utilities
 from tokenizer import Tokenizer
 
-class ExistingHeadwordError(ValueError):
+class ExistingLemmaError(ValueError):
 	pass
 
-class Headword:
+class Lemma:
 	"""
 	A single unit of language, with no functional decoration.
 	
-	Usually, headword are the I{entry words} in dictionaries and encyclopediae.
+	Usually, lemma are the I{entry words} in dictionaries and encyclopediae.
 	"""
-	def __init__(self, entry_word, id, p_o_s, categories = None, gloss = None):
+	def __init__(self, entry_form, id, p_o_s, categories = None, gloss = None):
 		"""
-		Create a headword in a specific language for the I{entry word} specified.
+		Create a lemma in a specific language for the I{entry word} specified.
 
 		Example::
-			Headword(u"heart", 1, "noun", None, "kawcesi") #heart, the heart organ in English, with no classification.
-			Headword(u"heart", 2, "noun", None, "kawcijumi") #heart, the heart shape in English.
-			Headword(u"hɑɹt", 1, "noun", None ,"kawcesi") #/h\u0251\u0279t/, /hɑɹt/, the heart organ phonic representation in General American English
-			Headword(u"moku", 1, "verb", {"transitive": "n"}, "fucala") #moku, "to eat" in Toki Pona
+			Lemma(u"heart", 1, "noun", None, "kawcesi") #heart, the heart organ in English, with no classification.
+			Lemma(u"heart", 2, "noun", None, "kawcijumi") #heart, the heart shape in English.
+			Lemma(u"hɑɹt", 1, "noun", None ,"kawcesi") #/h\u0251\u0279t/, /hɑɹt/, the heart organ phonic representation in General American English
+			Lemma(u"moku", 1, "verb", {"transitive": "n"}, "fucala") #moku, "to eat" in Toki Pona
 
-		@type entry_word: unicode
-		@param entry_word: 
+		@type entry_form: unicode
+		@param entry_form: 
 		    A U{Unicode<http://www.unicode.org>} representation of the entry word, either graphical or phonical.
 
 		    The representation of a word can be its written form or its spoken form, refer to Unicode conventions for the proper encoding.
@@ -42,17 +42,17 @@ class Headword:
 		    For phonical representations, the alphabet of the U{IPA<http://www.arts.gla.ac.uk/IPA>} (Internationa Phonetic Association) is the standard, though some kind of extension could be advisable; the representation should be a phonetic transcription.
 		@type id: number
 		@param id: 
-		    A unique id to distinguish different headwords having identical representation in a given language.
+		    A unique id to distinguish different lemmas having identical representation in a given language.
 
 		    Major meanings in dictionaries are usually associated to different id's.
 		@type p_o_s: str
 		@param p_o_s:
-		    A string which indicates the I{part of speech} to which the headword belongs to in the specific language.
+		    A string which indicates the I{part of speech} to which the lemma belongs to in the specific language.
 
 		    The I{part of speech} is the general classification of the word: usually it distinguish nouns from verbs &c..
 		@type categories: dict (srt, str)
 		@param categories:
-		    The categories of the headword; default is the empty dictionary.
+		    The categories of the lemma; default is the empty dictionary.
 
 		    categories can specify better the features of a particular I{part of speech}.
 		@type gloss: str
@@ -62,7 +62,7 @@ class Headword:
 		    For the interlingua to use, Latejami or its successors are recommended.
 
 		"""
-		self.entry_word = entry_word
+		self.entry_form = entry_form
 		self.id = Utilities.nvl(id, 1)
 		self.p_o_s = p_o_s
 		self.categories = Utilities.nvl(categories, {})
@@ -70,41 +70,41 @@ class Headword:
 
 	def __eq__(self, other):
 		"""
-		Compares memberwise two headwords.
+		Compares memberwise two lemmas.
 		"""
-		if isinstance(other, Headword):
-			return self.entry_word == other.entry_word and self.id == other.id and self.p_o_s == other.p_o_s and self.categories == other.categories
+		if isinstance(other, Lemma):
+			return self.entry_form == other.entry_form and self.id == other.id and self.p_o_s == other.p_o_s and self.categories == other.categories
 		else:
 			return False
 	def __ne__(self, other):
 		return not self.__eq__(other)
 
 	def __hash__(self):
-		return hash(self.entry_word) ^ self.id
+		return hash(self.entry_form) ^ self.id
 
 	def __repr__(self):
-		return "%s.%d" % (self.entry_word, self.id)
+		return "%s.%d" % (self.entry_form, self.id)
 
 class Word:
 	"""
 	A single unit of language which has meaning and can be expressed.
 	"""
-	def __init__(self, form, headword, categories = None):
+	def __init__(self, form, lemma, categories = None):
 		"""
-		Create a word with its form, its L{headword<Headword>} and its categories.
+		Create a word with its form, its L{lemma<Lemma>} and its categories.
 
 		Example::
-			Word(u"heart", Headword("eng", u"heart", 1, "noun", None, "kawcesi"))
-			Word(u"hearts", headwords["eng", u"heart", 1], {"number": "pl"})
+			Word(u"heart", Lemma("eng", u"heart", 1, "noun", None, "kawcesi"))
+			Word(u"hearts", lemmas["eng", u"heart", 1], {"number": "pl"})
 			Word(u"hɑɹts", hw, {"number": "pl"})
 			Word(u"moku", "tko", moku)
 	
 		@type form: unicode
 		@param form:
 		    The traditional, standard or neutral form of the word, either graphical or phonical.
-		@type headword:  Headword
-		@param headword:
-		    A headword
+		@type lemma:  Lemma
+		@param lemma:
+		    A lemma
 		@type categories: dict (srt, str)
 		@param categories: 
 		    The categories of the word; default is the empty dictionary.
@@ -113,28 +113,28 @@ class Word:
 	
 		"""
 		self.form = form
-		self.headword = headword
+		self.lemma = lemma
 		self.categories = Utilities.nvl(categories, {})
 
 	def __eq__(self, other):
 		"""
-		Compares two words: form, headword and categories.
+		Compares two words: form, lemma and categories.
 		"""
 		if isinstance(other, Word):
-			return self.form == other.form and self.headword == other.headword and self.categories == other.categories
+			return self.form == other.form and self.lemma == other.lemma and self.categories == other.categories
 		else:
 			return False
 	def __ne__(self, other):
 		return not self.__eq__(other)
 
 	def __hash__(self):
-		return hash(self.form) ^ hash(self.headword)
+		return hash(self.form) ^ hash(self.lemma)
 
 	def __repr__(self):
 		"""
-		Give a verbose representation for a word in the format <form>(<headword>)
+		Give a verbose representation for a word in the format <form>(<lemma>)
 		"""
-		return "%s(%s)" % (self.form, self.headword)
+		return "%s(%s)" % (self.form, self.lemma)
 
 	def __str__(self):
 		"""
@@ -152,14 +152,14 @@ class Particle(Word):
 	For example, I{li} in Toki Pona.
 	"""
 	def __init__(self, form, id, p_o_s):
-		Word.__init__(self, form, Headword(form, id, p_o_s))
+		Word.__init__(self, form, Lemma(form, id, p_o_s))
 	def __repr__(self):
 		return self.form
 
 
 class Lexicon:
 	def __init__(self):
-		self.__headwords = {}
+		self.__lemmas = {}
 		self.__words = {}
 		self.__compiled = None
 		self.__valid = False
@@ -179,9 +179,9 @@ class Lexicon:
 		self.__valid = False
 		
 	def add_word(self, word):
-		headword = word.headword
-		if headword:
-			word.headword = self.add_headword(headword)
+		lemma = word.lemma
+		if lemma:
+			word.lemma = self.add_lemma(lemma)
 		self.__words.setdefault(word.form, []).append(word)
 		return word
 		
@@ -194,29 +194,29 @@ class Lexicon:
 		ws = self.__words.get(form, [])
 		return ws
 		
-	def add_headword(self, headword):
-		k = (headword.entry_word, headword.id)
-		if k in self.__headwords:
-			if self.__headwords[k] != headword:
-				raise ExistingHeadwordError(headword)
+	def add_lemma(self, lemma):
+		k = (lemma.entry_form, lemma.id)
+		if k in self.__lemmas:
+			if self.__lemmas[k] != lemma:
+				raise ExistingLemmaError(lemma)
 			else:
-				headword = self.__headwords[k]
+				lemma = self.__lemmas[k]
 		else:
-			self.__headwords[k] = headword
-		return headword
+			self.__lemmas[k] = lemma
+		return lemma
 		
-	def remove_headword(self, headword):
-		k = (headword.entry_word, headword.id)
-		if k in self.__headwords:
-			del self.__headwords[k]
+	def remove_lemma(self, lemma):
+		k = (lemma.entry_form, lemma.id)
+		if k in self.__lemmas:
+			del self.__lemmas[k]
 			
-	def get_headword(self, headword_key):
-		return self.__headwords.get(headword_key)
+	def get_lemma(self, lemma_key):
+		return self.__lemmas.get(lemma_key)
 		
-	def headwords(self):
-		return self.__headwords.iterkeys()
+	def lemmas(self):
+		return self.__lemmas.iterkeys()
 
-	def find_headwords(self, entry_word, id = None, p_o_s = None, categories = None):
+	def find_lemmas(self, entry_form, id = None, p_o_s = None, categories = None):
 		def test_attr(filter_categories, categories):
 			if filter_categories is not None:
 				for name, test in filter_categories.iteritems():
@@ -229,8 +229,8 @@ class Lexicon:
 								if test != v: return False
 			return True
 		f = []
-		for i in self.__headwords.itervalues():
-			if entry_word is not None and entry_word != i.entry_word:
+		for i in self.__lemmas.itervalues():
+			if entry_form is not None and entry_form != i.entry_form:
 				continue
 			if id is not None and id != i.id:
 				continue
@@ -249,28 +249,28 @@ class Lexicon:
 #					f.append(j)
 #		return f
 
-	def find_words(self, headword_key):
+	def find_words(self, lemma_key):
 		f = []
 		for i in self.__words.itervalues():
 			for j in i:
-				if (j.headword.entry_word, j.headword.id) == headword_key:
+				if (j.lemma.entry_form, j.lemma.id) == lemma_key:
 					f.append(j)
 		return f
 	
 	def __repr__(self):
-		return "[[%d headwords, %d words]]" % (len(self.__headwords), len(self.__words))
+		return "[[%d lemmas, %d words]]" % (len(self.__lemmas), len(self.__words))
 
 def __test():
 
 	lx = Lexicon()
-	lx.add_word(Word("mi", Headword("mi", 1, "pronoun", None, "bavi")))
-	lx.add_word(Word("sina", Headword("sina", 1, "pronoun", None, "zavi")))
-	lx.add_word(Word("suli", Headword("suli", 1, "adjective", None, "kemo")))
-	lx.add_word(Word("suna", Headword("suna", 1, "noun", None, "Lakitisi")))
-	lx.add_word(Word("telo", Headword("telo", 1, "noun", None, "bocivi")))
-	lx.add_word(Word("moku", Headword("moku", 1, "verb", {"transitive": "n"}, "fucala")))
-	lx.add_word(Word("moku", Headword("moku", 2, "verb", {"transitive": "y"}, "fucalinza")))
-	lx.add_word(Word("jan", Headword("jan", 1, "noun", None, "becami")))
+	lx.add_word(Word("mi", Lemma("mi", 1, "pronoun", None, "bavi")))
+	lx.add_word(Word("sina", Lemma("sina", 1, "pronoun", None, "zavi")))
+	lx.add_word(Word("suli", Lemma("suli", 1, "adjective", None, "kemo")))
+	lx.add_word(Word("suna", Lemma("suna", 1, "noun", None, "Lakitisi")))
+	lx.add_word(Word("telo", Lemma("telo", 1, "noun", None, "bocivi")))
+	lx.add_word(Word("moku", Lemma("moku", 1, "verb", {"transitive": "n"}, "fucala")))
+	lx.add_word(Word("moku", Lemma("moku", 2, "verb", {"transitive": "y"}, "fucalinza")))
+	lx.add_word(Word("jan", Lemma("jan", 1, "noun", None, "becami")))
 	lx.add_word(Particle("li",1,"sep"))
 	print lx
 	tk = lx.compile({"separator":" "})

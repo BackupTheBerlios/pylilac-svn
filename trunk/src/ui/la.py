@@ -77,7 +77,10 @@ class LAFrame(wx.Frame):
 		self.new_button = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, (16,16)))
 		self.button_4 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_TOOLBAR, (16,16)))
 		self.lemma_ctrl = wx.ListBox(self.hw_panel, -1, choices=[], style=wx.LB_SINGLE|wx.LB_SORT)
-		self.entry_ctrl = wx.TextCtrl(self.window_1_pane_2, -1, "", style=wx.NO_BORDER)
+		self.entry_form_ctrl = wx.TextCtrl(self.window_1_pane_2, -1, "", style=wx.NO_BORDER)
+		self.pos_ctrl = wx.ComboBox(self.window_1_pane_2, -1, choices=[], style=wx.CB_DROPDOWN|wx.CB_READONLY)
+		self.combo_box_3 = wx.ComboBox(self.window_1_pane_2, -1, choices=[], style=wx.CB_DROPDOWN)
+		self.panel_2 = wx.Panel(self.window_1_pane_2, -1, style=wx.NO_BORDER)
 		self.gloss_ctrl = wx.TextCtrl(self.window_1_pane_2, -1, "", style=wx.NO_BORDER)
 		self.word_grid = wx.grid.Grid(self.window_1_pane_2, -1, size=(1, 1))
 		self.button_2 = wx.Button(self.la_lexicon_pane, -1, "button_2")
@@ -105,13 +108,8 @@ class LAFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnRunLanguageReader, self.language_reader_menu)
 		self.Bind(wx.EVT_MENU, self.OnRunBilingualInterpreter, self.bilingual_interpreter_menu)
 		self.Bind(wx.EVT_MENU, self.OnAbout, self.about_menu)
-		self.Bind(wx.EVT_LISTBOX, self.OnHeadwordSelect, self.lemma_ctrl)
+		self.Bind(wx.EVT_LISTBOX, self.OnLemmaSelect, self.lemma_ctrl)
 		# end wxGlade
-
-		# static contents
-		#isz = (16, 16)  
-		#self.button_1 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz))
-		#self.button_4 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz))
 
 		# members
 		self.__filename = ""
@@ -119,6 +117,11 @@ class LAFrame(wx.Frame):
 		self.data =  Language()
 		
 		self.__load_tabs()
+
+		# static contents
+		#isz = (16, 16)  
+		#self.button_1 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz))
+		#self.button_4 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz))
 
 		self.__cb_frame = None
 		self.__set_dirty(False)
@@ -131,6 +134,15 @@ class LAFrame(wx.Frame):
 		self.new_button.SetMinSize((30, 30))
 		self.button_4.SetMinSize((30, 30))
 		self.lemma_ctrl.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
+		self.entry_form_ctrl.SetMinSize((200, 21))
+		self.entry_form_ctrl.SetForegroundColour(wx.Colour(255, 0, 0))
+		self.entry_form_ctrl.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.BOLD, 0, ""))
+		self.pos_ctrl.SetMinSize((100, 23))
+		self.pos_ctrl.SetFont(wx.Font(10, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, ""))
+		self.combo_box_3.SetMinSize((100, 23))
+		self.combo_box_3.SetFont(wx.Font(10, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, ""))
+		self.panel_2.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self.gloss_ctrl.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
 		self.word_grid.CreateGrid(5, 2)
 		self.word_grid.SetRowLabelSize(0)
 		self.word_grid.SetColLabelSize(0)
@@ -139,6 +151,7 @@ class LAFrame(wx.Frame):
 		self.word_grid.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 		self.word_grid.SetColLabelValue(0, "Categories")
 		self.word_grid.SetColLabelValue(1, "Form")
+		self.word_grid.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
 		# end wxGlade
 		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
 		self.SetIcon(icon)
@@ -150,6 +163,7 @@ class LAFrame(wx.Frame):
 		lexicon_sizer_2 = wx.FlexGridSizer(2, 1, 0, 0)
 		lexicon_buttons = wx.GridSizer(1, 2, 0, 0)
 		grid_sizer_4 = wx.FlexGridSizer(3, 1, 0, 0)
+		grid_sizer_5 = wx.FlexGridSizer(1, 4, 0, 0)
 		sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
 		grid_sizer_3 = wx.FlexGridSizer(2, 1, 0, 0)
 		lexicon_tool_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -162,13 +176,18 @@ class LAFrame(wx.Frame):
 		grid_sizer_3.AddGrowableCol(0)
 		sizer_6.Add(grid_sizer_3, 1, wx.EXPAND, 0)
 		self.hw_panel.SetSizer(sizer_6)
-		grid_sizer_4.Add(self.entry_ctrl, 0, wx.EXPAND, 0)
+		grid_sizer_5.Add(self.entry_form_ctrl, 0, wx.EXPAND, 0)
+		grid_sizer_5.Add(self.pos_ctrl, 0, wx.EXPAND, 0)
+		grid_sizer_5.Add(self.combo_box_3, 0, wx.EXPAND, 0)
+		grid_sizer_5.Add(self.panel_2, 1, wx.EXPAND, 0)
+		grid_sizer_5.AddGrowableCol(3)
+		grid_sizer_4.Add(grid_sizer_5, 1, wx.EXPAND, 0)
 		grid_sizer_4.Add(self.gloss_ctrl, 0, wx.EXPAND, 0)
 		grid_sizer_4.Add(self.word_grid, 1, wx.EXPAND, 0)
 		self.window_1_pane_2.SetSizer(grid_sizer_4)
 		grid_sizer_4.AddGrowableRow(2)
 		grid_sizer_4.AddGrowableCol(0)
-		self.window_1.SplitVertically(self.hw_panel, self.window_1_pane_2, 200)
+		self.window_1.SplitVertically(self.hw_panel, self.window_1_pane_2, 11)
 		lexicon_sizer_2.Add(self.window_1, 1, wx.EXPAND, 0)
 		lexicon_buttons.Add(self.button_2, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
 		lexicon_buttons.Add(self.button_3, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
@@ -187,8 +206,10 @@ class LAFrame(wx.Frame):
 		# end wxGlade
 		
 	def __load_tabs(self):
+		self.pos_ctrl.Clear()
+		self.pos_ctrl.AppendItems(self.data.p_o_s)
 		self.lemma_ctrl.Clear()
-		for hw in self.data.lexicon.headwords():
+		for hw in self.data.lexicon.lemmas():
 			self.lemma_ctrl.Append("%s.%d" % hw, hw)
 		
 	def __set_dirty(self, value = True):
@@ -326,10 +347,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 
 
 
-	def OnHeadwordSelect(self, event): # wxGlade: LAFrame.<event_handler>
+	def OnLemmaSelect(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = event.GetClientData()
-		hw = self.data.lexicon.get_headword(hw_key)
-		self.entry_ctrl.SetValue(hw.entry_word)
+		hw = self.data.lexicon.get_lemma(hw_key)
+		self.entry_form_ctrl.SetValue(hw.entry_form)
+		self.pos_ctrl.SetValue(hw.p_o_s)
 		self.gloss_ctrl.SetValue(hw.gloss)
 
 # end of class LAFrame
@@ -379,7 +401,7 @@ class CBFrame(wx.Frame):
 		self.interlingua_label = wx.StaticText(self.panel_1, -1, "Interlingua")
 		self.interlingua_text = wx.TextCtrl(self.panel_1, -1, "")
 		self.pos_label = wx.StaticText(self.panel_1, -1, "Part of Speech")
-		self.pos_combo = wx.ComboBox(self.panel_1, -1, choices=[], style=wx.CB_DROPDOWN|wx.CB_READONLY)
+		self.pos_ctrl = wx.ComboBox(self.panel_1, -1, choices=[], style=wx.CB_DROPDOWN|wx.CB_READONLY)
 		self.arg_struct_label = wx.StaticText(self.panel_1, -1, "Argument structure")
 		self.arg_struct_combo = wx.ComboBox(self.panel_1, -1, choices=[], style=wx.CB_DROPDOWN|wx.CB_DROPDOWN)
 		self.meaning_label = wx.StaticText(self.panel_1, -1, "Meaning")
@@ -407,7 +429,7 @@ class CBFrame(wx.Frame):
 		self.Bind(wx.EVT_TEXT, self.OnChange, self.baseconcept_text)
 		self.Bind(wx.EVT_TEXT, self.OnChange, self.derivation_text)
 		self.Bind(wx.EVT_TEXT, self.OnChange, self.interlingua_text)
-		self.Bind(wx.EVT_TEXT, self.OnChange, self.pos_combo)
+		self.Bind(wx.EVT_TEXT, self.OnChange, self.pos_ctrl)
 		self.Bind(wx.EVT_TEXT, self.OnChange, self.arg_struct_combo)
 		self.Bind(wx.EVT_TEXT, self.OnChange, self.meaning_text)
 		self.Bind(wx.EVT_TEXT, self.OnChange, self.reference_text)
@@ -420,7 +442,7 @@ class CBFrame(wx.Frame):
 		self.__do_tree()
 		self.concept_tree_ctrl.GetMainWindow().Bind(wx.EVT_RIGHT_UP, self.OnRightUp)
 
-		self.pos_combo.AppendItems(self.data.p_o_s)
+		self.pos_ctrl.AppendItems(self.data.p_o_s)
 		self.arg_struct_combo.AppendItems(self.data.arg_struct)
 
 		self.__set_dirty(False)
@@ -455,7 +477,7 @@ class CBFrame(wx.Frame):
 		control_grid_sizer.Add(self.interlingua_label, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		control_grid_sizer.Add(self.interlingua_text, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
 		control_grid_sizer.Add(self.pos_label, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		control_grid_sizer.Add(self.pos_combo, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		control_grid_sizer.Add(self.pos_ctrl, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		control_grid_sizer.Add(self.arg_struct_label, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		control_grid_sizer.Add(self.arg_struct_combo, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		control_grid_sizer.Add(self.meaning_label, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -545,7 +567,7 @@ class CBFrame(wx.Frame):
 		self.baseconcept_text.SetValue(Utilities.nvl(concept.baseconcept, ""))
 		self.derivation_text.SetValue(Utilities.nvl(concept.derivation, ""))
 		self.interlingua_text.SetValue(concept.interlingua)
-		self.pos_combo.SetValue(concept.p_o_s)
+		self.pos_ctrl.SetValue(concept.p_o_s)
 		self.arg_struct_combo.SetValue(concept.arg_struct)
 		self.meaning_text.SetValue(concept.meaning)
 		self.notes_text.SetValue(concept.notes)
@@ -675,7 +697,7 @@ class CBFrame(wx.Frame):
 	def OnApply(self, event): # wxGlade: CBFrame.<event_handler>
 		new_concept = Concept(
 			self.interlingua_text.GetValue(),
-			self.pos_combo.GetValue(),
+			self.pos_ctrl.GetValue(),
 			self.arg_struct_combo.GetValue(),
 			self.meaning_text.GetValue(),
 			self.baseconcept_text.GetValue(),
@@ -705,7 +727,7 @@ class CBFrame(wx.Frame):
 		self.baseconcept_text.SetValue(baseconcept.interlingua)
 		self.derivation_text.SetValue("DERIVATION")
 		self.interlingua_text.SetValue("")
-		self.pos_combo.SetValue(baseconcept.p_o_s)
+		self.pos_ctrl.SetValue(baseconcept.p_o_s)
 		self.arg_struct_combo.SetValue(baseconcept.arg_struct)
 		self.meaning_text.SetValue("")
 		self.notes_text.SetValue("")
