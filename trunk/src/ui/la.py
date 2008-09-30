@@ -12,6 +12,31 @@ from core.language import Language
 
 
 
+class LexiconToolBar(wx.ToolBar):
+    def __init__(self, *args, **kwds):
+        # begin wxGlade: LexiconToolBar.__init__
+        kwds["style"] = wx.TB_DOCKABLE|wx.TB_3DBUTTONS
+        wx.ToolBar.__init__(self, *args, **kwds)
+        self.AddLabelTool(wx.ID_ADD, "New headword", wx.NullBitmap, wx.NullBitmap, wx.ITEM_NORMAL, "", "")
+        self.AddLabelTool(wx.ID_GO_FORWARD, "item", wx.NullBitmap, wx.NullBitmap, wx.ITEM_NORMAL, "", "")
+
+        self.__set_properties()
+        self.__do_layout()
+        # end wxGlade
+
+    def __set_properties(self):
+        # begin wxGlade: LexiconToolBar.__set_properties
+        self.Realize()
+        # end wxGlade
+
+    def __do_layout(self):
+        # begin wxGlade: LexiconToolBar.__do_layout
+        pass
+        # end wxGlade
+
+# end of class LexiconToolBar
+
+
 class LAFrame(wx.Frame):
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: LAFrame.__init__
@@ -71,8 +96,6 @@ class LAFrame(wx.Frame):
 		self.SetMenuBar(self.la_frame_menubar)
 		# Menu Bar end
 		self.la_language_pane = wx.Panel(self.la_notebook, -1)
-		self.headwords_grid = wx.grid.Grid(self.la_lexicon_pane, -1, size=(1, 1))
-		self.grid_3 = wx.grid.Grid(self.la_lexicon_pane, -1, size=(1, 1))
 		self.button_2 = wx.Button(self.la_lexicon_pane, -1, "button_2")
 		self.button_3 = wx.Button(self.la_lexicon_pane, -1, "button_3")
 		self.la_grammar_pane = wx.Panel(self.la_notebook, -1)
@@ -111,19 +134,6 @@ class LAFrame(wx.Frame):
 		self.SetTitle("Lilac - Language Architect")
 		self.SetSize((737, 534))
 		self.SetToolTipString("Lilac Language Architect")
-		self.headwords_grid.CreateGrid(10, 5)
-		self.headwords_grid.EnableDragRowSize(0)
-		self.headwords_grid.SetColLabelValue(0, "Entry word")
-		self.headwords_grid.SetColSize(0, 150)
-		self.headwords_grid.SetColLabelValue(1, "ID")
-		self.headwords_grid.SetColSize(1, 40)
-		self.headwords_grid.SetColLabelValue(2, "P.o.S.")
-		self.headwords_grid.SetColSize(2, 40)
-		self.headwords_grid.SetColLabelValue(3, "Categories")
-		self.headwords_grid.SetColSize(3, 200)
-		self.headwords_grid.SetColLabelValue(4, "Gloss")
-		self.headwords_grid.SetColSize(4, 150)
-		self.grid_3.CreateGrid(10, 3)
 		# end wxGlade
 		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
 		self.SetIcon(icon)
@@ -135,8 +145,6 @@ class LAFrame(wx.Frame):
 		grid_sizer_3 = wx.FlexGridSizer(2, 1, 0, 0)
 		grid_sizer_4 = wx.GridSizer(1, 2, 0, 0)
 		sizer_8 = wx.BoxSizer(wx.VERTICAL)
-		sizer_8.Add(self.headwords_grid, 1, wx.ALL|wx.EXPAND, 5)
-		sizer_8.Add(self.grid_3, 2, wx.ALL|wx.EXPAND, 5)
 		grid_sizer_3.Add(sizer_8, 1, wx.EXPAND, 0)
 		grid_sizer_4.Add(self.button_2, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
 		grid_sizer_4.Add(self.button_3, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)

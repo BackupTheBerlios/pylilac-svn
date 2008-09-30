@@ -29,11 +29,13 @@ class Tokenizer(Parser):
 		def add(fsa, key):
 			s = key + self._separator
 			for i, c in enumerate(s):
-				if i == len(s) - 1:
-					fsa.add_transition(s[:i], c, fsa.get_initial(), key)
-					break
+				if i == len(s) - 1: #last step
+					end = fsa.get_initial()
+					tag = key
 				else:
-					fsa.add_transition(s[:i], c, s[:i+1])
+					end = s[:i+1]
+					tag = None
+				fsa.add_transition(s[:i], c, end, tag)
 		fsa = FSA()
 		fsa.add_state("")
 		fsa.set_initial("")
@@ -70,7 +72,10 @@ def __test():
 	print c
 	t2 = Tokenizer({"ala": ["ALA"], "mi": ["MI"], "pona": ["PONA","BENE"], "mi ala": ["MIALA"]})
 	print t2("mi ala pona")
-	print t2("mi kontento")
+	t3 = Tokenizer({"a": ["1"], "bb": ["2"]}, {"separator" : ""})
+	c3 = t3("abba")
+	print c3
+
 
 
 if __name__ == "__main__":

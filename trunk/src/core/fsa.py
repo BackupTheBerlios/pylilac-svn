@@ -225,6 +225,7 @@ class FSA:
 		@param start: An existing or new state, to be used as the start state. 
 		@param label: A label for a new transition, or C{EPSILON} for the S{epsilon} label.
 		@param end: An existing or new state, to be used as the end state. 
+		@param tag: A tag the transition leaves as a footprint when traversed. Disregarded when the label is zero.
 		"""
 		if self.__initial_state is None:
 			self.__initial_state = start
@@ -425,6 +426,16 @@ class FSA:
 		mfa.__transitions = [(start, label, eq_dict.get(end, end), tag) for start, label, end, tag in self.__transitions if start in mfa.__states] 
 		return mfa
 
+	def copy(self):
+		"""
+		Create a (shallow) copy of the FSA. 
+		"""
+		cp = self.__instance()
+		cp.__initial_state = self.__initial_state
+		cp.__final_states = self.__final_states.copy()
+		cp.__states = self.__states.copy()
+		cp.__transitions = self.__transitions[:]
+		return cp
 
 class ParseError(StandardError):
 	def __init__(self, tokens, state):
@@ -461,7 +472,10 @@ class Parser:
 	It encapsulates a reduced and minimized copy of the FSA, the I{match} logics and the I{process} logics.
 	"""
 	def __init__(self, fsa, match = None, process = None):
-		self.__fsa = fsa.reduced().minimized()
+		if fsa.is_reduced() and fsa.is_minimized():
+			self.__fsa = fsa.copy()
+		else:
+			self.__fsa = fsa.reduced().minimized()
 		if match is None:
 			self.__match = _eq
 		else:
@@ -590,6 +604,8 @@ def __test():
 	d = {"vi":["vi1", "vi2"], "do":["do1","do2","do3"], "vi do": ["vi do"]}
 
 	print tokenize(p, d, "vi do")
+	
+	k = f.copy()
 
 
 if __name__ == "__main__":
