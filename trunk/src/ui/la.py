@@ -11,23 +11,6 @@ from core.utilities import Utilities
 from core.language import Language
 
 
-
-class LexiconToolBar(wx.ToolBar):
-    def __init__(self, *args, **kwds):
-        # content of this block not found: did you rename this class?
-        pass
-
-    def __set_properties(self):
-        # content of this block not found: did you rename this class?
-        pass
-
-    def __do_layout(self):
-        # content of this block not found: did you rename this class?
-        pass
-
-# end of class LexiconToolBar
-
-
 class LAFrame(wx.Frame):
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: LAFrame.__init__
@@ -92,10 +75,14 @@ class LAFrame(wx.Frame):
 		self.la_language_pane = wx.Panel(self.la_notebook, -1)
 		self.search_ctrl = wx.SearchCtrl(self.hw_panel, -1, "")
 		self.new_button = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, (16,16)))
-		self.button_4 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, (16,16)))
-		self.lemma_ctrl = wx.ListCtrl(self.hw_panel, -1, style=wx.LC_REPORT|wx.LC_NO_HEADER|wx.LC_SINGLE_SEL|wx.SUNKEN_BORDER)
+		self.button_4 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_TOOLBAR, (16,16)))
+		self.lemma_ctrl = wx.ListBox(self.hw_panel, -1, choices=[], style=wx.LB_SINGLE|wx.LB_SORT)
+		self.entry_ctrl = wx.TextCtrl(self.window_1_pane_2, -1, "", style=wx.NO_BORDER)
+		self.gloss_ctrl = wx.TextCtrl(self.window_1_pane_2, -1, "", style=wx.NO_BORDER)
+		self.word_grid = wx.grid.Grid(self.window_1_pane_2, -1, size=(1, 1))
 		self.button_2 = wx.Button(self.la_lexicon_pane, -1, "button_2")
 		self.button_3 = wx.Button(self.la_lexicon_pane, -1, "button_3")
+		self.la_flexion_pane = wx.Panel(self.la_notebook, -1)
 		self.la_grammar_pane = wx.Panel(self.la_notebook, -1)
 
 		self.__set_properties()
@@ -118,14 +105,13 @@ class LAFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnRunLanguageReader, self.language_reader_menu)
 		self.Bind(wx.EVT_MENU, self.OnRunBilingualInterpreter, self.bilingual_interpreter_menu)
 		self.Bind(wx.EVT_MENU, self.OnAbout, self.about_menu)
+		self.Bind(wx.EVT_LISTBOX, self.OnHeadwordSelect, self.lemma_ctrl)
 		# end wxGlade
 
 		# static contents
 		#isz = (16, 16)  
 		#self.button_1 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz))
 		#self.button_4 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz))
-		self.lemma_ctrl.InsertColumn(0, "")
-
 
 		# members
 		self.__filename = ""
@@ -144,6 +130,15 @@ class LAFrame(wx.Frame):
 		self.SetToolTipString("Lilac Language Architect")
 		self.new_button.SetMinSize((30, 30))
 		self.button_4.SetMinSize((30, 30))
+		self.lemma_ctrl.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
+		self.word_grid.CreateGrid(5, 2)
+		self.word_grid.SetRowLabelSize(0)
+		self.word_grid.SetColLabelSize(0)
+		self.word_grid.EnableGridLines(0)
+		self.word_grid.EnableDragRowSize(0)
+		self.word_grid.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
+		self.word_grid.SetColLabelValue(0, "Categories")
+		self.word_grid.SetColLabelValue(1, "Form")
 		# end wxGlade
 		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
 		self.SetIcon(icon)
@@ -154,21 +149,26 @@ class LAFrame(wx.Frame):
 		lexicon_sizer_1 = wx.BoxSizer(wx.VERTICAL)
 		lexicon_sizer_2 = wx.FlexGridSizer(2, 1, 0, 0)
 		lexicon_buttons = wx.GridSizer(1, 2, 0, 0)
-		sizer_8 = wx.BoxSizer(wx.HORIZONTAL)
+		grid_sizer_4 = wx.FlexGridSizer(3, 1, 0, 0)
 		sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
 		grid_sizer_3 = wx.FlexGridSizer(2, 1, 0, 0)
-		sizer_7 = wx.BoxSizer(wx.HORIZONTAL)
-		sizer_7.Add(self.search_ctrl, 0, wx.EXPAND, 0)
-		sizer_7.Add(self.new_button, 0, wx.ALIGN_RIGHT, 0)
-		sizer_7.Add(self.button_4, 0, 0, 0)
-		grid_sizer_3.Add(sizer_7, 1, wx.EXPAND, 0)
-		grid_sizer_3.Add(self.lemma_ctrl, 1, wx.EXPAND, 0)
+		lexicon_tool_sizer = wx.BoxSizer(wx.HORIZONTAL)
+		lexicon_tool_sizer.Add(self.search_ctrl, 1, wx.EXPAND, 0)
+		lexicon_tool_sizer.Add(self.new_button, 0, wx.ALIGN_RIGHT, 0)
+		lexicon_tool_sizer.Add(self.button_4, 0, 0, 0)
+		grid_sizer_3.Add(lexicon_tool_sizer, 1, wx.EXPAND, 0)
+		grid_sizer_3.Add(self.lemma_ctrl, 0, wx.EXPAND, 0)
 		grid_sizer_3.AddGrowableRow(1)
 		grid_sizer_3.AddGrowableCol(0)
 		sizer_6.Add(grid_sizer_3, 1, wx.EXPAND, 0)
 		self.hw_panel.SetSizer(sizer_6)
-		self.window_1_pane_2.SetSizer(sizer_8)
-		self.window_1.SplitVertically(self.hw_panel, self.window_1_pane_2)
+		grid_sizer_4.Add(self.entry_ctrl, 0, wx.EXPAND, 0)
+		grid_sizer_4.Add(self.gloss_ctrl, 0, wx.EXPAND, 0)
+		grid_sizer_4.Add(self.word_grid, 1, wx.EXPAND, 0)
+		self.window_1_pane_2.SetSizer(grid_sizer_4)
+		grid_sizer_4.AddGrowableRow(2)
+		grid_sizer_4.AddGrowableCol(0)
+		self.window_1.SplitVertically(self.hw_panel, self.window_1_pane_2, 200)
 		lexicon_sizer_2.Add(self.window_1, 1, wx.EXPAND, 0)
 		lexicon_buttons.Add(self.button_2, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
 		lexicon_buttons.Add(self.button_3, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
@@ -179,6 +179,7 @@ class LAFrame(wx.Frame):
 		self.la_lexicon_pane.SetSizer(lexicon_sizer_1)
 		self.la_notebook.AddPage(self.la_language_pane, "Language")
 		self.la_notebook.AddPage(self.la_lexicon_pane, "Lexicon")
+		self.la_notebook.AddPage(self.la_flexion_pane, "Flexion")
 		self.la_notebook.AddPage(self.la_grammar_pane, "Grammar")
 		la_frame_sizer.Add(self.la_notebook, 1, wx.EXPAND, 0)
 		self.SetSizer(la_frame_sizer)
@@ -186,9 +187,9 @@ class LAFrame(wx.Frame):
 		# end wxGlade
 		
 	def __load_tabs(self):
-		self.lemma_ctrl.ClearAll()
+		self.lemma_ctrl.Clear()
 		for hw in self.data.lexicon.headwords():
-			self.lemma_ctrl.Append(hw[0]+`hw[1]`)
+			self.lemma_ctrl.Append("%s.%d" % hw, hw)
 		
 	def __set_dirty(self, value = True):
 		self.save_menu.Enable(value)
@@ -324,6 +325,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		wx.AboutBox(info)
 
 
+
+	def OnHeadwordSelect(self, event): # wxGlade: LAFrame.<event_handler>
+		hw_key = event.GetClientData()
+		hw = self.data.lexicon.get_headword(hw_key)
+		self.entry_ctrl.SetValue(hw.entry_word)
+		self.gloss_ctrl.SetValue(hw.gloss)
 
 # end of class LAFrame
 

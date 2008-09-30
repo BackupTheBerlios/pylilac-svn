@@ -210,8 +210,8 @@ class Lexicon:
 		if k in self.__headwords:
 			del self.__headwords[k]
 			
-	def get_headword(self, headword):
-		return self.__headwords.get((headword.entry_word, headword.id))
+	def get_headword(self, headword_key):
+		return self.__headwords.get(headword_key)
 		
 	def headwords(self):
 		return self.__headwords.iterkeys()
@@ -241,11 +241,19 @@ class Lexicon:
 			f.append(j)
 		return f
 
-	def find_words(self, filter):
+#	def find_words(self, filter):
+#		f = []
+#		for i in self.__words.itervalues():
+#			for j in i:
+#				if filter.match(j):
+#					f.append(j)
+#		return f
+
+	def find_words(self, headword_key):
 		f = []
 		for i in self.__words.itervalues():
 			for j in i:
-				if filter.match(j):
+				if (j.headword.entry_word, j.headword.id) == headword_key:
 					f.append(j)
 		return f
 	
