@@ -212,6 +212,9 @@ class Lexicon:
 			
 	def get_headword(self, headword):
 		return self.__headwords.get((headword.entry_word, headword.id))
+		
+	def headwords(self):
+		return self.__headwords.iterkeys()
 
 	def find_headwords(self, entry_word, id = None, p_o_s = None, categories = None):
 		def test_attr(filter_categories, categories):

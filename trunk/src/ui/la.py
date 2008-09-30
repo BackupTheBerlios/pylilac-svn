@@ -14,25 +14,16 @@ from core.language import Language
 
 class LexiconToolBar(wx.ToolBar):
     def __init__(self, *args, **kwds):
-        # begin wxGlade: LexiconToolBar.__init__
-        kwds["style"] = wx.TB_DOCKABLE|wx.TB_3DBUTTONS
-        wx.ToolBar.__init__(self, *args, **kwds)
-        self.AddLabelTool(wx.ID_ADD, "New headword", wx.NullBitmap, wx.NullBitmap, wx.ITEM_NORMAL, "", "")
-        self.AddLabelTool(wx.ID_GO_FORWARD, "item", wx.NullBitmap, wx.NullBitmap, wx.ITEM_NORMAL, "", "")
-
-        self.__set_properties()
-        self.__do_layout()
-        # end wxGlade
+        # content of this block not found: did you rename this class?
+        pass
 
     def __set_properties(self):
-        # begin wxGlade: LexiconToolBar.__set_properties
-        self.Realize()
-        # end wxGlade
+        # content of this block not found: did you rename this class?
+        pass
 
     def __do_layout(self):
-        # begin wxGlade: LexiconToolBar.__do_layout
+        # content of this block not found: did you rename this class?
         pass
-        # end wxGlade
 
 # end of class LexiconToolBar
 
@@ -44,6 +35,9 @@ class LAFrame(wx.Frame):
 		wx.Frame.__init__(self, *args, **kwds)
 		self.la_notebook = wx.Notebook(self, -1, style=0)
 		self.la_lexicon_pane = wx.Panel(self.la_notebook, -1)
+		self.window_1 = wx.SplitterWindow(self.la_lexicon_pane, -1, style=wx.SP_3D|wx.SP_BORDER)
+		self.window_1_pane_2 = wx.Panel(self.window_1, -1)
+		self.hw_panel = wx.Panel(self.window_1, -1)
 		
 		# Menu Bar
 		self.la_frame_menubar = wx.MenuBar()
@@ -96,6 +90,10 @@ class LAFrame(wx.Frame):
 		self.SetMenuBar(self.la_frame_menubar)
 		# Menu Bar end
 		self.la_language_pane = wx.Panel(self.la_notebook, -1)
+		self.search_ctrl = wx.SearchCtrl(self.hw_panel, -1, "")
+		self.new_button = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, (16,16)))
+		self.button_4 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, (16,16)))
+		self.lemma_ctrl = wx.ListCtrl(self.hw_panel, -1, style=wx.LC_REPORT|wx.LC_NO_HEADER|wx.LC_SINGLE_SEL|wx.SUNKEN_BORDER)
 		self.button_2 = wx.Button(self.la_lexicon_pane, -1, "button_2")
 		self.button_3 = wx.Button(self.la_lexicon_pane, -1, "button_3")
 		self.la_grammar_pane = wx.Panel(self.la_notebook, -1)
@@ -122,18 +120,30 @@ class LAFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnAbout, self.about_menu)
 		# end wxGlade
 
+		# static contents
+		#isz = (16, 16)  
+		#self.button_1 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz))
+		#self.button_4 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz))
+		self.lemma_ctrl.InsertColumn(0, "")
+
+
 		# members
 		self.__filename = ""
 		self.__dirname = ""
 		self.data =  Language()
+		
+		self.__load_tabs()
 
 		self.__cb_frame = None
+		self.__set_dirty(False)
 
 	def __set_properties(self):
 		# begin wxGlade: LAFrame.__set_properties
 		self.SetTitle("Lilac - Language Architect")
-		self.SetSize((737, 534))
+		self.SetSize((938, 588))
 		self.SetToolTipString("Lilac Language Architect")
+		self.new_button.SetMinSize((30, 30))
+		self.button_4.SetMinSize((30, 30))
 		# end wxGlade
 		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
 		self.SetIcon(icon)
@@ -141,18 +151,32 @@ class LAFrame(wx.Frame):
 	def __do_layout(self):
 		# begin wxGlade: LAFrame.__do_layout
 		la_frame_sizer = wx.BoxSizer(wx.VERTICAL)
-		sizer_6 = wx.BoxSizer(wx.VERTICAL)
+		lexicon_sizer_1 = wx.BoxSizer(wx.VERTICAL)
+		lexicon_sizer_2 = wx.FlexGridSizer(2, 1, 0, 0)
+		lexicon_buttons = wx.GridSizer(1, 2, 0, 0)
+		sizer_8 = wx.BoxSizer(wx.HORIZONTAL)
+		sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
 		grid_sizer_3 = wx.FlexGridSizer(2, 1, 0, 0)
-		grid_sizer_4 = wx.GridSizer(1, 2, 0, 0)
-		sizer_8 = wx.BoxSizer(wx.VERTICAL)
-		grid_sizer_3.Add(sizer_8, 1, wx.EXPAND, 0)
-		grid_sizer_4.Add(self.button_2, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
-		grid_sizer_4.Add(self.button_3, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
-		grid_sizer_3.Add(grid_sizer_4, 1, wx.ALL|wx.EXPAND, 20)
-		grid_sizer_3.AddGrowableRow(0)
+		sizer_7 = wx.BoxSizer(wx.HORIZONTAL)
+		sizer_7.Add(self.search_ctrl, 0, wx.EXPAND, 0)
+		sizer_7.Add(self.new_button, 0, wx.ALIGN_RIGHT, 0)
+		sizer_7.Add(self.button_4, 0, 0, 0)
+		grid_sizer_3.Add(sizer_7, 1, wx.EXPAND, 0)
+		grid_sizer_3.Add(self.lemma_ctrl, 1, wx.EXPAND, 0)
+		grid_sizer_3.AddGrowableRow(1)
 		grid_sizer_3.AddGrowableCol(0)
-		sizer_6.Add(grid_sizer_3, 1, wx.ALL|wx.EXPAND, 0)
-		self.la_lexicon_pane.SetSizer(sizer_6)
+		sizer_6.Add(grid_sizer_3, 1, wx.EXPAND, 0)
+		self.hw_panel.SetSizer(sizer_6)
+		self.window_1_pane_2.SetSizer(sizer_8)
+		self.window_1.SplitVertically(self.hw_panel, self.window_1_pane_2)
+		lexicon_sizer_2.Add(self.window_1, 1, wx.EXPAND, 0)
+		lexicon_buttons.Add(self.button_2, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
+		lexicon_buttons.Add(self.button_3, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
+		lexicon_sizer_2.Add(lexicon_buttons, 1, wx.ALL|wx.EXPAND, 20)
+		lexicon_sizer_2.AddGrowableRow(0)
+		lexicon_sizer_2.AddGrowableCol(0)
+		lexicon_sizer_1.Add(lexicon_sizer_2, 1, wx.ALL|wx.EXPAND, 0)
+		self.la_lexicon_pane.SetSizer(lexicon_sizer_1)
 		self.la_notebook.AddPage(self.la_language_pane, "Language")
 		self.la_notebook.AddPage(self.la_lexicon_pane, "Lexicon")
 		self.la_notebook.AddPage(self.la_grammar_pane, "Grammar")
@@ -160,9 +184,21 @@ class LAFrame(wx.Frame):
 		self.SetSizer(la_frame_sizer)
 		self.Layout()
 		# end wxGlade
+		
+	def __load_tabs(self):
+		self.lemma_ctrl.ClearAll()
+		for hw in self.data.lexicon.headwords():
+			self.lemma_ctrl.Append(hw[0]+`hw[1]`)
+		
+	def __set_dirty(self, value = True):
+		self.save_menu.Enable(value)
+		self.saveas_menu.Enable(value)
+		
+	def __get_dirty(self):
+		return self.save_menu.IsEnabled()		
 
 	def OnOpen(self, event): # wxGlade: LAFrame.<event_handler>
-		fileType = "Lilac language files (.lg)|*.lg|Pickle files (.p)|*.p"
+		fileType = "Lilac language files (.lg)|*.lg"
 		dlg = wx.FileDialog(self, "Open a language file...", self.__dirname, "", fileType, wx.OPEN)
 
 		if dlg.ShowModal() == wx.ID_OK:
@@ -172,6 +208,8 @@ class LAFrame(wx.Frame):
 			wx.BeginBusyCursor()
 			try:
 				self.data.load(full_path)
+				self.__load_tabs()
+				self.__set_dirty(False)
 			finally:
 				wx.EndBusyCursor()
 
@@ -182,11 +220,12 @@ class LAFrame(wx.Frame):
 		wx.BeginBusyCursor()
 		try:
 			self.data.save(full_path)
+			self.__set_dirty(False)
 		finally:
 			wx.EndBusyCursor()
 
 	def OnSaveAs(self, event): # wxGlade: LAFrame.<event_handler>
-		fileType = "Lilac language files (.lg)|*.lg|Pickle files (.p)|*.p"
+		fileType = "Lilac language files (.lg)|*.lg"
 		dlg = wx.FileDialog(self, "Save the language as...", self.__dirname, self.__filename, fileType, wx.SAVE | wx.OVERWRITE_PROMPT)
 
 		if dlg.ShowModal() == wx.ID_OK:
@@ -196,6 +235,7 @@ class LAFrame(wx.Frame):
 			wx.BeginBusyCursor()
 			try:
 				self.data.save(full_path)
+				self.__set_dirty(False)
 			finally:
 				wx.EndBusyCursor()
 
@@ -368,11 +408,6 @@ class CBFrame(wx.Frame):
 		self.Bind(wx.EVT_BUTTON, self.OnApply, self.ok_button)
 		# end wxGlade
 		
-		#self.cb_frame_toolbar = wx.ToolBar(self, -1)
-		#isz = (16, 16)
-		#self.cb_frame_toolbar.AddLabelTool(wx.ID_NEW, "New", wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz), wx.NullBitmap, wx.ITEM_NORMAL, "", "")
-		#self.SetToolBar(self.cb_frame_toolbar)
-
 		self.data = Interlingua("Latejami")
 		self.data.load(self.FILENAME)
 		self.__do_tree()
@@ -488,9 +523,6 @@ class CBFrame(wx.Frame):
 
 		tree = self.concept_tree_ctrl
 		root = tree.GetRootItem()
-	
-		#tree.SetItemImage(root, icons["N"])
-		#tree.SetItemImage(root, fldropenidx, wx.TreeItemIcon_Expanded)
 	
 		add_tree_children(root, None)
 			
