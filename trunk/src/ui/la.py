@@ -19,7 +19,7 @@ class LAFrame(wx.Frame):
 		self.la_notebook = wx.Notebook(self, -1, style=0)
 		self.la_lexicon_pane = wx.Panel(self.la_notebook, -1)
 		self.lexicon_splitter = wx.SplitterWindow(self.la_lexicon_pane, -1, style=wx.SP_3D|wx.SP_BORDER)
-		self.lemma_pane = wx.Panel(self.lexicon_splitter, -1)
+		self.lemma_pane = wx.ScrolledWindow(self.lexicon_splitter, -1, style=wx.TAB_TRAVERSAL)
 		self.hw_panel = wx.Panel(self.lexicon_splitter, -1)
 		
 		# Menu Bar
@@ -155,6 +155,7 @@ class LAFrame(wx.Frame):
 		self.word_grid.SetColLabelValue(0, "Categories")
 		self.word_grid.SetColLabelValue(1, "Form")
 		self.word_grid.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
+		self.lemma_pane.SetScrollRate(10, 10)
 		# end wxGlade
 		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
 		self.SetIcon(icon)
