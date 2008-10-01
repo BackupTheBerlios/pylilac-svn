@@ -20,7 +20,7 @@ class LAFrame(wx.Frame):
 		self.la_lexicon_pane = wx.Panel(self.la_notebook, -1)
 		self.lexicon_splitter = wx.SplitterWindow(self.la_lexicon_pane, -1, style=wx.SP_3D|wx.SP_BORDER)
 		self.lemma_pane = wx.ScrolledWindow(self.lexicon_splitter, -1, style=wx.TAB_TRAVERSAL)
-		self.hw_panel = wx.Panel(self.lexicon_splitter, -1)
+		self.hw_pane = wx.Panel(self.lexicon_splitter, -1)
 		
 		# Menu Bar
 		self.la_frame_menubar = wx.MenuBar()
@@ -73,10 +73,10 @@ class LAFrame(wx.Frame):
 		self.SetMenuBar(self.la_frame_menubar)
 		# Menu Bar end
 		self.la_language_pane = wx.Panel(self.la_notebook, -1)
-		self.search_lemma = wx.SearchCtrl(self.hw_panel, -1, "", style=wx.TE_PROCESS_ENTER)
-		self.new_button = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, (16,16)))
-		self.delete_button = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_TOOLBAR, (16,16)))
-		self.lemma_ctrl = wx.ListBox(self.hw_panel, -1, choices=[], style=wx.LB_SINGLE|wx.LB_SORT)
+		self.search_lemma = wx.SearchCtrl(self.hw_pane, -1, "", style=wx.TE_PROCESS_ENTER)
+		self.new_button = wx.BitmapButton(self.hw_pane, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, (16,16)))
+		self.delete_button = wx.BitmapButton(self.hw_pane, -1, wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_TOOLBAR, (16,16)))
+		self.lemma_ctrl = wx.ListBox(self.hw_pane, -1, choices=[], style=wx.LB_SINGLE|wx.LB_SORT)
 		self.entry_form_ctrl = wx.TextCtrl(self.lemma_pane, -1, "")
 		self.pos_ctrl = wx.ComboBox(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN|wx.CB_READONLY)
 		self.combo_box_3 = wx.ComboBox(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN|wx.CB_READONLY)
@@ -168,18 +168,16 @@ class LAFrame(wx.Frame):
 		lexicon_buttons = wx.GridSizer(1, 2, 0, 0)
 		lemma_sizer_1 = wx.FlexGridSizer(3, 1, 0, 0)
 		lemma_sizer_2 = wx.FlexGridSizer(1, 4, 0, 0)
-		hw_sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
-		hw_sizer_2 = wx.FlexGridSizer(2, 1, 0, 0)
+		hw_sizer = wx.FlexGridSizer(2, 1, 0, 0)
 		lexicon_tool_sizer = wx.BoxSizer(wx.HORIZONTAL)
 		lexicon_tool_sizer.Add(self.search_lemma, 1, wx.EXPAND, 0)
 		lexicon_tool_sizer.Add(self.new_button, 0, wx.ALIGN_RIGHT, 0)
 		lexicon_tool_sizer.Add(self.delete_button, 0, 0, 0)
-		hw_sizer_2.Add(lexicon_tool_sizer, 1, wx.EXPAND, 0)
-		hw_sizer_2.Add(self.lemma_ctrl, 0, wx.EXPAND, 0)
-		hw_sizer_2.AddGrowableRow(1)
-		hw_sizer_2.AddGrowableCol(0)
-		hw_sizer_1.Add(hw_sizer_2, 1, wx.EXPAND, 0)
-		self.hw_panel.SetSizer(hw_sizer_1)
+		hw_sizer.Add(lexicon_tool_sizer, 1, wx.EXPAND, 0)
+		hw_sizer.Add(self.lemma_ctrl, 0, wx.EXPAND, 0)
+		self.hw_pane.SetSizer(hw_sizer)
+		hw_sizer.AddGrowableRow(1)
+		hw_sizer.AddGrowableCol(0)
 		lemma_sizer_2.Add(self.entry_form_ctrl, 0, 0, 0)
 		lemma_sizer_2.Add(self.pos_ctrl, 0, 0, 0)
 		lemma_sizer_2.Add(self.combo_box_3, 0, 0, 0)
@@ -191,7 +189,7 @@ class LAFrame(wx.Frame):
 		self.lemma_pane.SetSizer(lemma_sizer_1)
 		lemma_sizer_1.AddGrowableRow(2)
 		lemma_sizer_1.AddGrowableCol(0)
-		self.lexicon_splitter.SplitVertically(self.hw_panel, self.lemma_pane)
+		self.lexicon_splitter.SplitVertically(self.hw_pane, self.lemma_pane)
 		lexicon_sizer_2.Add(self.lexicon_splitter, 1, wx.EXPAND, 0)
 		lexicon_buttons.Add(self.undo_button, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
 		lexicon_buttons.Add(self.apply_button, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
@@ -773,8 +771,9 @@ class FindDialog(wx.Dialog):
 		self.__set_properties()
 		self.__do_layout()
 
-		self.Bind(wx.EVT_BUTTON, self.OnUndo, self.cancel_button)
-		self.Bind(wx.EVT_BUTTON, self.OnApply, self.ok_button)
+		self.Bind(wx.EVT_TEXT, self.OnText, self.value_text)
+		self.Bind(wx.EVT_BUTTON, self.OnCancel, self.cancel_button)
+		self.Bind(wx.EVT_BUTTON, self.OnFind, self.ok_button)
 		# end wxGlade
 
 
@@ -822,13 +821,15 @@ class FindDialog(wx.Dialog):
 			exact = 1
 		return (value, column, exact)
 	
-	def OnUndo(self, event): # wxGlade: FindDialog.<event_handler>
-		print "Event handler `OnUndo' not implemented"
-		event.Skip()
-	
-	def OnApply(self, event): # wxGlade: FindDialog.<event_handler>
-		print "Event handler `OnApply' not implemented"
-		event.Skip()
+
+	def OnCancel(self, event): # wxGlade: FindDialog.<event_handler>
+		self.EndModal(wx.ID_CANCEL)
+
+	def OnFind(self, event): # wxGlade: FindDialog.<event_handler>
+		self.EndModal(wx.ID_OK)
+
+	def OnText(self, event): # wxGlade: FindDialog.<event_handler>
+		self.ok_button.Enable(True)
 
 # end of class FindDialog
 
