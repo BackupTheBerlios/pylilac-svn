@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -21,7 +21,7 @@ class Lemma:
 	"""
 	A single unit of language, with no functional decoration.
 	
-	Usually, lemma are the I{entry words} in dictionaries and encyclopediae.
+	Usually, lemmas or headwords are the I{entry words} in dictionaries and encyclopediae.
 	"""
 	def __init__(self, entry_form, id, p_o_s, categories = None, gloss = None):
 		"""
@@ -30,7 +30,7 @@ class Lemma:
 		Example::
 			Lemma(u"heart", 1, "noun", None, "kawcesi") #heart, the heart organ in English, with no classification.
 			Lemma(u"heart", 2, "noun", None, "kawcijumi") #heart, the heart shape in English.
-			Lemma(u"hɑɹt", 1, "noun", None ,"kawcesi") #/h\u0251\u0279t/, /hɑɹt/, the heart organ phonic representation in General American English
+			Lemma(u"h??t", 1, "noun", None ,"kawcesi") #/h\u0251\u0279t/, /h??t/, the heart organ phonic representation in General American English
 			Lemma(u"moku", 1, "verb", {"transitive": "n"}, "fucala") #moku, "to eat" in Toki Pona
 
 		@type entry_form: unicode
@@ -39,7 +39,7 @@ class Lemma:
 
 		    The representation of a word can be its written form or its spoken form, refer to Unicode conventions for the proper encoding.
 
-		    For phonical representations, the alphabet of the U{IPA<http://www.arts.gla.ac.uk/IPA>} (Internationa Phonetic Association) is the standard, though some kind of extension could be advisable; the representation should be a phonetic transcription.
+		    For phonetic/phonical representations, the alphabet of the U{IPA<http://www.arts.gla.ac.uk/IPA>} (Internationa Phonetic Association) is the standard, though some kind of extension could be advisable; the representation should be a phonetic transcription.
 		@type id: number
 		@param id: 
 		    A unique id to distinguish different lemmas having identical representation in a given language.
@@ -50,11 +50,11 @@ class Lemma:
 		    A string which indicates the I{part of speech} to which the lemma belongs to in the specific language.
 
 		    The I{part of speech} is the general classification of the word: usually it distinguish nouns from verbs &c..
-		@type categories: dict (srt, str)
+		@type categories: tuple (srt)
 		@param categories:
-		    The categories of the lemma; default is the empty dictionary.
+		    The categories of the lemma; default is the empty tuple.
 
-		    categories can specify better the features of a particular I{part of speech}.
+		    Categories can specify better the features of a particular I{part of speech}.
 		@type gloss: str
 		@param gloss:
 		    The meaning and the translation technique, referring to the I{interlingua}.
@@ -65,7 +65,7 @@ class Lemma:
 		self.entry_form = entry_form
 		self.id = Utilities.nvl(id, 1)
 		self.p_o_s = p_o_s
-		self.categories = Utilities.nvl(categories, {})
+		self.categories = Utilities.nvl(categories, ())
 		self.gloss = gloss
 
 	def __eq__(self, other):
@@ -96,7 +96,7 @@ class Word:
 		Example::
 			Word(u"heart", Lemma("eng", u"heart", 1, "noun", None, "kawcesi"))
 			Word(u"hearts", lemmas["eng", u"heart", 1], {"number": "pl"})
-			Word(u"hɑɹts", hw, {"number": "pl"})
+			Word(u"h??ts", hw, {"number": "pl"})
 			Word(u"moku", "tko", moku)
 	
 		@type form: unicode
@@ -104,17 +104,17 @@ class Word:
 		    The traditional, standard or neutral form of the word, either graphical or phonical.
 		@type lemma:  Lemma
 		@param lemma:
-		    A lemma
+		    The lemma of the word.
 		@type categories: dict (srt, str)
 		@param categories: 
-		    The categories of the word; default is the empty dictionary.
+		    The categories of the word; default is the empty tuple.
 
 		    Categories can indicate word declensions or modifications.
 	
 		"""
 		self.form = form
 		self.lemma = lemma
-		self.categories = Utilities.nvl(categories, {})
+		self.categories = Utilities.nvl(categories, ())
 
 	def __eq__(self, other):
 		"""
@@ -164,12 +164,10 @@ class Lexicon:
 		self.__compiled = None
 		self.__valid = False
 		
-	def compile(self, properties = None, force = False):
-		if properties is None:
-			properties = {}
+	def compile(self, separator = " ", force = False):
 		if force or not self.__valid and self.__compiled is None:
 			self.__valid = False
-			self.__compiled = Tokenizer(self.__words, properties)
+			self.__compiled = Tokenizer(self.__words, separator)
 			self.__valid = True
 		return self.__compiled
 		
@@ -219,9 +217,9 @@ class Lexicon:
 	def find_lemmas(self, entry_form, id = None, p_o_s = None, categories = None):
 		def test_attr(filter_categories, categories):
 			if filter_categories is not None:
-				for name, test in filter_categories.iteritems():
-					if test is not None and name in categories:
-						v = categories[name]
+				for i, test in enumerate(filter_categories):
+					if test is not None and i < len(categories):
+						v = categories[i]
 						if v is not None:
 							if isinstance(test, CategoryFilter):
 								if not test.match(v): return False
@@ -241,13 +239,6 @@ class Lexicon:
 			f.append(j)
 		return f
 
-#	def find_words(self, filter):
-#		f = []
-#		for i in self.__words.itervalues():
-#			for j in i:
-#				if filter.match(j):
-#					f.append(j)
-#		return f
 
 	def find_words(self, lemma_key):
 		f = []
@@ -268,12 +259,12 @@ def __test():
 	lx.add_word(Word("suli", Lemma("suli", 1, "adjective", None, "kemo")))
 	lx.add_word(Word("suna", Lemma("suna", 1, "noun", None, "Lakitisi")))
 	lx.add_word(Word("telo", Lemma("telo", 1, "noun", None, "bocivi")))
-	lx.add_word(Word("moku", Lemma("moku", 1, "verb", {"transitive": "n"}, "fucala")))
-	lx.add_word(Word("moku", Lemma("moku", 2, "verb", {"transitive": "y"}, "fucalinza")))
+	lx.add_word(Word("moku", Lemma("moku", 1, "verb", ("intr"), "fucala")))
+	lx.add_word(Word("moku", Lemma("moku", 2, "verb", ("tr"), "fucalinza")))
 	lx.add_word(Word("jan", Lemma("jan", 1, "noun", None, "becami")))
 	lx.add_word(Particle("li",1,"sep"))
 	print lx
-	tk = lx.compile({"separator":" "})
+	tk = lx.compile()
 	print tk("jan li moku")
 	
 

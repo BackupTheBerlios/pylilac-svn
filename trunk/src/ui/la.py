@@ -133,6 +133,7 @@ class LAFrame(wx.Frame):
 		self.SetTitle("Lilac - Language Architect")
 		self.SetSize((938, 588))
 		self.SetToolTipString("Lilac Language Architect")
+		self.search_lemma.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
 		self.new_button.SetMinSize((30, 30))
 		self.delete_button.SetMinSize((30, 30))
 		self.lemma_ctrl.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
@@ -146,10 +147,9 @@ class LAFrame(wx.Frame):
 		self.spacer_panel.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self.gloss_ctrl.SetMinSize((-1,-1))
 		self.gloss_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
-		self.word_grid.CreateGrid(5, 2)
+		self.word_grid.CreateGrid(1, 2)
 		self.word_grid.SetRowLabelSize(0)
 		self.word_grid.SetColLabelSize(0)
-		self.word_grid.EnableGridLines(0)
 		self.word_grid.EnableDragRowSize(0)
 		self.word_grid.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 		self.word_grid.SetColLabelValue(0, "Categories")
@@ -355,6 +355,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		self.entry_form_ctrl.SetValue(hw.entry_form)
 		self.pos_ctrl.SetValue(hw.p_o_s)
 		self.gloss_ctrl.SetValue(hw.gloss)
+        	#categories
+		self.word_grid.ClearGrid()
+		for i, w in enumerate(self.data.lexicon.find_words(hw_key)):
+			self.word_grid.SetCellValue(i, 0, w.form)
+			self.word_grid.SetCellValue(i, 1, `w.categories`)
 		
 	def OnDoSearch(self, event): # wxGlade: LAFrame.<event_handler>
 		entry_form = self.search_lemma.GetValue()

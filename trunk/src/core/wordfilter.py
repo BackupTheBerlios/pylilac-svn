@@ -38,9 +38,9 @@ class WordFilter(Literal):
 	def match(self, word): 
 		def test_attr(filter_categories, categories):
 			if filter_categories is not None:
-				for name, test in filter_categories.iteritems():
-					if test is not None and name in categories:
-						v = categories[name]
+				for i, test in enumerate(filter_categories):
+					if test is not None and i < len(categories):
+						v = categories[i]
 						if v is not None:
 							if isinstance(test, CategoryFilter):
 								if not test.match(v): return False
@@ -114,7 +114,7 @@ class WordCategoryFilter(WordFilter):
 			r.append(" ")
 			r.append(`lemma_categories`)
 		elif categories:
-			r.append(" {}")
+			r.append(" ()")
 		if categories:
 			r.append(`categories`)
 		r.append("}")
@@ -148,10 +148,10 @@ class CategoryFilter:
 def __test():
 	from lexicon import Lemma
 	lx = WordCategoryFilter("noun")
-	lx1 = WordCategoryFilter("noun", {"gender": "m"}, {"number": CategoryFilter("in", ["pl","s"])})
+	lx1 = WordCategoryFilter("noun", ("m", CategoryFilter("in", ["pl","s"])))
 	lx2 = WordCategoryFilter("noun", {"gender": CategoryFilter("ni", ["m"])})
 	lx3 = WordFilter(Word("man", Lemma("man", 1, "n")))
-	w = Word("man", Lemma("man", 1, "noun", {"gender": "m"}))
+	w = Word("man", Lemma("man", 1, "noun", ("m")))
 	print `lx1`
 	print `lx2`
 	print `lx3`

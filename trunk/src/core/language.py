@@ -16,7 +16,7 @@ from gzip import GzipFile
 import pickle
 
 class Language:
-	def __init__(self, code = "unknown"):
+	def __init__(self, code = "zxx"):
 		"""
                 Create a language object.
 		It encapsulate serialization and high-leven functionality.
@@ -26,19 +26,22 @@ class Language:
 		    A language code according to U{ISO<http://www.iso.org>} standard.
 
 		    For the language codes, refer to 639-3 specifications.
+		    
+		    A country/variant code and a representation system might be added: C{eng-US}, C{esp:ERG}, C{por-BR:IPA}
 		"""
 		self.code = code
 		self.name = unicode(code)
 		self.english_name = None
-		self.properties = {"separator": " "}
 		self.p_o_s = []
+		self.lemma_categories = {}
 		self.categories = {}
 		self.grammar = Grammar(code)
 		self.lexicon = Lexicon()
+		self.separator = " "
 
 
 	def __tuple(self):
-		return (self.code, self.name, self.english_name, self.properties, self.p_o_s, self.categories, self.grammar, self.lexicon)
+		return (self.code, self.name, self.english_name, self.p_o_s, self.categories, self.grammar, self.lexicon, self.separator)
 
 	def save(self, filename = None):
 		if filename is None:
@@ -53,11 +56,11 @@ class Language:
 			filename = "%s.lg" % self.code
 		f = GzipFile(filename, "rb")
 		tuple = pickle.load(f)
-		self.code, self.name, self.english_name, self.properties, self.p_o_s, self.categories, self.grammar, self.lexicon = tuple
+		self.code, self.name, self.english_name, self.p_o_s, self.categories, self.grammar, self.lexicon, self.separator = tuple
 		f.close()
 
 	def read(self, stream):
-		lexical_fsa = self.lexicon.compile(self.properties)
+		lexical_fsa = self.lexicon.compile(self.separator)
 		grammatical_fsa = self.grammar.compile()
 		er = ExpressionReader(lexical_fsa, grammatical_fsa)
 		return er(stream)

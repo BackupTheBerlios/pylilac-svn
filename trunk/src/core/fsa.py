@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -222,10 +222,10 @@ class FSA:
 		"""
 		Define a new association M{S{delta}(C{start}, C{(label, tag)}) S{->} C{end}}.
 
-		@param start: An existing or new state, to be used as the start state. 
-		@param label: A label for a new transition, or C{EPSILON} for the S{epsilon} label.
-		@param end: An existing or new state, to be used as the end state. 
-		@param tag: A tag the transition leaves as a footprint when traversed. Disregarded when the label is zero.
+		@param start: The start state of the transitions to remove. 
+		@param label: The label of the transitions to remove.
+		@param end: The end state of the transitions to remove. 
+		@raise StateError: Fired if the state does not exist.
 		"""
 		if self.__initial_state is None:
 			self.__initial_state = start

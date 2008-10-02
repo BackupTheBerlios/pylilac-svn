@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -53,7 +53,7 @@ class Flexion:
 				s = c(hw_p)
 				if s is not None:
 					return s
-			raise RuntimeError("Transform cannot apply to %s" % `hw_p`)
+			raise ValueError("Transform cannot apply to lemma '%s'" % `hw_p`)
 					
 	def __init__(self, lexicon, p_o_s, lemma_categories = None):
 		self.__lexicon = lexicon
@@ -101,38 +101,38 @@ def __test():
 	
 	qya = Lexicon()
 	telcu = Lemma("telc", 1, "N", None, "jicesi")
-	qya.add_word(Word("telco", telcu, {"number":"s", "case":"N"}))
+	qya.add_word(Word("telco", telcu, ("s","N")))
 	maama = Lemma("roccie", 1, "N", None, "zunbe")
-	qya.add_word(Word("roccie", maama, {"number":"s", "case":"N"}))
+	qya.add_word(Word("roccie", maama, ("s","N")))
 	nis = Lemma("niss", 1, "N", None, "dona")
-	qya.add_word(Word("nís", nis, {"number":"s", "case":"N"}))
+	qya.add_word(Word("nís", nis, ("s","N")))
 	f = Flexion(qya, "N")
 	f.rename_lemma("stem-form")
-	f.define_paradigm("basic-form", {"number": "s", "case": "N"})
+	f.define_paradigm("basic-form", ("s","N"))
 	
 	print qya.find_words(WordFilter(Word("telco", telcu)))
 	
 	print f.paradigm(telcu)
 	
-	tr = f.create_transform({"number": "s", "case": "N"}) 
+	tr = f.create_transform(("s","N")) 
 	tr.create_chain("basic-form")
 	
 
-	tr_o = f.create_transform({"number": "s", "case": "G"}) 
+	tr_o = f.create_transform(("s","G")) 
 	c = tr_o.create_chain("stem-form")
 	c.append_step("ie$", "ié", True)
 	c.append_step("cu$", "q", True)
 	c.append_step("[ao]?$", "o") 
 	
 	
-	tr = f.create_transform({"number": "s", "case": "D"}) 
+	tr = f.create_transform(("s","D")) 
 	c = tr.create_chain("stem-form", "[^aeiouáéíóú]$")
 	c.append_step("$", "en")
 	c = tr.create_chain("stem-form", "[aeiouáéíóú]$")
 	c.append_step("$", "n")
 	
 		
-	tr = f.create_transform({"number": "s", "case": "P"}) 
+	tr = f.create_transform(("s","P")) 
 	c = tr.create_chain("stem-form", "[iu]$")
 	c.append_step("$", "va")
 	c = tr.create_chain("stem-form", "ss$")

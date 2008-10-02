@@ -17,16 +17,19 @@ class UnknownTokenException(KeyError):
 	pass
 
 class Tokenizer(Parser):
-	def __init__(self, dict, properties = None):
-		if properties is None:
-			properties = {}
-		self._separator = properties.get("separator", " ")
+	def __init__(self, dict, separator = " "):
+		self._separator = separator
 		fsa = self.__create_key_fsa(dict)
 		Parser.__init__(self, fsa)
 		self.__dict = dict
 
 	def __create_key_fsa(self, dict):
-		def add(fsa, key):
+		def add_key(fsa, key):
+			def add_new_transition(fsa, start, label, end, tag):
+				for x in fsa.transitions_from(start):
+					if x == (label, end, tag):
+						return False
+				fsa.add_transition(start, label, end, tag)
 			s = key + self._separator
 			for i, c in enumerate(s):
 				if i == len(s) - 1: #last step
@@ -35,7 +38,7 @@ class Tokenizer(Parser):
 				else:
 					end = s[:i+1]
 					tag = None
-				fsa.add_transition(s[:i], c, end, tag)
+				add_new_transition(fsa, s[:i], c, end, tag)
 		fsa = FSA()
 		fsa.add_state("")
 		fsa.set_initial("")
@@ -43,7 +46,7 @@ class Tokenizer(Parser):
 		for k, v in dict.iteritems():
 			if type(v) is not list:
 				raise TypeError(v)
-			add(fsa, k)
+			add_key(fsa, k)
 		return fsa
 
 	def __call__(self, stream):
@@ -72,7 +75,7 @@ def __test():
 	print c
 	t2 = Tokenizer({"ala": ["ALA"], "mi": ["MI"], "pona": ["PONA","BENE"], "mi ala": ["MIALA"]})
 	print t2("mi ala pona")
-	t3 = Tokenizer({"a": ["1"], "bb": ["2"]}, {"separator" : ""})
+	t3 = Tokenizer({"a": ["1"], "bb": ["2"]}, "")
 	c3 = t3("abba")
 	print c3
 
