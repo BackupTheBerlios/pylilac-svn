@@ -64,13 +64,18 @@ class Flexion:
 		self.__transforms = []
 
 	def rename_lemma(self, item):
+		if self.__paradigm_def.has_key(item):
+			raise ValueError("%s is already in use" % item)
 		self.__lemma_alias = item
 	
 	def define_paradigm(self, item, categories):
+		if item == self.__lemma_alias:
+			raise ValueError("%s is reserved for the lemma entry form" % item)
 		self.__paradigm_def[item] = WordCategoryFilter(self.__p_o_s, self.__lemma_categories, categories)
 
+
 	def paradigm(self, lemma):
-		ws = self.__lexicon.find_words(WordFilter(Word(None, lemma)))
+		ws = self.__lexicon.find_words((lemma.entry_form, lemma.id))
 		p = {self.__lemma_alias: lemma.entry_form}
 		for item, wcfilter in self.__paradigm_def.iteritems():
 			for w in ws:
@@ -81,6 +86,8 @@ class Flexion:
 		
 
 	def create_transform(self, categories):
+		if type(categories) is not tuple:
+			raise TypeError(categories)
 		t =  self.__Transform()
 		self.__transforms.append((categories, t))
 		return t
@@ -100,7 +107,7 @@ def __test():
 	from lexicon import Lexicon
 	
 	qya = Lexicon()
-	telcu = Lemma("telc", 1, "N", None, "jicesi")
+	telcu = Lemma("telcu", 1, "N", None, "jicesi")
 	qya.add_word(Word("telco", telcu, ("s","N")))
 	maama = Lemma("roccie", 1, "N", None, "zunbe")
 	qya.add_word(Word("roccie", maama, ("s","N")))
@@ -110,9 +117,9 @@ def __test():
 	f.rename_lemma("stem-form")
 	f.define_paradigm("basic-form", ("s","N"))
 	
-	print qya.find_words(WordFilter(Word("telco", telcu)))
 	
 	print f.paradigm(telcu)
+	print f.paradigm(nis)
 	
 	tr = f.create_transform(("s","N")) 
 	tr.create_chain("basic-form")
@@ -121,7 +128,7 @@ def __test():
 	tr_o = f.create_transform(("s","G")) 
 	c = tr_o.create_chain("stem-form")
 	c.append_step("ie$", "ié", True)
-	c.append_step("cu$", "q", True)
+	c.append_step("cu$", "qu", True)
 	c.append_step("[ao]?$", "o") 
 	
 	

@@ -129,13 +129,13 @@ class CategoryFilter:
 
 	FUNCTIONS = {}
 	FUNCTIONS["in"] = (lambda x, parameter: x in parameter, "%s")
-	FUNCTIONS["ni"] = (lambda x, parameter: x not in parameter, "^%s")
+	FUNCTIONS["ni"] = (lambda x, parameter: x not in parameter, "¬%s")
 
 	def __init__(self, operator, parameter):
 		if not self.FUNCTIONS.has_key(operator):
 			raise KeyError(operator)
 		self.operator = operator
-		self.parameter = parameter
+		self.parameter = tuple(parameter)
 
 	def match(self, value):
 		test, rpr = self.FUNCTIONS[self.operator]
@@ -149,7 +149,7 @@ def __test():
 	from lexicon import Lemma
 	lx = WordCategoryFilter("noun")
 	lx1 = WordCategoryFilter("noun", ("m", CategoryFilter("in", ["pl","s"])))
-	lx2 = WordCategoryFilter("noun", {"gender": CategoryFilter("ni", ["m"])})
+	lx2 = WordCategoryFilter("noun", (CategoryFilter("ni", ["m"]), None))
 	lx3 = WordFilter(Word("man", Lemma("man", 1, "n")))
 	w = Word("man", Lemma("man", 1, "noun", ("m")))
 	print `lx1`
