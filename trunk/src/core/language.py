@@ -41,7 +41,7 @@ class Language:
 
 
 	def __tuple(self):
-		return (self.code, self.name, self.english_name, self.p_o_s, self.categories, self.grammar, self.lexicon, self.separator)
+		return (self.code, self.name, self.english_name, self.p_o_s, self.lemma_categories, self.categories, self.grammar, self.lexicon, self.separator)
 
 	def save(self, filename = None):
 		if filename is None:
@@ -56,7 +56,7 @@ class Language:
 			filename = "%s.lg" % self.code
 		f = GzipFile(filename, "rb")
 		tuple = pickle.load(f)
-		self.code, self.name, self.english_name, self.p_o_s, self.categories, self.grammar, self.lexicon, self.separator = tuple
+		self.code, self.name, self.english_name, self.p_o_s, self.lemma_categories, self.categories, self.grammar, self.lexicon, self.separator = tuple
 		f.close()
 
 	def read(self, stream):

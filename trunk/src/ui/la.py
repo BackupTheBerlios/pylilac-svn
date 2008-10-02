@@ -80,7 +80,7 @@ class LAFrame(wx.Frame):
 		self.lemma_ctrl = wx.ListBox(self.hw_pane, -1, choices=[], style=wx.LB_SINGLE|wx.LB_SORT)
 		self.entry_form_ctrl = wx.TextCtrl(self.lemma_pane, -1, "")
 		self.pos_ctrl = wx.ComboBox(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN|wx.CB_READONLY)
-		self.lemma_category_ctrl = CategoryPanelComboCtrl(self.lemma_pane, -1, choices=["Case", "Number"], style=wx.CB_DROPDOWN|wx.CB_READONLY)
+		self.lemma_category_ctrl = CategoryPanelComboCtrl(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN)
 		self.spacer_panel = wx.Panel(self.lemma_pane, -1, style=wx.NO_BORDER)
 		self.gloss_ctrl = wx.TextCtrl(self.lemma_pane, -1, "", style=wx.NO_BORDER)
 		self.word_grid = wx.grid.Grid(self.lemma_pane, -1, size=(1, 1))
@@ -120,10 +120,6 @@ class LAFrame(wx.Frame):
 		
 		self.__load_tabs()
 
-		# static contents
-		#isz = (16, 16)  
-		#self.button_1 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz))
-		#self.button_4 = wx.BitmapButton(self.hw_panel, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, isz))
 		self.search_lemma.Bind(wx.EVT_SEARCHCTRL_SEARCH_BTN, self.OnDoSearch, self.search_lemma)
 
 		self.__cb_frame = None
@@ -145,7 +141,6 @@ class LAFrame(wx.Frame):
 		self.pos_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, ""))
 		self.lemma_category_ctrl.SetMinSize((100, -1))
 		self.lemma_category_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, ""))
-		self.lemma_category_ctrl.SetSelection(-1)
 		self.spacer_panel.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self.gloss_ctrl.SetMinSize((-1,-1))
 		self.gloss_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
@@ -357,6 +352,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		hw = self.data.lexicon.get_lemma(hw_key)
 		self.entry_form_ctrl.SetValue(hw.entry_form)
 		self.pos_ctrl.SetValue(hw.p_o_s)
+		self.lemma_category_ctrl.SetCategoryLabels(self.data.lemma_categories.get(hw.p_o_s, ()))
+		self.lemma_category_ctrl.SetValues(hw.categories)
 		self.gloss_ctrl.SetValue(hw.gloss)
         	#categories
 		self.word_grid.ClearGrid()
