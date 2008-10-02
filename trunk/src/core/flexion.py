@@ -15,6 +15,33 @@ from wordfilter import WordCategoryFilter, WordFilter
 
 __docformat__ = "epytext en"
 
+class _SortedDict(dict):
+	def __init__(self):
+		dict.__init__(self)
+		self.__sort = []
+	def __setitem__(self, key, value):
+		dict.__setitem__(self, key, value)
+		self.__sort.append(key)
+	def iterkeys(self):
+		for key in self.__sort:
+			yield key
+	def itervalues(self):
+		for key in self.__sort:
+			yield self[key]
+	def iteritems(self):
+		for key in self.__sort:
+			yield (key, self[key])
+	def __repr__(self):
+		s = ""
+		for key in self.__sort:
+			if s == "":
+				s = "{["
+			else:
+				s += ", "
+			s += `key` + " : " + `self[key]`
+		s += "]}"
+		return s
+
 class Flexion:
 	class __Transform:
 		class __Chain:
@@ -61,7 +88,7 @@ class Flexion:
 		self.__lemma_categories = lemma_categories
 		self.__lemma_alias = "lemma"
 		self.__paradigm_def = {}
-		self.__transforms = []
+		self.__transforms = _SortedDict()
 
 	def rename_lemma(self, item):
 		if self.__paradigm_def.has_key(item):
@@ -89,16 +116,18 @@ class Flexion:
 		if type(categories) is not tuple:
 			raise TypeError(categories)
 		t =  self.__Transform()
-		self.__transforms.append((categories, t))
+		self.__transforms[categories] = t
 		return t
+	def get_transforms(self):
+		return self.__transforms
 		
 
 	def __call__(self, lemma):
-		table = []
+		table = _SortedDict()
 		paradigm = self.paradigm(lemma)
-		for cat, transform in self.__transforms:
+		for cat, transform in self.__transforms.iteritems():
 			w = Word(transform(paradigm), lemma, cat)
-			table.append((cat, w))
+			table[cat] = w
 		return table
 
 
@@ -116,7 +145,6 @@ def __test():
 	f = Flexion(qya, "N")
 	f.rename_lemma("stem-form")
 	f.define_paradigm("basic-form", ("s","N"))
-	
 	
 	print f.paradigm(telcu)
 	print f.paradigm(nis)
