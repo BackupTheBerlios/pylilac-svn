@@ -9,6 +9,7 @@ import os
 from core.interlingua import Interlingua, Concept
 from core.utilities import Utilities
 from core.language import Language
+from ui.lawidgets import StockBitmapButton, CategoryPanelComboCtrl
 
 
 class LAFrame(wx.Frame):
@@ -74,12 +75,12 @@ class LAFrame(wx.Frame):
 		# Menu Bar end
 		self.la_language_pane = wx.Panel(self.la_notebook, -1)
 		self.search_lemma = wx.SearchCtrl(self.hw_pane, -1, "", style=wx.TE_PROCESS_ENTER)
-		self.new_button = wx.BitmapButton(self.hw_pane, -1, wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, (16,16)))
-		self.delete_button = wx.BitmapButton(self.hw_pane, -1, wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_TOOLBAR, (16,16)))
+		self.new_button = StockBitmapButton(self.hw_pane, -1, "wxART_NEW")
+		self.delete_button = StockBitmapButton(self.hw_pane, -1, "wxART_DELETE")
 		self.lemma_ctrl = wx.ListBox(self.hw_pane, -1, choices=[], style=wx.LB_SINGLE|wx.LB_SORT)
 		self.entry_form_ctrl = wx.TextCtrl(self.lemma_pane, -1, "")
 		self.pos_ctrl = wx.ComboBox(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN|wx.CB_READONLY)
-		self.combo_box_3 = wx.ComboBox(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN|wx.CB_READONLY)
+		self.lemma_category_ctrl = CategoryPanelComboCtrl(self.lemma_pane, -1, choices=["Case", "Number"], style=wx.CB_DROPDOWN|wx.CB_READONLY)
 		self.spacer_panel = wx.Panel(self.lemma_pane, -1, style=wx.NO_BORDER)
 		self.gloss_ctrl = wx.TextCtrl(self.lemma_pane, -1, "", style=wx.NO_BORDER)
 		self.word_grid = wx.grid.Grid(self.lemma_pane, -1, size=(1, 1))
@@ -142,14 +143,16 @@ class LAFrame(wx.Frame):
 		self.entry_form_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.BOLD, 0, ""))
 		self.pos_ctrl.SetMinSize((100, -1))
 		self.pos_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, ""))
-		self.combo_box_3.SetMinSize((100, -1))
-		self.combo_box_3.SetFont(wx.Font(9, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, ""))
+		self.lemma_category_ctrl.SetMinSize((100, -1))
+		self.lemma_category_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, ""))
+		self.lemma_category_ctrl.SetSelection(-1)
 		self.spacer_panel.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self.gloss_ctrl.SetMinSize((-1,-1))
 		self.gloss_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
 		self.word_grid.CreateGrid(1, 2)
 		self.word_grid.SetRowLabelSize(0)
 		self.word_grid.SetColLabelSize(0)
+		self.word_grid.EnableGridLines(0)
 		self.word_grid.EnableDragRowSize(0)
 		self.word_grid.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 		self.word_grid.SetColLabelValue(0, "Categories")
@@ -180,7 +183,7 @@ class LAFrame(wx.Frame):
 		hw_sizer.AddGrowableCol(0)
 		lemma_sizer_2.Add(self.entry_form_ctrl, 0, 0, 0)
 		lemma_sizer_2.Add(self.pos_ctrl, 0, 0, 0)
-		lemma_sizer_2.Add(self.combo_box_3, 0, 0, 0)
+		lemma_sizer_2.Add(self.lemma_category_ctrl, 0, 0, 0)
 		lemma_sizer_2.Add(self.spacer_panel, 0, wx.EXPAND, 0)
 		lemma_sizer_2.AddGrowableCol(3)
 		lemma_sizer_1.Add(lemma_sizer_2, 1, wx.EXPAND, 0)
