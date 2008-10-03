@@ -8,7 +8,7 @@ import graphics
 import os
 from core.interlingua import Interlingua, Concept
 from core.utilities import Utilities
-from core.language import Language
+from core.lect import Lect
 from ui.lawidgets import StockBitmapButton, CategoryPanelComboCtrl
 
 
@@ -62,7 +62,7 @@ class LAFrame(wx.Frame):
 		self.tools_menu.AppendItem(self.concept_browser_menu)
 		self.filter_editor_menu = wx.MenuItem(self.tools_menu, wx.ID_ANY, "Filter Editor", "", wx.ITEM_NORMAL)
 		self.tools_menu.AppendItem(self.filter_editor_menu)
-		self.language_reader_menu = wx.MenuItem(self.tools_menu, wx.ID_ANY, "Language Reader", "", wx.ITEM_NORMAL)
+		self.language_reader_menu = wx.MenuItem(self.tools_menu, wx.ID_ANY, "Lect Reader", "", wx.ITEM_NORMAL)
 		self.tools_menu.AppendItem(self.language_reader_menu)
 		self.bilingual_interpreter_menu = wx.MenuItem(self.tools_menu, wx.ID_ANY, "Bilingual Interpreter", "", wx.ITEM_NORMAL)
 		self.tools_menu.AppendItem(self.bilingual_interpreter_menu)
@@ -106,7 +106,7 @@ class LAFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnOverview, self.overview_menu)
 		self.Bind(wx.EVT_MENU, self.OnRunConceptBrowser, self.concept_browser_menu)
 		self.Bind(wx.EVT_MENU, self.OnRunFilterEditor, self.filter_editor_menu)
-		self.Bind(wx.EVT_MENU, self.OnRunLanguageReader, self.language_reader_menu)
+		self.Bind(wx.EVT_MENU, self.OnRunLectReader, self.language_reader_menu)
 		self.Bind(wx.EVT_MENU, self.OnRunBilingualInterpreter, self.bilingual_interpreter_menu)
 		self.Bind(wx.EVT_MENU, self.OnAbout, self.about_menu)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnDoSearch, self.search_lemma)
@@ -116,7 +116,7 @@ class LAFrame(wx.Frame):
 		# members
 		self.__filename = ""
 		self.__dirname = ""
-		self.data =  Language()
+		self.data =  Lect()
 		
 		self.__load_tabs()
 
@@ -127,9 +127,9 @@ class LAFrame(wx.Frame):
 
 	def __set_properties(self):
 		# begin wxGlade: LAFrame.__set_properties
-		self.SetTitle("Lilac - Language Architect")
+		self.SetTitle("Lilac - Lect Architect")
 		self.SetSize((938, 588))
-		self.SetToolTipString("Lilac Language Architect")
+		self.SetToolTipString("Lilac Lect Architect")
 		self.search_lemma.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
 		self.new_button.SetMinSize((30, 30))
 		self.delete_button.SetMinSize((30, 30))
@@ -196,7 +196,7 @@ class LAFrame(wx.Frame):
 		lexicon_sizer_2.AddGrowableCol(0)
 		lexicon_sizer_1.Add(lexicon_sizer_2, 1, wx.ALL|wx.EXPAND, 0)
 		self.la_lexicon_pane.SetSizer(lexicon_sizer_1)
-		self.la_notebook.AddPage(self.la_language_pane, "Language")
+		self.la_notebook.AddPage(self.la_language_pane, "Lect")
 		self.la_notebook.AddPage(self.la_lexicon_pane, "Lexicon")
 		self.la_notebook.AddPage(self.la_flexion_pane, "Flexion")
 		self.la_notebook.AddPage(self.la_grammar_pane, "Grammar")
@@ -207,7 +207,7 @@ class LAFrame(wx.Frame):
 		
 	def __load_tabs(self):
 		self.pos_ctrl.Clear()
-		self.pos_ctrl.AppendItems(self.data.p_o_s)
+		self.pos_ctrl.AppendItems(self.data.get_p_o_s_names())
 		self.lemma_ctrl.Clear()
 		for hw in self.data.lexicon.lemmas():
 			self.lemma_ctrl.Append("%s.%d" % hw, hw)
@@ -307,8 +307,8 @@ class LAFrame(wx.Frame):
 		print "Event handler `OnRunFilterEditor' not implemented!"
 		event.Skip()
 
-	def OnRunLanguageReader(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnRunLanguageReader' not implemented!"
+	def OnRunLectReader(self, event): # wxGlade: LAFrame.<event_handler>
+		print "Event handler `OnRunLectReader' not implemented!"
 		event.Skip()
 
 	def OnRunBilingualInterpreter(self, event): # wxGlade: LAFrame.<event_handler>
@@ -352,7 +352,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		hw = self.data.lexicon.get_lemma(hw_key)
 		self.entry_form_ctrl.SetValue(hw.entry_form)
 		self.pos_ctrl.SetValue(hw.p_o_s)
-		self.lemma_category_ctrl.SetCategoryLabels(self.data.lemma_categories.get(hw.p_o_s, ()))
+		self.lemma_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[0])
 		self.lemma_category_ctrl.SetCategoryValues(hw.categories)
 		self.gloss_ctrl.SetValue(hw.gloss)
         	#categories

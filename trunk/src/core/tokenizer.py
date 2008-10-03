@@ -17,8 +17,8 @@ class UnknownTokenException(KeyError):
 	pass
 
 class Tokenizer(Parser):
-	def __init__(self, dict, separator = " "):
-		self._separator = separator
+	def __init__(self, dict, properties):
+		self._separator = properties["separator"]
 		fsa = self.__create_key_fsa(dict)
 		Parser.__init__(self, fsa)
 		self.__dict = dict
@@ -70,12 +70,12 @@ class Tokenizer(Parser):
 		return ot
 
 def __test():
-	t = Tokenizer({"a": ["1"], "b": ["2"]})
+	t = Tokenizer({"a": ["1"], "b": ["2"]}, {"separator": " "})
 	c = t("a a b b a a")
 	print c
-	t2 = Tokenizer({"ala": ["ALA"], "mi": ["MI"], "pona": ["PONA","BENE"], "mi ala": ["MIALA"]})
+	t2 = Tokenizer({"ala": ["ALA"], "mi": ["MI"], "pona": ["PONA","BENE"], "mi ala": ["MIALA"]}, {"separator": " "})
 	print t2("mi ala pona")
-	t3 = Tokenizer({"a": ["1"], "bb": ["2"]}, "")
+	t3 = Tokenizer({"a": ["1"], "bb": ["2"]}, {"separator": ""})
 	c3 = t3("abba")
 	print c3
 

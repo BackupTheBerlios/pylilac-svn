@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-A module for language serialization.
+A module for language variety serialization.
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
@@ -15,7 +15,7 @@ from expression import ExpressionReader
 from gzip import GzipFile
 import pickle
 
-class Language:
+class Lect:
 	def __init__(self, code = "zxx"):
 		"""
                 Create a language object.
@@ -32,16 +32,16 @@ class Language:
 		self.code = code
 		self.name = unicode(code)
 		self.english_name = None
-		self.p_o_s = []
-		self.lemma_categories = {}
-		self.categories = {}
+		self.__p_o_s = ()
+		self.__lemma_categories = {}
+		self.__categories = {}
 		self.grammar = Grammar(code)
 		self.lexicon = Lexicon()
-		self.separator = " "
+		self.properties = {"separator" : " ", "capitalization" : "3"} #Lexical and Initials
 
 
 	def __tuple(self):
-		return (self.code, self.name, self.english_name, self.p_o_s, self.lemma_categories, self.categories, self.grammar, self.lexicon, self.separator)
+		return (self.code, self.name, self.english_name, self.__p_o_s, self.__lemma_categories, self.__categories, self.grammar, self.lexicon, self.properties)
 
 	def save(self, filename = None):
 		if filename is None:
@@ -56,14 +56,29 @@ class Language:
 			filename = "%s.lg" % self.code
 		f = GzipFile(filename, "rb")
 		tuple = pickle.load(f)
-		self.code, self.name, self.english_name, self.p_o_s, self.lemma_categories, self.categories, self.grammar, self.lexicon, self.separator = tuple
+		self.code, self.name, self.english_name, self.__p_o_s, self.__lemma_categories, self.__categories, self.grammar, self.lexicon, self.properties = tuple
 		f.close()
 
-	def read(self, stream):
-		lexical_fsa = self.lexicon.compile(self.separator)
+ 	def append_p_o_s(self, name, lemma_categories = (), categories = ()):
+ 		if name in self.__p_o_s:
+ 			raise KeyError("P.o.s. %s already exists" % name)
+ 		self.__p_o_s += (name,)
+ 		self.__lemma_categories[name] = tuple(lemma_categories)
+ 		self.__categories[name] = tuple(categories)
+
+	def get_p_o_s_names(self):
+ 		return self.__p_o_s
+ 		
+	def get_categories(self, name):
+ 		if name not in self.__p_o_s:
+ 			raise KeyError(name)
+ 		return (self.__lemma_categories[name], self.__categories[name])
+ 		
+	def read(self, expression):
+		lexical_fsa = self.lexicon.compile(self.properties)
 		grammatical_fsa = self.grammar.compile()
 		er = ExpressionReader(lexical_fsa, grammatical_fsa)
-		return er(stream)
+		return er(expression)
 			
 
 

@@ -186,7 +186,8 @@ def __test():
 	#all_niss = f("niss", 1) #flexion table: paradigm = (..), dictionary of generated with none for  defective, iterable over words
 	#print all_niss
 	#(niss, niis): [niis, nisso, nissen,...]
-	
+	import pickle
+	pickle.dump(f, "n.fln")
 	
 
 

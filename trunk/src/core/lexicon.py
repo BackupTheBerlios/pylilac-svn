@@ -164,10 +164,10 @@ class Lexicon:
 		self.__compiled = None
 		self.__valid = False
 		
-	def compile(self, separator = " ", force = False):
+	def compile(self, properties, force = False):
 		if force or not self.__valid and self.__compiled is None:
 			self.__valid = False
-			self.__compiled = Tokenizer(self.__words, separator)
+			self.__compiled = Tokenizer(self.__words, properties)
 			self.__valid = True
 		return self.__compiled
 		
@@ -214,7 +214,7 @@ class Lexicon:
 	def lemmas(self):
 		return self.__lemmas.iterkeys()
 
-	def find_lemmas(self, entry_form, id = None, p_o_s = None, categories = None):
+	def find_lemmas(self, entry_form, id = None, p_o_s = None, lemma_categories = None):
 		def test_attr(filter_categories, categories):
 			if filter_categories is not None:
 				for i, test in enumerate(filter_categories):
@@ -234,7 +234,7 @@ class Lexicon:
 				continue
 			if p_o_s is not None and p_o_s != i.p_o_s:
 				continue
-			if not test_attr(categories, i.categories):
+			if not test_attr(lemma_categories, i.categories):
 				continue
 			f.append(j)
 		return f
@@ -250,6 +250,36 @@ class Lexicon:
 	
 	def __repr__(self):
 		return "[[%d lemmas, %d words]]" % (len(self.__lemmas), len(self.__words))
+		
+	def check(self, lect, corrective_p_o_s = None):
+		def check_length(w, l, err, corr):
+			if len(w.categories) < l:
+				err.add(w)
+				if corr:
+					w.categories += ("0",)*(l - len(hw.categories))
+			if len(w.categories) > len(d[hw.p_o_s][0]):
+				err.add(w)
+				if corr:
+					w.categories = w.categories[0:l]		
+		err = set()
+		d = {}
+		for p in lect.get_p_o_s_names():
+			d[p] = lect.get_p_o_s(p)
+		for hw in self.__lemmas.itervalues():
+			if not d.has_key(hw.p_o_s):
+				err.add(hw)
+				if corrective_p_o_s:
+					hw.p_o_s = corrective_p_o_s
+			if d.has_key(hw.p_o_s):
+				check_length(hw, len(d[hw.p_o_s][0]), err, corrective_p_o_s)
+		for wz in self.__words.itervalues():
+			for w in wz:
+				p_o_s = w.lemma.p_o_s
+				if d.has_key(p_o_s):
+					check_length(w, len(d[p_o_s][1]), err, corrective_p_o_s)
+		return err
+		
+		
 
 def __test():
 
