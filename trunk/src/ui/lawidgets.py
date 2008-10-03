@@ -47,12 +47,11 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 
 
 		def GetStringValue(self):
-			return " ".join(self.GetValues())
-
+			return self.value
 
 		def SetStringValue(self, value):
-			self.SetValues(value.split(" "))
-
+			self.value = value
+			self.__set_popup_values(value.split(" "))
 
 		def GetAdjustedSize(self, minWidth, prefHeight, maxHeight):
 			if self.__rows == 0:
@@ -61,6 +60,7 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 				max_len = reduce(max, map(len, self.__labels))
 				w, h = max(max_len*8+50, minWidth), min(self.__rows*30+25, maxHeight)
 			return wx.Size(w, h)
+
 
 		def __set_properties(self):
 			self.ok_button.SetMinSize((23, 23))
@@ -98,12 +98,12 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 			category_sizer.AddGrowableCol(0)
 
 
-		def SetValues(self, values):
-			for i, v in enumerate(values):
+		def __set_popup_values(self, values):
+			for i, s in enumerate(values):
 				if i == self.__rows: break
-				self.text_ctrls[i].SetValue(v)
+				self.text_ctrls[i].SetValue(s)
 
-		def GetValues(self):
+		def __get_popup_values(self):
 			vs = []
 			for v in self.text_ctrls:
 				s = v.GetValue()
@@ -115,9 +115,10 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 
 
 		def OnOkButton(self, event):
-			self.value = self.GetStringValue()
+			self.curitem = self.__get_popup_values()
+			self.value = " ".join(self.curitem)
 			self.Dismiss()
-			#event.Skip()
+			event.Skip()
 
 	# overridden ComboCtrl methods
 	def __init__(self, parent, id = wx.ID_ANY, choices = [], style = 0):
@@ -130,11 +131,10 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 	def SetCategoryLabels(self, labels):
 		self.__panel = self.PanelComboPopup(labels)
 		self.SetPopupControl(self.__panel)
-	def SetValues(self, values):
-		self.__panel.SetValues(values)
-
-
-	#def Create(self, *args, **kwds):
+	def SetCategoryValues(self, values):
+		self.SetValue(" ".join(values))
+	def GetCategoryValues(self):
+		self.GetValue().split(" ")
 
 
 
@@ -145,7 +145,7 @@ class TestFrame(wx.Frame):
 		wx.Frame.__init__(self, *args, **kwds)
 		self.sizer_2_staticbox = wx.StaticBox(self, -1, "Test")
 		self.combo_box_1 = wx.ComboBox(self, -1, choices=[], style=wx.CB_DROPDOWN)
-		self.combo_box_2 = CategoryPanelComboCtrl(self, -1, choices=["Case", "Number"], style=wx.CB_DROPDOWN)
+		self.combo_box_2 = CategoryPanelComboCtrl(self, -1, choices=["Case", "Number"], style = wx.CB_DROPDOWN)
 
 		self.__set_properties()
 		self.__do_layout()

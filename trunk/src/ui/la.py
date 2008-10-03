@@ -353,7 +353,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		self.entry_form_ctrl.SetValue(hw.entry_form)
 		self.pos_ctrl.SetValue(hw.p_o_s)
 		self.lemma_category_ctrl.SetCategoryLabels(self.data.lemma_categories.get(hw.p_o_s, ()))
-		self.lemma_category_ctrl.SetValues(hw.categories)
+		self.lemma_category_ctrl.SetCategoryValues(hw.categories)
 		self.gloss_ctrl.SetValue(hw.gloss)
         	#categories
 		self.word_grid.ClearGrid()
@@ -587,12 +587,12 @@ class CBFrame(wx.Frame):
 		self.__set_dirty(old_dirty)
 		self.ok_button.Enable(False)
 		
-	def __find_tree_item(self, parent, value, column = 0, exact = 0):
-		if exact == 1:
+	def __find_tree_item(self, parent, value, column = 0, test = 0):
+		if test == 1:
 			test = lambda x, y: (x.lower() == y.lower())
-		elif exact == 2:
+		elif test == 2:
 			test = lambda x, y: (x.lower().find(y.lower())>-1)
-		else:
+		elif test == 0:
 			test = lambda x, y: (x == y)
 
 		tree = self.concept_tree_ctrl
@@ -603,10 +603,13 @@ class CBFrame(wx.Frame):
 				tree.SelectItem(item)
 				return True
 			if tree.ItemHasChildren(item):
-				return self.__find_tree_item(item, value, column, exact)
+				st = self.__find_tree_item(item, value, column, test)
+				if st:
+					return True
 			item, cookie = tree.GetNextChild(parent, cookie)
 		return False
-		
+
+	
 	def __reload_tree(self):
 		tree = self.concept_tree_ctrl
 		root = tree.GetRootItem()
