@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -10,7 +10,6 @@ A module for the generation of flexed forms.
 
 import re
 from lexicon import Word, Lemma
-from wordfilter import WordCategoryFilter, WordFilter
 
 
 __docformat__ = "epytext en"
@@ -66,26 +65,33 @@ class Flexion:
 						return None
 				return s
 
+			def copy(self):
+				c = self.__class__(self.item, self.condition)
+				c.steps = self.steps[:]
+				return c
+
 			
 		def __init__(self):
-			self.__chains = []
+			self.chains = []
 			
 		def create_chain(self, item, condition = "."):
 			c = self.__Chain(item, condition)
-			self.__chains.append(c)
+			self.chains.append(c)
 			return c
-			
+		
+		def copy(self):
+			c = self.__class__()
+			c.chains = [x.copy() for x in self.chains]
+			return c
+
 		def __call__(self, hw_p):
-			for c in self.__chains:
+			for c in self.chains:
 				s = c(hw_p)
 				if s is not None:
 					return s
 			raise ValueError("Transform cannot apply to lemma '%s'" % `hw_p`)
 					
-	def __init__(self, lexicon, p_o_s, lemma_categories = None):
-		self.__lexicon = lexicon
-		self.__p_o_s = p_o_s
-		self.__lemma_categories = lemma_categories
+	def __init__(self):
 		self.__lemma_alias = "lemma"
 		self.__paradigm_def = {}
 		self.__transforms = _SortedDict()
@@ -98,15 +104,14 @@ class Flexion:
 	def define_paradigm(self, item, categories):
 		if item == self.__lemma_alias:
 			raise ValueError("%s is reserved for the lemma entry form" % item)
-		self.__paradigm_def[item] = WordCategoryFilter(self.__p_o_s, self.__lemma_categories, categories)
+		self.__paradigm_def[item] = categories
 
 
-	def paradigm(self, lemma):
-		ws = self.__lexicon.find_words((lemma.entry_form, lemma.id))
+	def paradigm(self, lemma, words):
 		p = {self.__lemma_alias: lemma.entry_form}
 		for item, wcfilter in self.__paradigm_def.iteritems():
-			for w in ws:
-				if wcfilter.match(w):
+			for w in words:
+				if w.categories == wcfilter:
 					p[item] = w.form
 					break
 		return p
@@ -118,36 +123,60 @@ class Flexion:
 		t =  self.__Transform()
 		self.__transforms[categories] = t
 		return t
+
 	def get_transforms(self):
 		return self.__transforms
-		
 
-	def __call__(self, lemma):
+	def copy(self):
+		clone = self.__class__()
+		clone.__lemma_alias = self.__lemma_alias
+		clone.__paradigm_def = self.__paradigm_def.copy()
+		tr = _SortedDict()
+		for k, v in self.__transforms.iteritems():
+			tr[k] = v.copy()
+		clone.__transforms = tr	
+		return clone
+
+	def __call__(self, lemma, words):
 		table = _SortedDict()
-		paradigm = self.paradigm(lemma)
+		paradigm = self.paradigm(lemma, words)
 		for cat, transform in self.__transforms.iteritems():
 			w = Word(transform(paradigm), lemma, cat)
 			table[cat] = w
 		return table
 
-
+class Flexions():
+        def __init__(self):
+                self.__flexions = {}
+        def create_flexion(self, p_o_s, lemma_categories):
+                f = Flexion()
+                self.__flexions[(p_o_s, lemma_categories)] = f
+                return f
+        def clone_flexion(self, p_o_s, lemma_categories, lemma_categories_2):
+		cl =  self.__flexions[(p_o_s, lemma_categories)].copy()
+                self.__flexions[(p_o_s, lemma_categories_2)] = cl
+		return cl
+        def __call__(self, lemma, words):
+                f = self.__flexions[(lemma.p_o_s, lemma.categories)]
+                return f(lemma, words)
 
 def __test():
 	from lexicon import Lexicon
 	
 	qya = Lexicon()
-	telcu = Lemma("telcu", 1, "N", None, "jicesi")
+	telcu = Lemma("telcu", 1, "n", ("0",), "jicesi")
 	qya.add_word(Word("telco", telcu, ("s","N")))
-	maama = Lemma("roccie", 1, "N", None, "zunbe")
+	maama = Lemma("roccie", 1, "n", None, "zunbe")
 	qya.add_word(Word("roccie", maama, ("s","N")))
-	nis = Lemma("niss", 1, "N", None, "dona")
+	nis = Lemma("niss", 1, "n", None, "dona")
 	qya.add_word(Word("nís", nis, ("s","N")))
-	f = Flexion(qya, "N")
+	z = Flexions()
+	f = z.create_flexion("n", ("0",))
 	f.rename_lemma("stem-form")
 	f.define_paradigm("basic-form", ("s","N"))
 	
-	print f.paradigm(telcu)
-	print f.paradigm(nis)
+	print f.paradigm(telcu, qya.find_words(telcu.key()))
+	print f.paradigm(nis, qya.find_words(nis.key()))
 	
 	tr = f.create_transform(("s","N")) 
 	tr.create_chain("basic-form")
@@ -180,14 +209,16 @@ def __test():
 	c.append_step("$", "va")
 	
 	
-	print f(telcu)
-	print f(maama)
-	print f(nis)
-	#all_niss = f("niss", 1) #flexion table: paradigm = (..), dictionary of generated with none for  defective, iterable over words
+	print f(telcu, qya.find_words(telcu.key()))
+	print f(maama, qya.find_words(maama.key()))
+	print f(nis, qya.find_words(nis.key()))
+
+	z.clone_flexion("n", ("0",), ("1",))
+	z(telcu, qya.find_words(telcu.key()))
+	
+	#all_niss = f("niss", 1) #flexion table: paradigm = (..), dictionary of generated with none for defective, iterable over words
 	#print all_niss
 	#(niss, niis): [niis, nisso, nissen,...]
-	import pickle
-	pickle.dump(f, "n.fln")
 	
 
 

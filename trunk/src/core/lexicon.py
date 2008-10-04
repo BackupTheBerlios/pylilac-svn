@@ -23,7 +23,7 @@ class Lemma:
 	
 	Usually, lemmas or headwords are the I{entry words} in dictionaries and encyclopediae.
 	"""
-	def __init__(self, entry_form, id, p_o_s, categories = None, gloss = None):
+	def __init__(self, entry_form, id, p_o_s, categories, gloss):
 		"""
 		Create a lemma in a specific language for the I{entry word} specified.
 
@@ -52,7 +52,7 @@ class Lemma:
 		    The I{part of speech} is the general classification of the word: usually it distinguish nouns from verbs &c..
 		@type categories: tuple (srt)
 		@param categories:
-		    The categories of the lemma; default is the empty tuple.
+		    The categories of the lemma.
 
 		    Categories can specify better the features of a particular I{part of speech}.
 		@type gloss: str
@@ -67,6 +67,9 @@ class Lemma:
 		self.p_o_s = p_o_s
 		self.categories = Utilities.nvl(categories, ())
 		self.gloss = gloss
+
+	def key(self):
+		return (self.entry_form, self.id)
 
 	def __eq__(self, other):
 		"""
@@ -89,14 +92,14 @@ class Word:
 	"""
 	A single unit of language which has meaning and can be expressed.
 	"""
-	def __init__(self, form, lemma, categories = None):
+	def __init__(self, form, lemma, categories = ()):
 		"""
 		Create a word with its form, its L{lemma<Lemma>} and its categories.
 
 		Example::
 			Word(u"heart", Lemma("eng", u"heart", 1, "noun", None, "kawcesi"))
-			Word(u"hearts", lemmas["eng", u"heart", 1], {"number": "pl"})
-			Word(u"h??ts", hw, {"number": "pl"})
+			Word(u"hearts", lemmas["eng", u"heart", 1], ("pl"))
+			Word(u"h??ts", hw, ("pl"))
 			Word(u"moku", "tko", moku)
 	
 		@type form: unicode
@@ -114,7 +117,7 @@ class Word:
 		"""
 		self.form = form
 		self.lemma = lemma
-		self.categories = Utilities.nvl(categories, ())
+		self.categories = categories
 
 	def __eq__(self, other):
 		"""
@@ -181,19 +184,19 @@ class Lexicon:
 		if lemma:
 			word.lemma = self.add_lemma(lemma)
 		self.__words.setdefault(word.form, []).append(word)
+		self.__valid = False
 		return word
 		
-	def remove_word(self, word):
-		ws = self.__words[word.form]
-		if word in ws:
-			ws.remove(word)
+	def remove_words(self, word_form):
+		del self.__words[word_form]
+		self.__valid = False
 			
 	def get_word(self, form):
 		ws = self.__words.get(form, [])
 		return ws
 		
 	def add_lemma(self, lemma):
-		k = (lemma.entry_form, lemma.id)
+		k = lemma.key()
 		if k in self.__lemmas:
 			if self.__lemmas[k] != lemma:
 				raise ExistingLemmaError(lemma)
@@ -201,13 +204,13 @@ class Lexicon:
 				lemma = self.__lemmas[k]
 		else:
 			self.__lemmas[k] = lemma
+		self.__valid = False
 		return lemma
 		
-	def remove_lemma(self, lemma):
-		k = (lemma.entry_form, lemma.id)
-		if k in self.__lemmas:
-			del self.__lemmas[k]
-			
+	def remove_lemma(self, lemma_key):
+		del self.__lemmas[lemma_key]
+		self.__valid = False
+
 	def get_lemma(self, lemma_key):
 		return self.__lemmas.get(lemma_key)
 		
@@ -277,6 +280,7 @@ class Lexicon:
 				p_o_s = w.lemma.p_o_s
 				if d.has_key(p_o_s):
 					check_length(w, len(d[p_o_s][1]), err, corrective_p_o_s)
+		self.__valid = False
 		return err
 		
 		

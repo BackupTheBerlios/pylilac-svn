@@ -11,6 +11,7 @@ __docformat__ = "epytext en"
 import utilities
 from grammar import Grammar
 from lexicon import Lexicon
+from flexion import Flexions
 from expression import ExpressionReader
 from gzip import GzipFile
 import pickle
@@ -37,6 +38,7 @@ class Lect:
 		self.__categories = {}
 		self.grammar = Grammar(code)
 		self.lexicon = Lexicon()
+		self.flexions = Flexions()
 		self.properties = {"separator" : " ", "capitalization" : "3"} #Lexical and Initials
 
 

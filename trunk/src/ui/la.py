@@ -348,6 +348,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 
 
 	def OnLemmaSelect(self, event): # wxGlade: LAFrame.<event_handler>
+		def redim(grid, new_rows):
+			grid.ClearGrid()
+			rows = grid.GetNumberRows()
+			if new_rows>rows:
+				grid.AppendRows(new_rows - rows)
+			if new_rows<rows:
+				grid.DeleteRows(new_rows, rows - new_rows)
 		hw_key = event.GetClientData()
 		hw = self.data.lexicon.get_lemma(hw_key)
 		self.entry_form_ctrl.SetValue(hw.entry_form)
@@ -356,10 +363,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		self.lemma_category_ctrl.SetCategoryValues(hw.categories)
 		self.gloss_ctrl.SetValue(hw.gloss)
         	#categories
-		self.word_grid.ClearGrid()
-		for i, w in enumerate(self.data.lexicon.find_words(hw_key)):
+		words = self.data.lexicon.find_words(hw_key)
+		redim(self.word_grid, len(words))
+		for i, w in enumerate(words):
 			self.word_grid.SetCellValue(i, 0, w.form)
-			self.word_grid.SetCellValue(i, 1, `w.categories`)
+			self.word_grid.SetCellValue(i, 1, " ".join(w.categories))
 		
 	def OnDoSearch(self, event): # wxGlade: LAFrame.<event_handler>
 		entry_form = self.search_lemma.GetValue()
