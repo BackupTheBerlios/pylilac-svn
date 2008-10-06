@@ -47,7 +47,7 @@ class Lect:
 
 	def save(self, filename = None):
 		if filename is None:
-			filename = "%s.lg" % self.code
+			filename = "%s.lct" % self.code
 		f = GzipFile(filename, "wb")
 		pickle.dump(self.__tuple(), f, 2)
 		f.flush()
@@ -55,7 +55,7 @@ class Lect:
 
 	def load(self, filename = None):
 		if filename is None:
-			filename = "%s.lg" % self.code
+			filename = "%s.lct" % self.code
 		f = GzipFile(filename, "rb")
 		tuple = pickle.load(f)
 		self.code, self.name, self.english_name, self.__p_o_s, self.__lemma_categories, self.__categories, self.grammar, self.lexicon, self.properties = tuple
