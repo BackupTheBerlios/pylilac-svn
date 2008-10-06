@@ -77,7 +77,7 @@ class LAFrame(wx.Frame):
 		self.search_lemma = wx.SearchCtrl(self.hw_pane, -1, "", style=wx.TE_PROCESS_ENTER)
 		self.new_button = StockBitmapButton(self.hw_pane, -1, "wxART_NEW")
 		self.delete_button = StockBitmapButton(self.hw_pane, -1, "wxART_DELETE")
-		self.lemma_ctrl = wx.ListBox(self.hw_pane, -1, choices=[], style=wx.LB_SINGLE|wx.LB_SORT)
+		self.lemma_ctrl = wx.ListBox(self.hw_pane, -1, choices=[], style=wx.LB_SINGLE)
 		self.entry_form_ctrl = wx.TextCtrl(self.lemma_pane, -1, "")
 		self.pos_ctrl = wx.ComboBox(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN|wx.CB_READONLY)
 		self.lemma_category_ctrl = CategoryPanelComboCtrl(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN)
@@ -154,6 +154,7 @@ class LAFrame(wx.Frame):
 		self.word_grid.SetColLabelValue(1, "Form")
 		self.word_grid.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
 		self.lemma_pane.SetScrollRate(10, 10)
+		self.la_notebook.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
 		# end wxGlade
 		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
 		self.SetIcon(icon)
