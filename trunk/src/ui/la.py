@@ -62,7 +62,7 @@ class LAFrame(wx.Frame):
 		self.tools_menu.AppendItem(self.concept_browser_menu)
 		self.filter_editor_menu = wx.MenuItem(self.tools_menu, wx.ID_ANY, "Filter Editor", "", wx.ITEM_NORMAL)
 		self.tools_menu.AppendItem(self.filter_editor_menu)
-		self.language_reader_menu = wx.MenuItem(self.tools_menu, wx.ID_ANY, "Lect Reader", "", wx.ITEM_NORMAL)
+		self.language_reader_menu = wx.MenuItem(self.tools_menu, wx.ID_ANY, "Language Reader", "", wx.ITEM_NORMAL)
 		self.tools_menu.AppendItem(self.language_reader_menu)
 		self.bilingual_interpreter_menu = wx.MenuItem(self.tools_menu, wx.ID_ANY, "Bilingual Interpreter", "", wx.ITEM_NORMAL)
 		self.tools_menu.AppendItem(self.bilingual_interpreter_menu)
@@ -83,7 +83,7 @@ class LAFrame(wx.Frame):
 		self.lemma_category_ctrl = CategoryPanelComboCtrl(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN)
 		self.spacer_panel = wx.Panel(self.lemma_pane, -1, style=wx.NO_BORDER)
 		self.gloss_ctrl = wx.TextCtrl(self.lemma_pane, -1, "", style=wx.NO_BORDER)
-		self.word_grid = wx.grid.Grid(self.lemma_pane, -1, size=(1, 1))
+		self.word_ctrl = wx.gizmos.TreeListCtrl(self.lemma_pane, -1, style=wx.TR_HAS_BUTTONS|wx.TR_NO_LINES|wx.TR_HIDE_ROOT|wx.TR_DEFAULT_STYLE|wx.SUNKEN_BORDER)
 		self.undo_button = wx.Button(self.la_lexicon_pane, wx.ID_UNDO, "")
 		self.apply_button = wx.Button(self.la_lexicon_pane, wx.ID_APPLY, "")
 		self.la_flexion_pane = wx.Panel(self.la_notebook, -1)
@@ -106,7 +106,7 @@ class LAFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnOverview, self.overview_menu)
 		self.Bind(wx.EVT_MENU, self.OnRunConceptBrowser, self.concept_browser_menu)
 		self.Bind(wx.EVT_MENU, self.OnRunFilterEditor, self.filter_editor_menu)
-		self.Bind(wx.EVT_MENU, self.OnRunLectReader, self.language_reader_menu)
+		self.Bind(wx.EVT_MENU, self.OnRunLanguageReader, self.language_reader_menu)
 		self.Bind(wx.EVT_MENU, self.OnRunBilingualInterpreter, self.bilingual_interpreter_menu)
 		self.Bind(wx.EVT_MENU, self.OnAbout, self.about_menu)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnDoSearch, self.search_lemma)
@@ -118,6 +118,7 @@ class LAFrame(wx.Frame):
 		self.__dirname = ""
 		self.data =  Lect()
 		
+		self.__do_tree()
 		self.__load_tabs()
 
 		self.search_lemma.Bind(wx.EVT_SEARCHCTRL_SEARCH_BTN, self.OnDoSearch, self.search_lemma)
@@ -127,9 +128,9 @@ class LAFrame(wx.Frame):
 
 	def __set_properties(self):
 		# begin wxGlade: LAFrame.__set_properties
-		self.SetTitle("Lilac - Lect Architect")
+		self.SetTitle("Lilac - Language Architect")
 		self.SetSize((938, 588))
-		self.SetToolTipString("Lilac Lect Architect")
+		self.SetToolTipString("Lilac Language Architect")
 		self.search_lemma.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
 		self.new_button.SetMinSize((30, 30))
 		self.delete_button.SetMinSize((30, 30))
@@ -144,15 +145,6 @@ class LAFrame(wx.Frame):
 		self.spacer_panel.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self.gloss_ctrl.SetMinSize((-1,-1))
 		self.gloss_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
-		self.word_grid.CreateGrid(1, 2)
-		self.word_grid.SetRowLabelSize(0)
-		self.word_grid.SetColLabelSize(0)
-		self.word_grid.EnableGridLines(0)
-		self.word_grid.EnableDragRowSize(0)
-		self.word_grid.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
-		self.word_grid.SetColLabelValue(0, "Categories")
-		self.word_grid.SetColLabelValue(1, "Form")
-		self.word_grid.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
 		self.lemma_pane.SetScrollRate(10, 10)
 		# end wxGlade
 		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
@@ -183,7 +175,7 @@ class LAFrame(wx.Frame):
 		lemma_sizer_2.AddGrowableCol(3)
 		lemma_sizer_1.Add(lemma_sizer_2, 1, wx.EXPAND, 0)
 		lemma_sizer_1.Add(self.gloss_ctrl, 0, wx.EXPAND, 0)
-		lemma_sizer_1.Add(self.word_grid, 1, wx.EXPAND, 0)
+		lemma_sizer_1.Add(self.word_ctrl, 1, wx.EXPAND, 0)
 		self.lemma_pane.SetSizer(lemma_sizer_1)
 		lemma_sizer_1.AddGrowableRow(2)
 		lemma_sizer_1.AddGrowableCol(0)
@@ -196,7 +188,7 @@ class LAFrame(wx.Frame):
 		lexicon_sizer_2.AddGrowableCol(0)
 		lexicon_sizer_1.Add(lexicon_sizer_2, 1, wx.ALL|wx.EXPAND, 0)
 		self.la_lexicon_pane.SetSizer(lexicon_sizer_1)
-		self.la_notebook.AddPage(self.la_language_pane, "Lect")
+		self.la_notebook.AddPage(self.la_language_pane, "Language")
 		self.la_notebook.AddPage(self.la_lexicon_pane, "Lexicon")
 		self.la_notebook.AddPage(self.la_flexion_pane, "Flexion")
 		self.la_notebook.AddPage(self.la_grammar_pane, "Grammar")
@@ -206,11 +198,25 @@ class LAFrame(wx.Frame):
 		# end wxGlade
 		
 	def __load_tabs(self):
-		self.pos_ctrl.Clear()
-		self.pos_ctrl.AppendItems(self.data.get_p_o_s_names())
 		self.lemma_ctrl.Clear()
 		for hw in self.data.lexicon.lemmas():
 			self.lemma_ctrl.Append("%s.%d" % hw, hw)
+		self.pos_ctrl.Clear()
+		self.pos_ctrl.AppendItems(self.data.get_p_o_s_names())
+			
+	def __do_tree(self):
+		"""Prepare the tree metadata"""
+		tree = self.word_ctrl
+		
+		# create columns
+		tree.AddColumn("Categories")
+		tree.AddColumn("Form")
+		tree.SetMainColumn(0) # the one with the tree in it...
+		tree.SetColumnWidth(0, 170)
+		tree.SetColumnWidth(1, 50)
+	
+		root = tree.AddRoot("[Root]")
+		tree.SetItemText(root, "-", 1)
 		
 	def __set_dirty(self, value = True):
 		self.save_menu.Enable(value)
@@ -220,7 +226,7 @@ class LAFrame(wx.Frame):
 		return self.save_menu.IsEnabled()		
 
 	def OnOpen(self, event): # wxGlade: LAFrame.<event_handler>
-		fileType = "Lilac language files (.lg)|*.lg"
+		fileType = "Lilac language files (.lct)|*.lct"
 		dlg = wx.FileDialog(self, "Open a language file...", self.__dirname, "", fileType, wx.OPEN)
 
 		if dlg.ShowModal() == wx.ID_OK:
@@ -247,7 +253,7 @@ class LAFrame(wx.Frame):
 			wx.EndBusyCursor()
 
 	def OnSaveAs(self, event): # wxGlade: LAFrame.<event_handler>
-		fileType = "Lilac language files (.lg)|*.lg"
+		fileType = "Lilac language files (.lct)|*.lct"
 		dlg = wx.FileDialog(self, "Save the language as...", self.__dirname, self.__filename, fileType, wx.SAVE | wx.OVERWRITE_PROMPT)
 
 		if dlg.ShowModal() == wx.ID_OK:
@@ -307,8 +313,8 @@ class LAFrame(wx.Frame):
 		print "Event handler `OnRunFilterEditor' not implemented!"
 		event.Skip()
 
-	def OnRunLectReader(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnRunLectReader' not implemented!"
+	def OnRunLanguageReader(self, event): # wxGlade: LAFrame.<event_handler>
+		print "Event handler `OnRunLanguageReader' not implemented"
 		event.Skip()
 
 	def OnRunBilingualInterpreter(self, event): # wxGlade: LAFrame.<event_handler>
@@ -346,15 +352,26 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		wx.AboutBox(info)
 
 
-
 	def OnLemmaSelect(self, event): # wxGlade: LAFrame.<event_handler>
-		def redim(grid, new_rows):
-			grid.ClearGrid()
-			rows = grid.GetNumberRows()
-			if new_rows>rows:
-				grid.AppendRows(new_rows - rows)
-			if new_rows<rows:
-				grid.DeleteRows(new_rows, rows - new_rows)
+		def append_child(tree, word):
+			cat = word.categories
+			i = 0
+			#find insertion point
+			parent = tree.GetRootItem()
+			while i < len(cat):
+				item, cookie = tree.GetFirstChild(parent)
+				caption = "..." + cat[i]
+				while item:
+					if tree.GetItemText(item) == caption:
+						break
+					item, cookie = tree.GetNextChild(parent, cookie)
+				if not item:
+					item = tree.AppendItem(parent, caption)
+				parent = item
+				i += 1
+			tree.SetItemText(item, word.form, 1)
+			tree.SetItemData(item, wx.TreeItemData(word))
+		
 		hw_key = event.GetClientData()
 		hw = self.data.lexicon.get_lemma(hw_key)
 		self.entry_form_ctrl.SetValue(hw.entry_form)
@@ -362,16 +379,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		self.lemma_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[0])
 		self.lemma_category_ctrl.SetCategoryValues(hw.categories)
 		self.gloss_ctrl.SetValue(hw.gloss)
-        	#categories
-		words = self.data.lexicon.find_words(hw_key)
-		redim(self.word_grid, len(words))
-		for i, w in enumerate(words):
-			self.word_grid.SetCellValue(i, 0, w.form)
-			self.word_grid.SetCellValue(i, 1, " ".join(w.categories))
 		
+		words = self.data.lexicon.find_words(hw_key)
+		root = self.word_ctrl.GetRootItem()
+		self.word_ctrl.DeleteChildren(root)
+		for w in words:
+			append_child(self.word_ctrl, w)
+		
+		self.word_ctrl.Expand(root)		
+
 	def OnDoSearch(self, event): # wxGlade: LAFrame.<event_handler>
 		entry_form = self.search_lemma.GetValue()
 		print entry_form
+
 
 # end of class LAFrame
 

@@ -144,7 +144,7 @@ class TestFrame(wx.Frame):
 		kwds["style"] = wx.DEFAULT_FRAME_STYLE
 		wx.Frame.__init__(self, *args, **kwds)
 		self.sizer_2_staticbox = wx.StaticBox(self, -1, "Test")
-		self.combo_box_1 = wx.ComboBox(self, -1, choices=[], style=wx.CB_DROPDOWN)
+		self.combo_box_1 = wx.ComboBox(self, -1, choices = [], style = wx.CB_DROPDOWN)
 		self.combo_box_2 = CategoryPanelComboCtrl(self, -1, choices=["Case", "Number"], style = wx.CB_DROPDOWN)
 
 		self.__set_properties()
