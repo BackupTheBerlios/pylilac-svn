@@ -190,15 +190,15 @@ class Lexicon:
 		self.__valid = False
 		return word
 		
-	def remove_words(self, word_form):
-		w = self.__words[word_form]
-		self.__indexed_words[word.lemma.key()].remove(w)
-		del self.__words[word_form]
+	def remove_word(self, word):
+		self.__indexed_words[word.lemma.key()].remove(word)
+		self.__words[word.form].remove(word)
 		self.__valid = False
-			
-	def get_words(self, form):
-		ws = self.__words.get(form, [])
+
+	def get_words(self, word_form):
+		ws = self.__words.get(word_form, [])
 		return ws
+			
 		
 	def add_lemma(self, lemma):
 		k = lemma.key()
@@ -222,8 +222,13 @@ class Lexicon:
 	def get_lemma(self, lemma_key):
 		return self.__lemmas.get(lemma_key)
 		
-	def lemmas(self):
+	def iter_lemmas(self):
 		return self.__lemmas.iterkeys()
+		
+	def iter_words(self):
+		for lw in self.__indexed_words.itervalues():
+			for w in lw:
+				yield w
 
 	def find_lemmas(self, entry_form, id = None, p_o_s = None, lemma_categories = None):
 		def test_attr(filter_categories, categories):

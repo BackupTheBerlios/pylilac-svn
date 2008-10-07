@@ -210,7 +210,7 @@ class LAFrame(wx.Frame):
 		self.pos_ctrl.Clear()
 		self.pos_ctrl.AppendItems(self.data.get_p_o_s_names())
 		self.lemma_ctrl.Clear()
-		for hw in self.data.lexicon.lemmas():
+		for hw in self.data.lexicon.iter_lemmas():
 			self.lemma_ctrl.Append("%s.%d" % hw, hw)
 		
 	def __set_dirty(self, value = True):
