@@ -357,14 +357,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 			if new_rows<rows:
 				grid.DeleteRows(new_rows, rows - new_rows)
 		hw_key = event.GetClientData()
-		hw = self.data.lexicon.get_lemma(hw_key)
+		hw = self.data.lexicon.get_lemma_by_key(hw_key)
 		self.entry_form_ctrl.SetValue(hw.entry_form)
 		self.pos_ctrl.SetValue(hw.p_o_s)
 		self.lemma_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[0])
 		self.lemma_category_ctrl.SetCategoryValues(hw.categories)
 		self.gloss_ctrl.SetValue(hw.gloss)
         	#categories
-		words = self.data.lexicon.find_words(hw_key)
+		words = self.data.lexicon.retrieve_words(hw_key)
 		redim(self.word_grid, len(words))
 		for i, w in enumerate(words):
 			self.word_grid.SetCellValue(i, 0, w.form)

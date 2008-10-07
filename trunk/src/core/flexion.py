@@ -9,8 +9,7 @@ A module for the generation of flexed forms.
 """
 
 import re
-from lexicon import Word, Lemma
-
+from lexicon import Word, Lemma, Lexicon
 
 __docformat__ = "epytext en"
 
@@ -41,11 +40,17 @@ class _SortedDict(dict):
 		s += "]}"
 		return s
 
+BASED_ON_LEMMA = "LEMMA"
+
 class Flexion:
 	class __Transform:
 		class __Chain:
-			def __init__(self, item, condition = "."):
-				self.item = item
+			def __init__(self, parent_flexion, based_on, condition):
+				self.__parent = parent_flexion
+				if BASED_ON_LEMMA == based_on:
+					self.based_on = None
+				else:
+					self.based_on = based_on
 				self.condition = condition
 				self.__cco = re.compile(condition, re.IGNORECASE)
 				self.steps = []
@@ -54,8 +59,20 @@ class Flexion:
 				cre = re.compile(regexp, re.IGNORECASE)
 				self.steps.append((regexp, cre, repl, optional))
 			
-			def __call__(self, hw_p):
-				s = hw_p[self.item]
+			def __call__(self, lemma, words):
+				if self.based_on is None:
+					s = lemma.entry_form
+				else:
+					s = None
+					for w in words:
+						if Lexicon.test_categories(self.based_on, w.categories):
+							s = w.form
+							break
+					if not s:
+						w = self.__parent.do_transform(lemma, words, self.based_on)
+						s = w.form
+				if not s:
+					return None
 				if not self.__cco.search(s):
 					return None
 				for r, cre, repl, optional in self.steps:
@@ -65,93 +82,60 @@ class Flexion:
 						return None
 				return s
 
-			def copy(self):
-				c = self.__class__(self.item, self.condition)
-				c.steps = self.steps[:]
-				return c
-
 			
-		def __init__(self):
+		def __init__(self, parent_flexion, categories):
+			self.__parent = parent_flexion
+			self.categories = categories
 			self.chains = []
 			
-		def create_chain(self, item, condition = "."):
-			c = self.__Chain(item, condition)
+		def create_chain(self, based_on = BASED_ON_LEMMA, condition = "."):
+			c = self.__Chain(self.__parent, based_on , condition)
 			self.chains.append(c)
 			return c
 		
-		def copy(self):
-			c = self.__class__()
-			c.chains = [x.copy() for x in self.chains]
-			return c
 
 		def append_step(self, regexp, repl, optional = False):
 			for c in self.chains:
 				c.append_step(regexp, repl, optional)
 
-		def __call__(self, hw_p):
-			for c in self.chains:
-				s = c(hw_p)
+		def __call__(self, lemma, words):
+			for chain in self.chains:
+				s = chain(lemma, words)
 				if s is not None:
 					return s
-			raise ValueError("Transform cannot apply to lemma '%s'" % `hw_p`)
-					
+			raise ValueError("Transform cannot apply to lemma '%s'" % `lemma`)
+			
 	def __init__(self):
-		self.__lemma_alias = "lemma"
-		self.__paradigm_def = {}
 		self.__transforms = _SortedDict()
 
-	def rename_lemma(self, item):
-		if self.__paradigm_def.has_key(item):
-			raise ValueError("%s is already in use" % item)
-		self.__lemma_alias = item
-	
-	def define_paradigm(self, item, categories):
-		if item == self.__lemma_alias:
-			raise ValueError("%s is reserved for the lemma entry form" % item)
-		self.__paradigm_def[item] = categories
-
-
-	def paradigm(self, lemma, words):
-		p = {self.__lemma_alias: lemma.entry_form}
-		for item, wcfilter in self.__paradigm_def.iteritems():
-			for w in words:
-				if w.categories == wcfilter:
-					p[item] = w.form
-					break
-		return p
-		
-
-	def create_transform(self, categories, template = None):
+	def create_transform(self, categories):
 		if type(categories) is not tuple:
 			raise TypeError(categories)
-		if template is None:
-			t =  self.__Transform()
-		else:
-			if type(template) is not tuple:
-				raise TypeError(template)
-			t = self.__transforms[template].copy()
+		t =  self.__Transform(self, categories)
 		self.__transforms[categories] = t
 		return t
 
-	def get_transforms(self):
-		return self.__transforms
+	def iter_transforms(self):
+		return self.__transforms.itervalues()
 
-	def copy(self):
-		clone = self.__class__()
-		clone.__lemma_alias = self.__lemma_alias
-		clone.__paradigm_def = self.__paradigm_def.copy()
-		tr = _SortedDict()
-		for k, v in self.__transforms.iteritems():
-			tr[k] = v.copy()
-		clone.__transforms = tr	
-		return clone
+	def do_transform(self, lemma, words, categories):
+		word = None
+		for w in words:
+			if Lexicon.test_categories(categories, w.categories):
+				word = w
+				break
+		if word is None:
+			transform = self.__transforms[categories]
+			word = Word(transform(lemma, words), lemma, categories)
+		return word
+
+
 
 	def __call__(self, lemma, words):
 		table = _SortedDict()
-		paradigm = self.paradigm(lemma, words)
-		for cat, transform in self.__transforms.iteritems():
-			w = Word(transform(paradigm), lemma, cat)
-			table[cat] = w
+		for categories in self.__transforms.iterkeys():		
+			word = self.do_transform(lemma, words, categories)	
+			table[word.categories] = word
 		return table
 
 class Flexions():
@@ -161,10 +145,6 @@ class Flexions():
                 f = Flexion()
                 self.__flexions[(p_o_s, lemma_categories)] = f
                 return f
-        def clone_flexion(self, p_o_s, lemma_categories, lemma_categories_2):
-		cl =  self.__flexions[(p_o_s, lemma_categories)].copy()
-                self.__flexions[(p_o_s, lemma_categories_2)] = cl
-		return cl
         def __call__(self, lemma, words):
                 f = self.__flexions[(lemma.p_o_s, lemma.categories)]
                 return f(lemma, words)
@@ -181,51 +161,50 @@ def __test():
 	qya.add_word(Word("nís", nis, ("s","N")))
 	z = Flexions()
 	f = z.create_flexion("n", ("0",))
-	f.rename_lemma("stem-form")
-	f.define_paradigm("basic-form", ("s","N"))
-	
-	print f.paradigm(telcu, qya.find_words(telcu.key()))
-	print f.paradigm(nis, qya.find_words(nis.key()))
 	
 	tr = f.create_transform(("s","N")) 
-	tr.create_chain("basic-form")
+	tr.create_chain(BASED_ON_LEMMA)
 	
 
 	tr_o = f.create_transform(("s","G")) 
-	c = tr_o.create_chain("stem-form")
+	c = tr_o.create_chain()
 	c.append_step("ie$", "ié", True)
 	c.append_step("cu$", "qu", True)
 	c.append_step("[ao]?$", "o") 
 	
 	
 	tr = f.create_transform(("s","D")) 
-	c = tr.create_chain("stem-form", "[^aeiouáéíóú]$")
+	c = tr.create_chain(("s","N"), "[^aeiouáéíóú]$")
 	c.append_step("$", "en")
-	c = tr.create_chain("stem-form", "[aeiouáéíóú]$")
+	c = tr.create_chain(("s","N"), "[aeiouáéíóú]$")
 	c.append_step("$", "n")
 	
 		
 	tr = f.create_transform(("s","P")) 
-	c = tr.create_chain("stem-form", "[iu]$")
+	c = tr.create_chain(BASED_ON_LEMMA, "[iu]$")
 	c.append_step("$", "va")
-	c = tr.create_chain("stem-form", "ss$")
+	c = tr.create_chain(BASED_ON_LEMMA, "ss$")
 	c.append_step("$", "eva")
-	c = tr.create_chain("stem-form", "c$")
+	c = tr.create_chain(BASED_ON_LEMMA, "c$")
 	c.append_step("$", "qua")
-	c = tr.create_chain("basic-form", "[^aeiouáéíóú]$")
+	c = tr.create_chain(BASED_ON_LEMMA, "[^aeiouáéíóú]$")
 	c.append_step("$", "wa")
-	c = tr.create_chain("basic-form", "[aeiouáéíóú]$")
+	c = tr.create_chain(BASED_ON_LEMMA, "[aeiouáéíóú]$")
 	c.append_step("$", "va")
 	
-	
-	print f(telcu, qya.find_words(telcu.key()))
-	print f(maama, qya.find_words(maama.key()))
-	print f(nis, qya.find_words(nis.key()))
 
-	z.clone_flexion("n", ("0",), ("1",))
-	z(telcu, qya.find_words(telcu.key()))
+
+	tr = f.create_transform(("s","I")) 
+	c = tr.create_chain(("s","D"))
+	c.append_step("$", "en")
 	
-	#all_niss = f("niss", 1) #flexion table: paradigm = (..), dictionary of generated with none for defective, iterable over words
+	print f(telcu, qya.retrieve_words(telcu.key()))
+	print f(maama, qya.retrieve_words(maama.key()))
+	print f(nis, qya.retrieve_words(nis.key()))
+
+	
+	
+	#all_niss = f(u"niss", 1) #flexion table: paradigm = (..), dictionary of generated with none for defective, iterable over words
 	#print all_niss
 	#(niss, niis): [niis, nisso, nissen,...]
 	

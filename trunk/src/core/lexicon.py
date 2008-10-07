@@ -11,8 +11,10 @@ A module for lexicon management: Word and Lemma.
 
 __docformat__ = "epytext en"
 
+from sys import maxint
 from utilities import Utilities
 from tokenizer import Tokenizer
+from bnf import Literal
 
 class ExistingLemmaError(ValueError):
 	pass
@@ -155,7 +157,7 @@ class Particle(Word):
 	For example, I{li} in Toki Pona.
 	"""
 	def __init__(self, form, id, p_o_s):
-		Word.__init__(self, form, Lemma(form, id, p_o_s))
+		Word.__init__(self, form, Lemma(form, id, p_o_s, None, None))
 	def __repr__(self):
 		return self.form
 
@@ -167,7 +169,20 @@ class Lexicon:
 		self.__compiled = None
 		self.__indexed_words = {}
 		self.__valid = False
-		
+
+	@staticmethod
+	def test_categories(filter_categories, categories):
+		if filter_categories is not None:
+			for i, test in enumerate(filter_categories):
+				if test is not None and i < len(categories):
+					v = categories[i]
+					if v is not None:
+						if not isinstance(test, CategoryFilter):
+							if test != v: return False
+						else:
+							if not test.match(v): return False
+		return True
+
 	def compile(self, properties, force = False):
 		if force or not self.__valid and self.__compiled is None:
 			self.__valid = False
@@ -195,11 +210,21 @@ class Lexicon:
 		self.__words[word.form].remove(word)
 		self.__valid = False
 
-	def get_words(self, word_form):
-		ws = self.__words.get(word_form, [])
+	def retrieve_words(self, lemma_key = None, form = None, categories = None):
+		ws = []
+		if lemma_key is not None:
+			for w in self.__indexed_words[lemma_key]:
+				if form is not None and form != w.form:
+					continue
+				if not Lexicon.test_categories(categories, w.categories):
+					continue
+				ws.append(w)
+		else:
+			for w in self.__words.get(word_form, []):
+				if self.__test_categories(categories, w.categories):
+					ws.append(w)
 		return ws
-			
-		
+	
 	def add_lemma(self, lemma):
 		k = lemma.key()
 		if k in self.__lemmas:
@@ -212,14 +237,14 @@ class Lexicon:
 		self.__valid = False
 		return lemma
 		
-	def remove_lemma(self, lemma_key):
+	def remove_lemma_by_key(self, lemma_key):
 		for w in self.__indexed_words[lemma_key]:
 			self.__words[w.form].remove(w)
 		del self.__indexed_words[lemma_key]
 		del self.__lemmas[lemma_key]
 		self.__valid = False
 
-	def get_lemma(self, lemma_key):
+	def get_lemma_by_key(self, lemma_key):
 		return self.__lemmas.get(lemma_key)
 		
 	def iter_lemmas(self):
@@ -230,18 +255,7 @@ class Lexicon:
 			for w in lw:
 				yield w
 
-	def find_lemmas(self, entry_form, id = None, p_o_s = None, lemma_categories = None):
-		def test_attr(filter_categories, categories):
-			if filter_categories is not None:
-				for i, test in enumerate(filter_categories):
-					if test is not None and i < len(categories):
-						v = categories[i]
-						if v is not None:
-							if isinstance(test, CategoryFilter):
-								if not test.match(v): return False
-							else:
-								if test != v: return False
-			return True
+	def retrieve_lemmas(self, entry_form, id = None, p_o_s = None, lemma_categories = None):
 		f = []
 		for i in self.__lemmas.itervalues():
 			if entry_form is not None and entry_form != i.entry_form:
@@ -250,14 +264,10 @@ class Lexicon:
 				continue
 			if p_o_s is not None and p_o_s != i.p_o_s:
 				continue
-			if not test_attr(lemma_categories, i.categories):
+			if not Lexicon.test_categories(lemma_categories, i.categories):
 				continue
 			f.append(j)
 		return f
-
-
-	def find_words(self, lemma_key):
-		return self.__indexed_words[lemma_key]
 
 	def __repr__(self):
 		return "[[%d lemmas, %d words]]" % (len(self.__lemmas), len(self.__words))
@@ -290,25 +300,163 @@ class Lexicon:
 					check_length(w, len(d[p_o_s][1]), err, corrective_p_o_s)
 		self.__valid = False
 		return err
+
+class WordFilter(Literal):
+	"""
+	Regarded parameters: form, lemma entry word and ID, word.categories
+	"""
+	def __init__(self, word):
+		if not isinstance(word, Word):
+			raise TypeError(word)
+		Literal.__init__(self, (word.form, word.lemma.entry_form, word.lemma.id, None, None, word.categories))
+
+	def __hash__(self):
+		def dict_hash(x, i):
+			if x is None: 
+				return 0
+			else:
+				return len(x) << i & maxint
+		return hash(self.content[:-2]) ^ dict_hash(self.content[4], 2) ^ dict_hash(self.content[5], 4)
+
+
+
+	def match(self, word): 
+		def test_attr(filter_categories, categories):
+			if filter_categories is not None:
+				for i, test in enumerate(filter_categories):
+					if test is not None and i < len(categories):
+						v = categories[i]
+						if v is not None:
+							if isinstance(test, CategoryFilter):
+								if not test.match(v): return False
+							else:
+								if test != v: return False
+			return True
+		def none_or_equal(v, w):
+			if v is None: return True
+			else: return v == w
+
+		if not none_or_equal(self.content[0], word.form):
+			return False
+		if not none_or_equal(self.content[1], word.lemma.entry_form):
+			return False
+		if not none_or_equal(self.content[2], word.lemma.id):
+			return False
+		if not none_or_equal(self.content[3], word.lemma.p_o_s):
+			return False
+		if not test_attr(self.content[4], word.lemma.categories):
+			return False
+		if not test_attr(self.content[5], word.categories):
+			return False
+		return True
+
+	def process(self, word):
+		#TODO word tagging
+		return word
+
+	def __str__(self):
+		return "'%s'" % self.content[0]
+
+	def __repr__(self):
+		r = []
+		r.append("{'%s'(%s%d)" % self.content[0:3])
+		if self.content[5]:
+			r.append(" ")
+			r.append(`self.content[5]`)
+		r.append("}")
+		return "".join(r)
+
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 40):
+		#instead of fsa.add_transition(initial, self, final, tag + (None,))
+		#may be useful storing more than 'word' field
+		fsa.add_transition(initial, self, final, tag + (self.content[0],))
+
+
+class WordCategoryFilter(WordFilter):
+	"""
+	Regarded parameters: lemma.p_o_s, lemma.categories, word.categories
+	"""
+	def __init__(self, p_o_s = None, lemma_categories = None, categories = None):
+		Literal.__init__(self, (None, None, None, p_o_s, lemma_categories, categories))
+
+	def __str__(self):
+		p_o_s = self.content[3]
+		if p_o_s is None:
+			return "{*}"
+		else:
+			return "{%s}" % p_o_s
 		
+
+	def __repr__(self):
+		p_o_s, lemma_categories, categories = self.content[3:6]
+		r = []
+		r.append("{")
+		if p_o_s is None:
+			r.append("*")
+		else:
+			r.append(p_o_s)
+		if lemma_categories:
+			r.append(" ")
+			r.append(`lemma_categories`)
+		elif categories:
+			r.append(" ()")
+		if categories:
+			r.append(`categories`)
+		r.append("}")
+		return "".join(r)
+
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 40):
+		#instead of fsa.add_transition(initial, self, final, tag + (None,))
+		#may be useful storing more than 'word' field
+		fsa.add_transition(initial, self, final, tag + (self.content[3],))
+
+class CategoryFilter:
+
+	FUNCTIONS = {}
+	FUNCTIONS["in"] = (lambda x, parameter: x in parameter, "%s")
+	FUNCTIONS["ni"] = (lambda x, parameter: x not in parameter, "¬%s")
+
+	def __init__(self, operator, parameter):
+		if not self.FUNCTIONS.has_key(operator):
+			raise KeyError(operator)
+		self.operator = operator
+		self.parameter = tuple(parameter)
+
+	def match(self, value):
+		test, rpr = self.FUNCTIONS[self.operator]
+		return test(value, self.parameter)	
+
+	def __repr__(self):
+		test, rpr = self.FUNCTIONS[self.operator]
+		return rpr % repr(self.parameter)	
 		
 
 def __test():
 
 	lx = Lexicon()
-	lx.add_word(Word("mi", Lemma("mi", 1, "pronoun", None, "bavi")))
-	lx.add_word(Word("sina", Lemma("sina", 1, "pronoun", None, "zavi")))
-	lx.add_word(Word("suli", Lemma("suli", 1, "adjective", None, "kemo")))
-	lx.add_word(Word("suna", Lemma("suna", 1, "noun", None, "Lakitisi")))
-	lx.add_word(Word("telo", Lemma("telo", 1, "noun", None, "bocivi")))
-	lx.add_word(Word("moku", Lemma("moku", 1, "verb", ("intr"), "fucala")))
-	lx.add_word(Word("moku", Lemma("moku", 2, "verb", ("tr"), "fucalinza")))
-	lx.add_word(Word("jan", Lemma("jan", 1, "noun", None, "becami")))
-	lx.add_word(Particle("li",1,"sep"))
+	lx.add_word(Word(u"mi", Lemma(u"mi", 1, "pronoun", None, "bavi")))
+	lx.add_word(Word(u"sina", Lemma(u"sina", 1, "pronoun", None, "zavi")))
+	lx.add_word(Word(u"suli", Lemma(u"suli", 1, "adjective", None, "kemo")))
+	lx.add_word(Word(u"suna", Lemma(u"suna", 1, "noun", None, "Lakitisi")))
+	lx.add_word(Word(u"telo", Lemma(u"telo", 1, "noun", None, "bocivi")))
+	lx.add_word(Word(u"moku", Lemma(u"moku", 1, "verb", ("intr"), "fucala")))
+	lx.add_word(Word(u"moku", Lemma(u"moku", 2, "verb", ("tr"), "fucalinza")))
+	lx.add_word(Word(u"jan", Lemma(u"jan", 1, "noun", None, "becami")))
+	lx.add_word(Particle(u"li",1,"sep"))
 	print lx
-	tk = lx.compile()
-	print tk("jan li moku")
-	
+	tk = lx.compile({"separator": " "})
+	print tk(u"jan li moku")
+
+	lx = WordCategoryFilter("noun")
+	lx1 = WordCategoryFilter("noun", ("m", CategoryFilter("in", ["pl","s"])))
+	lx2 = WordCategoryFilter("noun", (CategoryFilter("ni", ["m"]), None))
+	lx3 = WordFilter(Word("man", Lemma("man", 1, "n", None, "None")))
+	w = Word("man", Lemma("man", 1, "noun", ("m"), "Uomo"))
+	print `lx1`
+	print `lx2`
+	print `lx3`
+
+	print lx1.match(w), lx2.match(w), lx3.match(w)
 
 if __name__ == "__main__":
 	__test()
