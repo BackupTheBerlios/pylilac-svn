@@ -165,6 +165,7 @@ class Lexicon:
 		self.__lemmas = {}
 		self.__words = {}
 		self.__compiled = None
+		self.__indexed_words = {}
 		self.__valid = False
 		
 	def compile(self, properties, force = False):
@@ -173,7 +174,8 @@ class Lexicon:
 			self.__compiled = Tokenizer(self.__words, properties)
 			self.__valid = True
 		return self.__compiled
-		
+
+
 	def reset(self):
 		del self.__compiled
 		self.__compiled = None
@@ -184,14 +186,17 @@ class Lexicon:
 		if lemma:
 			word.lemma = self.add_lemma(lemma)
 		self.__words.setdefault(word.form, []).append(word)
+		self.__indexed_words.setdefault(word.lemma.key(), []).append(word)
 		self.__valid = False
 		return word
 		
 	def remove_words(self, word_form):
+		w = self.__words[word_form]
+		self.__indexed_words[word.lemma.key()].remove(w)
 		del self.__words[word_form]
 		self.__valid = False
 			
-	def get_word(self, form):
+	def get_words(self, form):
 		ws = self.__words.get(form, [])
 		return ws
 		
@@ -208,6 +213,9 @@ class Lexicon:
 		return lemma
 		
 	def remove_lemma(self, lemma_key):
+		for w in self.__indexed_words[lemma_key]:
+			self.__words[w.form].remove(w)
+		del self.__indexed_words[lemma_key]
 		del self.__lemmas[lemma_key]
 		self.__valid = False
 
@@ -244,13 +252,8 @@ class Lexicon:
 
 
 	def find_words(self, lemma_key):
-		f = []
-		for i in self.__words.itervalues():
-			for j in i:
-				if (j.lemma.entry_form, j.lemma.id) == lemma_key:
-					f.append(j)
-		return f
-	
+		return self.__indexed_words[lemma_key]
+
 	def __repr__(self):
 		return "[[%d lemmas, %d words]]" % (len(self.__lemmas), len(self.__words))
 		

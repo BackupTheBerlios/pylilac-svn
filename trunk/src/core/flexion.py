@@ -84,6 +84,10 @@ class Flexion:
 			c.chains = [x.copy() for x in self.chains]
 			return c
 
+		def append_step(self, regexp, repl, optional = False):
+			for c in self.chains:
+				c.append_step(regexp, repl, optional)
+
 		def __call__(self, hw_p):
 			for c in self.chains:
 				s = c(hw_p)
@@ -117,10 +121,15 @@ class Flexion:
 		return p
 		
 
-	def create_transform(self, categories):
+	def create_transform(self, categories, template = None):
 		if type(categories) is not tuple:
 			raise TypeError(categories)
-		t =  self.__Transform()
+		if template is None:
+			t =  self.__Transform()
+		else:
+			if type(template) is not tuple:
+				raise TypeError(template)
+			t = self.__transforms[template].copy()
 		self.__transforms[categories] = t
 		return t
 
