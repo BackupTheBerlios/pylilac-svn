@@ -152,15 +152,17 @@ class Flexion:
 		return table
 
 class Flexions():
-        def __init__(self):
-                self.__flexions = {}
-        def create_flexion(self, p_o_s, lemma_categories):
-                f = Flexion()
-                self.__flexions[(p_o_s, lemma_categories)] = f
-                return f
-        def __call__(self, lemma, words):
-                f = self.__flexions[(lemma.p_o_s, lemma.categories)]
-                return f(lemma, words)
+		def __init__(self):
+			self.__flexions = []
+		def create_flexion(self, p_o_s, lemma_categories):
+			f = Flexion()
+			self.__flexions.append((p_o_s, lemma_categories, f))
+			return f
+		def __call__(self, lemma, words):
+			for p_o_s, lemma_categories, f in self.__flexions:
+				if p_o_s == lemma.p_o_s and Lexicon.test_categories(lemma_categories, lemma.categories):
+					return f(lemma, words)
+			return None
 
 def __test():
 	from lexicon import Lexicon

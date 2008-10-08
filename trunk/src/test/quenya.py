@@ -22,13 +22,28 @@ def run():
 
 	def build_lexicon(l, f):
 		for h in nouns():
-			lemma = Lemma(h[0], 1, h[2], (), h[3])
+			lemma = Lemma(h[0], 1, "n", (), h[2])
 			l.add_lemma(lemma)
 			word = Word(h[1], lemma, (u"s",u"Nom",u"0"))
 			l.add_word(word)
 			words = [word]
-			if len(h)>4:
-				for j in h[4]:
+			if len(h)>3:
+				for j in h[3]:
+					word = Word(j[0], lemma, j[1])
+					l.add_word(word)
+					words.append(word)
+			ft = f(lemma, words)
+			for w in words:
+				l.remove_word(w)
+			for w in ft.itervalues():
+				l.add_word(w)
+				
+		for h in verbs():
+			lemma = Lemma(h[0], 1, "v", (h[1],), h[2])
+			l.add_lemma(lemma)
+			words = []
+			if len(h)>3:
+				for j in h[3]:
 					word = Word(j[0], lemma, j[1])
 					l.add_word(word)
 					words.append(word)
@@ -46,10 +61,6 @@ def run():
 				l.add_word(v2)
 
 	def build_flexions(fl):
-		#three mobile sounds:
-		#toro°n 
-		#amill°
-
 		f = fl.create_flexion(u"n",())
 
 		tr = f.create_transform((u"s", u"Nom", u"0")) 
@@ -338,7 +349,7 @@ def run():
 
 		#Personal forms
 
-		POSS = {"1s":"nya", u"2":"lya", u"3s":"rya", u"1+2+3": "lva", u"1+3": "lma", u"1d": "mma", u"3pl":"nta"}
+		POSS = {u"1s":u"nya", u"2":u"lya", u"3s":"rya", u"1+2+3": u"lva", u"1+3": u"lma", u"1d": u"mma", u"3pl":u"nta"}
 		def add_personal(number, case, person):
 			x = f.create_transform((number, case, person)) 
 			z = x.create_chain(BASED_ON_LEMMA)
@@ -437,45 +448,81 @@ def run():
 			c.append_step(u"$", u"lis")
 
 
+		#verbs
+
+		f = fl.create_flexion(u"v", None)
+
+		tr = f.create_transform((u"aor", u"s", u"0")) 
+		c = tr.create_chain(BASED_ON_LEMMA, "a$")
+		c = tr.create_chain(BASED_ON_LEMMA, "u$")
+		c.append_step(u"u$", u"o")
+		c = tr.create_chain(BASED_ON_LEMMA)
+		c.append_step(u"$", u"e")
+		tr = f.create_transform((u"aor", u"pl", u"0")) 
+		c = tr.create_chain(BASED_ON_LEMMA, "[au]$")
+		c.append_step(u"$", u"r")
+		c = tr.create_chain(BASED_ON_LEMMA)
+		c.append_step(u"$", u"ir")
+		
+		tr = f.create_transform((u"pres", u"s", u"0")) 
+		c = tr.create_chain(BASED_ON_LEMMA, "a$")
+		c.append_step(u"a([^aeiouáíéóú]+)a$", u"á\\1a", True)
+		c.append_step(u"a$", u"ea")
+		c = tr.create_chain(BASED_ON_LEMMA, "u$")
+		c.append_step(u"a([^aeiouáíéóú]+)u$", u"á\\1u", True)
+		c.append_step(u"u$", u"ua")
+		c = tr.create_chain(BASED_ON_LEMMA)
+		c.append_step(u"a([^aeiouáíéóú]+)$", u"á\\1", True)
+		c.append_step(u"$", u"a")
+		tr = f.create_transform((u"pres", u"pl", u"0")) 
+		c = tr.create_chain((u"pres", u"s", u"0"))
+		c.append_step(u"$", u"r")
+
+
 	def nouns():
 		d = []
-		d.append(  (u"niss", u"nís", u"n", u"woman") )
-		d.append(  (u"toro°n", u"toron", u"n", u"brother") )
-		d.append(  (u"lómi", u"lóme", u"n", u"night") )
-		d.append(  (u"ner", u"nér", u"n", u"man") )
-		d.append(  (u"henets", u"henet", u"n", u"window", [(u"henetwa", (u"s",u"Poss",u"0"))] ) )
-		d.append(  (u"alda", u"alda", u"n", u"tree") )
-		d.append(  (u"amill°", u"amil", u"n", u"mother") )
-		d.append(  (u"elen", u"elen", u"n", u"star") )
-		d.append(  (u"filic", u"filit", u"n", u"little bird") )
-		d.append(  (u"sell", u"seler", u"n", u"sister", [(u"selerwa", (u"s",u"Poss",u"0")), (u"selernen", (u"s",u"Instr",u"0"))] ) )
-		d.append(  (u"atar", u"atar", u"n", u"father") )
-		d.append(  (u"tie", u"tie", u"n", u"path") )
-		d.append(  (u"híni", u"hína", u"n", u"child", [(u"híni", (u"pl",u"Nom",u"0"))] ) )
-		d.append(  (u"malle", u"malle", u"n", u"street", [(u"maller", (u"pl",u"Nom",u"0"))]))
-		d.append(  (u"máqua", u"máqua", u"n", u"hand") )
-		d.append(  (u"tal", u"tál", u"n", u"foot", [(u"talan", (u"s",u"Dat",u"0"))] ) )
-		d.append(  (u"toll°", u"tol", u"n", u"island", [(u"tollon", (u"s",u"Dat",u"0"))] ) )
-		d.append(  (u"samb", u"san", u"n", u"chamber") )
-		d.append(  (u"hún", u"huan", u"n", u"hound") )
-		d.append(  (u"olor", u"olos", u"n", u"dream") )
-		d.append(  (u"ráv", u"rá", u"n", u"lion") )
-		d.append(  (u"cas", u"cár", u"n", u"head") )
-		d.append(  (u"cos", u"cor", u"n", u"war") )
-		d.append(  (u"coav°", u"coa", u"n", u"house"))
-		d.append(  (u"mas", u"cor", u"n", u"home") )
-		d.append(  (u"nelc", u"nelet", u"n", u"tooth", [(u"neletse", (u"s",u"Loc",u"0"))] ) )
-		d.append(  (u"ilim", u"ilin", u"n", u"milk") )
-		d.append(  (u"hend", u"hen", u"n", u"eye") )
-		d.append(  (u"pé", u"pé", u"n", u"lip", [(u"péu", (u"d",u"Nom",u"0")), (u"pein", (u"pl",u"Dat",u"0"))]) )
-		d.append(  (u"lar", u"lár", u"n", u"ear", [(u"laru", (u"d",u"Nom",u"0"))]) ) 
-		d.append(  (u"rancu", u"ranco", u"n", u"arm") )
-		d.append(  (u"telcu", u"telco", u"n", u"leg") )
-		d.append(  (u"fiond", u"fion", u"n", u"hawk") )
-		d.append(  (u"ré", u"ré", u"n", u"day", [(u"rein", (u"pl",u"Dat",u"0"))]) ) 
-		d.append(  (u"pí", u"pí", u"n", u"insect", [(u"pín", (u"pl",u"Dat",u"0"))]) ) 
+		d.append(  (u"niss", u"nís", u"woman") )
+		d.append(  (u"toro°n", u"toron", u"brother") )
+		d.append(  (u"lómi", u"lóme", u"night") )
+		d.append(  (u"ner", u"nér", u"man") )
+		d.append(  (u"henets", u"henet", u"window", [(u"henetwa", (u"s",u"Poss",u"0"))] ) )
+		d.append(  (u"alda", u"alda", u"tree") )
+		d.append(  (u"amill°", u"amil", u"mother") )
+		d.append(  (u"elen", u"elen", u"star") )
+		d.append(  (u"filic", u"filit", u"little bird") )
+		d.append(  (u"sell", u"seler", u"sister", [(u"selerwa", (u"s",u"Poss",u"0")), (u"selernen", (u"s",u"Instr",u"0"))] ) )
+		d.append(  (u"atar", u"atar", u"father") )
+		d.append(  (u"tie", u"tie", u"path") )
+		d.append(  (u"híni", u"hína", u"child", [(u"híni", (u"pl",u"Nom",u"0"))] ) )
+		d.append(  (u"malle", u"malle", u"street", [(u"maller", (u"pl",u"Nom",u"0"))]))
+		d.append(  (u"máqua", u"máqua", u"hand") )
+		d.append(  (u"tal", u"tál", u"foot", [(u"talan", (u"s",u"Dat",u"0"))] ) )
+		d.append(  (u"toll°", u"tol", u"island", [(u"tollon", (u"s",u"Dat",u"0"))] ) )
+		d.append(  (u"samb", u"san", u"chamber") )
+		d.append(  (u"hún", u"huan", u"hound") )
+		d.append(  (u"olor", u"olos", u"dream") )
+		d.append(  (u"ráv", u"rá", u"lion") )
+		d.append(  (u"cas", u"cár", u"head") )
+		d.append(  (u"cos", u"cor", u"war") )
+		d.append(  (u"coav°", u"coa", u"house"))
+		d.append(  (u"mas", u"cor", u"home") )
+		d.append(  (u"nelc", u"nelet", u"tooth", [(u"neletse", (u"s",u"Loc",u"0"))] ) )
+		d.append(  (u"ilim", u"ilin", u"milk") )
+		d.append(  (u"hend", u"hen", u"eye") )
+		d.append(  (u"pé", u"pé", u"lip", [(u"péu", (u"d",u"Nom",u"0")), (u"pein", (u"pl",u"Dat",u"0"))]) )
+		d.append(  (u"lar", u"lár", u"ear", [(u"laru", (u"d",u"Nom",u"0"))]) ) 
+		d.append(  (u"rancu", u"ranco", u"arm") )
+		d.append(  (u"telcu", u"telco", u"leg") )
+		d.append(  (u"fiond", u"fion", u"hawk") )
+		d.append(  (u"ré", u"ré", u"day", [(u"rein", (u"pl",u"Dat",u"0"))]) ) 
+		d.append(  (u"pí", u"pí", u"insect", [(u"pín", (u"pl",u"Dat",u"0"))]) ) 
 		return d
 
+
+	def verbs():
+		d = []
+		d.append(  (u"mat", u"tr", u"eat") )
+		return d
 
 
 	l = Lect(u"qya")
