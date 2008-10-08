@@ -10,6 +10,7 @@ A module for the generation of flexed forms.
 
 import re
 from lexicon import Word, Lemma, Lexicon
+from exceptions import Exception
 
 __docformat__ = "epytext en"
 
@@ -42,6 +43,9 @@ class _SortedDict(dict):
 
 BASED_ON_LEMMA = "LEMMA"
 
+class TransformError(ValueError):
+	pass
+
 class Flexion:
 	class __Transform:
 		class __Chain:
@@ -52,11 +56,17 @@ class Flexion:
 				else:
 					self.based_on = based_on
 				self.condition = condition
-				self.__cco = re.compile(condition, re.IGNORECASE)
+				try:
+					self.__cco = re.compile(condition, re.IGNORECASE)
+				except Exception, e:
+					raise Exception("Cannot compile %s: %s" % (`condition`, e.message))
 				self.steps = []
 				
 			def append_step(self, regexp, repl, optional = False):
-				cre = re.compile(regexp, re.IGNORECASE)
+				try:
+					cre = re.compile(regexp, re.IGNORECASE)
+				except Exception, e:
+					raise Exception("Cannot compile %s for %s: %s" % (`repl`, `regexp`, e.message))
 				self.steps.append((regexp, cre, repl, optional))
 			
 			def __call__(self, lemma, words):
@@ -77,7 +87,10 @@ class Flexion:
 					return None
 				for r, cre, repl, optional in self.steps:
 					if cre.search(s):
-						s = cre.sub(repl, s)
+						try:
+							s = cre.sub(repl, s)
+						except:
+							raise TransformError("Invalid transform %s for %s" % (`repl`, `r`))
 					elif not optional:
 						return None
 				return s
@@ -103,7 +116,7 @@ class Flexion:
 				s = chain(lemma, words)
 				if s is not None:
 					return s
-			raise ValueError("Transform cannot apply to lemma '%s'" % `lemma`)
+			raise TransformError("Transform cannot apply %s to lemma '%s'" % (self.categories, lemma))
 			
 	def __init__(self):
 		self.__transforms = _SortedDict()
