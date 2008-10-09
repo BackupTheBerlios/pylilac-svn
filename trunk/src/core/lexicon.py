@@ -414,7 +414,7 @@ class CategoryFilter:
 
 	FUNCTIONS = {}
 	FUNCTIONS["in"] = (lambda x, parameter: x in parameter, "%s")
-	FUNCTIONS["ni"] = (lambda x, parameter: x not in parameter, "¬%s")
+	FUNCTIONS["ni"] = (lambda x, parameter: x not in parameter, "Â¬%s")
 
 	def __init__(self, operator, parameter):
 		if not self.FUNCTIONS.has_key(operator):
