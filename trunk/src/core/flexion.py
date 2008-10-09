@@ -19,8 +19,9 @@ class _SortedDict(dict):
 		dict.__init__(self)
 		self.__sort = []
 	def __setitem__(self, key, value):
+		is_new = dict.has_key(self, key)
 		dict.__setitem__(self, key, value)
-		self.__sort.append(key)
+		if not is_new: self.__sort.append(key)
 	def iterkeys(self):
 		for key in self.__sort:
 			yield key
@@ -49,27 +50,30 @@ class TransformError(ValueError):
 class Flexion:
 	class __Transform:
 		class __Chain:
-			def __init__(self, parent_flexion, based_on, condition):
+			def __init__(self, parent_flexion, based_on, condition, lemma_categories = None):
 				self.__parent = parent_flexion
 				if BASED_ON_LEMMA == based_on:
 					self.based_on = None
 				else:
 					self.based_on = based_on
 				self.condition = condition
+				self.lemma_categories = lemma_categories
 				try:
 					self.__cco = re.compile(condition, re.IGNORECASE)
 				except Exception, e:
 					raise Exception("Cannot compile %s: %s" % (`condition`, e.message))
 				self.steps = []
 				
-			def append_step(self, regexp, repl, optional = False):
+			def append_step(self, regexp, repl, mandatory = False):
 				try:
 					cre = re.compile(regexp, re.IGNORECASE)
 				except Exception, e:
 					raise Exception("Cannot compile %s for %s: %s" % (`repl`, `regexp`, e.message))
-				self.steps.append((regexp, cre, repl, optional))
+				self.steps.append((regexp, cre, repl, mandatory))
 			
 			def __call__(self, lemma, words):
+				if not Lexicon.test_categories(self.lemma_categories, lemma.categories):
+					return None
 				if self.based_on is None:
 					s = lemma.entry_form
 				else:
@@ -85,13 +89,13 @@ class Flexion:
 					return None
 				if not self.__cco.search(s):
 					return None
-				for r, cre, repl, optional in self.steps:
+				for r, cre, repl, mandatory in self.steps:
 					if cre.search(s):
 						try:
 							s = cre.sub(repl, s)
 						except:
-							raise TransformError("Invalid transform %s for %s" % (`repl`, `r`))
-					elif not optional:
+							raise Exception("Invalid transform %s for %s" % (`repl`, `r`))
+					elif mandatory:
 						return None
 				return s
 
@@ -101,22 +105,22 @@ class Flexion:
 			self.categories = categories
 			self.chains = []
 			
-		def create_chain(self, based_on = BASED_ON_LEMMA, condition = "."):
-			c = self.__Chain(self.__parent, based_on , condition)
+		def create_chain(self, based_on = BASED_ON_LEMMA, condition = ".", lemma_categories = None):
+			c = self.__Chain(self.__parent, based_on , condition, lemma_categories)
 			self.chains.append(c)
 			return c
 		
 
-		def append_step(self, regexp, repl, optional = False):
+		def append_step(self, regexp, repl, mandatory = False):
 			for c in self.chains:
-				c.append_step(regexp, repl, optional)
+				c.append_step(regexp, repl, mandatory)
 
 		def __call__(self, lemma, words):
 			for chain in self.chains:
 				s = chain(lemma, words)
 				if s is not None:
 					return s
-			raise TransformError("Transform cannot apply %s to lemma '%s'" % (self.categories, lemma))
+			raise TransformError("Transform cannot apply %s to lemma '%s'" % (`self.categories`, lemma.entry_form))
 			
 	def __init__(self):
 		self.__transforms = _SortedDict()
@@ -141,8 +145,6 @@ class Flexion:
 			transform = self.__transforms[categories]
 			word = Word(transform(lemma, words), lemma, categories)
 		return word
-
-
 
 	def __call__(self, lemma, words):
 		table = _SortedDict()
