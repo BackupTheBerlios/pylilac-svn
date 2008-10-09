@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -9,7 +9,7 @@ A module for the generation of flexed forms.
 """
 
 import re
-from lexicon import Word, Lemma, Lexicon
+from lexicon import Word, Lemma, Lexicon, CategoryFilter
 from exceptions import Exception
 
 __docformat__ = "epytext en"
@@ -72,14 +72,14 @@ class Flexion:
 				self.steps.append((regexp, cre, repl, mandatory))
 			
 			def __call__(self, lemma, words):
-				if not Lexicon.test_categories(self.lemma_categories, lemma.categories):
+				if not CategoryFilter.test(self.lemma_categories, lemma.categories):
 					return None
 				if self.based_on is None:
 					s = lemma.entry_form
 				else:
 					s = None
 					for w in words:
-						if Lexicon.test_categories(self.based_on, w.categories):
+						if CategoryFilter.test(self.based_on, w.categories):
 							s = w.form
 							break
 					if not s:
@@ -138,7 +138,7 @@ class Flexion:
 	def do_transform(self, lemma, words, categories):
 		word = None
 		for w in words:
-			if Lexicon.test_categories(categories, w.categories):
+			if CategoryFilter.test(categories, w.categories):
 				word = w
 				break
 		if word is None:
@@ -148,8 +148,8 @@ class Flexion:
 
 	def __call__(self, lemma, words):
 		table = _SortedDict()
-		for categories in self.__transforms.iterkeys():		
-			word = self.do_transform(lemma, words, categories)	
+		for categories in self.__transforms.iterkeys():	
+			word = self.do_transform(lemma, words, categories)
 			table[word.categories] = word
 		return table
 
@@ -162,7 +162,7 @@ class Flexions():
 			return f
 		def __call__(self, lemma, words):
 			for p_o_s, lemma_categories, f in self.__flexions:
-				if p_o_s == lemma.p_o_s and Lexicon.test_categories(lemma_categories, lemma.categories):
+				if p_o_s == lemma.p_o_s and CategoryFilter.test(lemma_categories, lemma.categories):
 					return f(lemma, words)
 			return None
 

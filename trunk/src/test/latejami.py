@@ -20,19 +20,20 @@ def run():
 
 	w = build_words()
 
-	l = Lect("ltj")
-	l.name = "Latejami"
-	p_o_s = ["N", "V", "A", "D", "C"]
-	arg_struct = ["0-n"]
-	arg_struct += [(a + f + "-" + d) for a in ("P", "AP", "A/P") for f in ("", "/F") for d in ("s","d")]
-	arg_struct += [(a + "-" + d) for a in ("F", "F/P") for d in ("s", "d")]
-	for p in p_o_s:
-		l.append_p_o_s(p, ("argument-structure",))
+	l = Lect("ltq")
+	l.name = u"Latejami"
+	l.english_name = u"Latejami"
+	l.append_p_o_s(u"V", ("argument-structure",), ())
+	l.append_p_o_s(u"N", ("argument-structure",), ())
+	l.append_p_o_s(u"A", ("argument-structure",), ())
+	l.append_p_o_s(u"D", ("argument-structure",), ())
+	l.append_p_o_s(u"C", ("argument-structure",), ())
+
 	l.lexicon = build_lexicon(w, l.properties)
 	l.grammar = build_grammar(w)
 	l.properties["capitalization"] = 2 #Only lexical
 	print l.grammar
-	l.save("test/ltj.lg")
+	l.save("test/ltq.lct")
 	
 
 	show("kokwacala kokwabegi")
@@ -113,7 +114,6 @@ def build_grammar(w):
 	g["heavy-topicalization-particle"] = WordFilter(build_word(w["xojopa"])) 
 	g["reference-switching-particle"] = WordFilter(build_word(w["zunjopa"]))
 	g["valency-terminator"] = WordFilter(build_word(w["jojope"]))
-
 
 	g.compile(True)
 	

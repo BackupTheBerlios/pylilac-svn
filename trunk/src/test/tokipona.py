@@ -22,19 +22,19 @@ def run():
 	l = Lect("tko")
 	l.name = "toki pona"
 	l.english_name = "Toki Pona"
-	l.append_p_o_s ("n")
-	l.append_p_o_s ("v", ("transitiveness",))
-	l.append_p_o_s ("mod")
-	l.append_p_o_s ("prep")
-	l.append_p_o_s ("sep")
-	l.append_p_o_s ("conj")
-	l.append_p_o_s ("kama")
-	l.append_p_o_s ("interj")
+	l.append_p_o_s ("v", ("arguments",), ())
+	l.append_p_o_s ("n", (), ())
+	l.append_p_o_s ("mod", (), ())
+	l.append_p_o_s ("prep", (), ())
+	l.append_p_o_s ("sep", (), ())
+	l.append_p_o_s ("conj", (), ())
+	l.append_p_o_s ("interj", (), ())
+	l.append_p_o_s ("kama", (), ())
 	l.lexicon = build_lexicon(w, l.properties)
 	l.grammar = build_grammar(w)
 	l.properties["capitalization"] = 0
 	print l.grammar
-	l.save("test/tko.lg")
+	l.save("test/tko.lct")
 
 	show("mi moku")
 #	show("telo li pona")

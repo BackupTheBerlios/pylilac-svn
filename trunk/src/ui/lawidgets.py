@@ -31,7 +31,7 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 		def Create(self, parent):
 			panel = wx.Panel(parent, wx.ID_ANY, style = wx.TAB_TRAVERSAL|wx.RAISED_BORDER)
 			self.panel = panel
-			self.labels = [wx.StaticText(panel, -1, lbl.replace("_"," ").capitalize() + ":") for lbl in self.__labels]
+			self.labels = [wx.StaticText(panel, -1, lbl.replace("_"," ").replace("-"," ").capitalize() + ":") for lbl in self.__labels]
 			self.text_ctrls = [wx.TextCtrl(panel, -1, "") for lbl in self.__labels]
 			self.button_area = wx.Panel(panel, -1)
 			self.ok_button = wx.Button(panel, -1, "V")
@@ -58,7 +58,7 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 				w, h = minWidth, min(55, maxHeight)
 			else:
 				max_len = reduce(max, map(len, self.__labels))
-				w, h = max(max_len*8+50, minWidth), min(self.__rows*30+25, maxHeight)
+				w, h = max(max_len*9+50, minWidth), min(self.__rows*30+25, maxHeight)
 			return wx.Size(w, h)
 
 

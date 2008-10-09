@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -7,7 +7,7 @@ A module to create Quenya language file.
 
 from core.lect import Lect
 from core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from core.lexicon import Lexicon, Particle, Word, Lemma
+from core.lexicon import Lexicon, Particle, Word, Lemma, CategoryFilter
 from core.flexion import BASED_ON_LEMMA
 import re
 
@@ -38,7 +38,11 @@ def run():
 				correct_word(table, w[i]+u"([^lnhgr])w",  v[i]+u"\\1w")		
 
 		for h in nouns():
-			lemma = Lemma(h[0], 1, u"n", (), h[2])
+			if len(h)>4:
+				id = h[4]
+			else:
+				id = 1
+			lemma = Lemma(h[0], id, u"n", (), h[2])
 			word = Word(h[1], lemma, (u"s",u"Nom",u"0"))
 			words = [word]
 			if len(h)>3:
@@ -52,7 +56,11 @@ def run():
 				l.add_word(w)
 				
 		for h in verbs():
-			lemma = Lemma(h[0], 1, u"v", (h[1],), h[2])
+			if len(h)>4:
+				id = h[4]
+			else:
+				id = 1
+			lemma = Lemma(h[0], id, u"v", (h[1],), h[2])
 			words = []
 			if len(h)>3:
 				for j in h[3]:
@@ -79,8 +87,9 @@ def run():
 	def build_flexions(fl):
 		f = fl.create_flexion(u"n",())
 
-		tr = f.create_transform((u"s", u"Nom", u"0")) 
-		c = tr.create_chain((u"s", u"Nom", u"0"))
+		tr = f.create_transform((u"s", u"Nom", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA)
+		c.append_step(u"°", u"") 
 
 		tr = f.create_transform((u"s", u"Gen", u"0")) #no V°
 		c = tr.create_chain(BASED_ON_LEMMA, u"ie$") 
@@ -465,131 +474,156 @@ def run():
 
 
 		#verbs
+		def add_verb_flexion(args, transitive):
+			f = fl.create_flexion(u"v", (args,))
 
-		f = fl.create_flexion(u"v", None)
+			tr = f.create_transform((u"aor", u"s", u"0")) 
+			c = tr.create_chain(BASED_ON_LEMMA, "a$")
+			c = tr.create_chain(BASED_ON_LEMMA, "u$")
+			c.append_step(u"u$", u"o")
+			c = tr.create_chain(BASED_ON_LEMMA)
+			c.append_step(u"$", u"e")
+			tr = f.create_transform((u"aor", u"pl", u"0")) 
+			c = tr.create_chain(BASED_ON_LEMMA, "[au]$")
+			c.append_step(u"$", u"r")
+			c = tr.create_chain(BASED_ON_LEMMA)
+			c.append_step(u"$", u"ir")
 
-		tr = f.create_transform((u"aor", u"s", u"0")) 
-		c = tr.create_chain(BASED_ON_LEMMA, "a$")
-		c = tr.create_chain(BASED_ON_LEMMA, "u$")
-		c.append_step(u"u$", u"o")
-		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"$", u"e")
-		tr = f.create_transform((u"aor", u"pl", u"0")) 
-		c = tr.create_chain(BASED_ON_LEMMA, "[au]$")
-		c.append_step(u"$", u"r")
-		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"$", u"ir")
-		
-		tr = f.create_transform((u"pres", u"s", u"0")) 
-		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"a([^aeiouáíéóú][yw]?[au]?)$", u"á\\1")
-		c.append_step(u"a(qu[au]?)$", u"á\\1")
-		c.append_step(u"e([^aeiouáíéóú][yw]?[au]?)$", u"é\\1")
-		c.append_step(u"e(qu[au]?)$", u"é\\1")
-		c.append_step(u"o([^aeiouáíéóú][yw]?[au]?)$", u"ó\\1")
-		c.append_step(u"o(qu[au]?)$", u"ó\\1")
-		c.append_step(u"([^aeiouáíéóú])i([^aeiouáíéóú][yw]?[au]?)$", u"\\1í\\2")
-		c.append_step(u"([^aeiouáíéóú])i(qu[au]?)$", u"\\1í\\2")
-		c.append_step(u"([^aeiouáíéóú])u([^aeiouáíéóú][yw]?[au]?)$", u"\\1ú\\2")
-		c.append_step(u"([^aeiouáíéóú])u(qu[au]?)$", u"\\1ú\\2")
-		c.append_step(u"a$", u"e")
-		c.append_step(u"$", u"a")
-		tr = f.create_transform((u"pres", u"pl", u"0")) 
-		c = tr.create_chain((u"pres", u"s", u"0"))
-		c.append_step(u"$", u"r")
-
-
-		tr = f.create_transform((u"past", u"s", u"0")) 
-		c = tr.create_chain(BASED_ON_LEMMA, "[^aeiouáíéóú]qu[au]$")
-		c.append_step(u"$", u"ne") 
-		c = tr.create_chain(BASED_ON_LEMMA, "x[au]$")
-		c.append_step(u"$", u"ne")
-		c = tr.create_chain(BASED_ON_LEMMA, "[aeiou][ui][^aeiouáíéóú][au]$")
-		c.append_step(u"$", u"ne")
-		c = tr.create_chain(BASED_ON_LEMMA, "[^aeiou][^aeiouáíéóú][au]$")
-		c.append_step(u"$", u"ne")
-		c = tr.create_chain(BASED_ON_LEMMA, "[rnm]$")
-		c.append_step(u"$", u"ne")
-		c = tr.create_chain(BASED_ON_LEMMA, "ya$")
-		c.append_step(u"$", u"ne")
-		c = tr.create_chain(BASED_ON_LEMMA, "ha$")
-		c.append_step(u"$", u"ne")
-		c = tr.create_chain(BASED_ON_LEMMA, "wa$")
-		c.append_step(u"wa$", u"ngwe")
-		c = tr.create_chain(BASED_ON_LEMMA, "([tc]$)|(qu$)")
-		c.append_step(u"([tc]$)|(qu$)", u"n\\1e")
-		c = tr.create_chain(BASED_ON_LEMMA, "t[au]$")
-		c.append_step(u"t[au]$", u"nte")
-		c = tr.create_chain(BASED_ON_LEMMA, "p[au]?$")
-		c.append_step(u"p[au]?$", u"mpe")
-		c = tr.create_chain(BASED_ON_LEMMA, "l[au]?$")
-		c.append_step(u"l[au]?$", u"lle")
-		c = tr.create_chain(BASED_ON_LEMMA, "[sv]$")
-		c.append_step(u"a([sv]$)", u"á\\1")
-		c.append_step(u"e([sv]$)", u"é\\1")
-		c.append_step(u"o([sv]$)", u"ó\\1")
-		c.append_step(u"([^aeiouáíéóú])i([sv]$)", u"\\1í\\2")
-		c.append_step(u"([^aeiouáíéóú])u([sv]$)", u"\\1ú\\2")
-		c.append_step(u"$", u"e") 
-		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"$", u"ne") 
-		tr = f.create_transform((u"past", u"pl", u"0")) 
-		c = tr.create_chain((u"past", u"s", u"0"))
-		c.append_step(u"$", u"r")
+			tr = f.create_transform((u"pres", u"s", u"0")) 
+			c = tr.create_chain(BASED_ON_LEMMA)
+			c.append_step(u"a([^aeiouáíéóú][yw]?[au]?)$", u"á\\1")
+			c.append_step(u"a(qu[au]?)$", u"á\\1")
+			c.append_step(u"e([^aeiouáíéóú][yw]?[au]?)$", u"é\\1")
+			c.append_step(u"e(qu[au]?)$", u"é\\1")
+			c.append_step(u"o([^aeiouáíéóú][yw]?[au]?)$", u"ó\\1")
+			c.append_step(u"o(qu[au]?)$", u"ó\\1")
+			c.append_step(u"([^aeiouáíéóú])i([^aeiouáíéóú][yw]?[au]?)$", u"\\1í\\2")
+			c.append_step(u"([^aeiouáíéóú])i(qu[au]?)$", u"\\1í\\2")
+			c.append_step(u"([^aeiouáíéóú])u([^aeiouáíéóú][yw]?[au]?)$", u"\\1ú\\2")
+			c.append_step(u"([^aeiouáíéóú])u(qu[au]?)$", u"\\1ú\\2")
+			c.append_step(u"a$", u"e")
+			c.append_step(u"$", u"a")
+			tr = f.create_transform((u"pres", u"pl", u"0")) 
+			c = tr.create_chain((u"pres", u"s", u"0"))
+			c.append_step(u"$", u"r")
 
 
-		
-		tr = f.create_transform((u"perf", u"s", u"0"))
-		c = tr.create_chain(BASED_ON_LEMMA,u"^[aeiouáíéóú]")
-		c.append_step(u"y*[au]?$", u"ie")
-		c = tr.create_chain(BASED_ON_LEMMA, u"[aeiou]{2}([^aeiouáíéóú]|qu)y*[au]?$")
-		c.append_step(u"y*[au]?$", u"")
-		c.append_step(u"^(.*)([aeiou])([aeiou])([^aeiouáíéóú]|qu)$", u"\\2\\1\\2\\3\\4")
-		c.append_step(u"$", u"ie")
-		c = tr.create_chain(BASED_ON_LEMMA, u"[aeiouáíéóú]([^aeiouáíéóú]|qu)y*[au]?$")
-		c.append_step(u"y*[au]?$", u"")
-		c.append_step(u"^(.*)[aá]([^aeiouáíéóú]|qu)$", u"a\\1á\\2")
-		c.append_step(u"^(.*)[eé]([^aeiouáíéóú]|qu)$", u"e\\1é\\2")
-		c.append_step(u"^(.*)[ií]([^aeiouáíéóú]|qu)$", u"i\\1í\\2")
-		c.append_step(u"^(.*)[oó]([^aeiouáíéóú]|qu)$", u"o\\1ó\\2")
-		c.append_step(u"^(.*)[uú]([^aeiouáíéóú]|qu)$", u"u\\1ú\\2")
-		c.append_step(u"$", u"ie")
-		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"y*[au]?$", u"")
-		c.append_step(u"^(.*)a", u"a\\1a")
-		c.append_step(u"^(.*)e", u"e\\1e")
-		c.append_step(u"^(.*)i", u"i\\1i")
-		c.append_step(u"^(.*)o", u"o\\1o")
-		c.append_step(u"^(.*)u", u"u\\1u")
-		c.append_step(u"$", u"ie")
-		tr = f.create_transform((u"perf", u"pl", u"0")) 
-		c = tr.create_chain((u"perf", u"s", u"0"))
-		c.append_step(u"$", u"r")
+			tr = f.create_transform((u"past", u"s", u"0")) 
+			c = tr.create_chain(BASED_ON_LEMMA, u"ha$")
+			c.append_step(u"$", u"ne")
+			c = tr.create_chain(BASED_ON_LEMMA, u"wa$")
+			c.append_step(u"wa$", u"ngwe")
+			
+			if transitive:
+				c = tr.create_chain(BASED_ON_LEMMA, u"ya$")
+				c.append_step(u"$", u"ne")
+			else:
+				c = tr.create_chain(BASED_ON_LEMMA, u"[rnm]ya$")
+				c.append_step(u"ya$", u"ne")
+				c = tr.create_chain(BASED_ON_LEMMA, u"tya$")
+				c.append_step(u"tya$", u"nte")
+				c = tr.create_chain(BASED_ON_LEMMA, u"pya$")
+				c.append_step(u"pya$", u"mpe")
+				c = tr.create_chain(BASED_ON_LEMMA, u"lya$")
+				c.append_step(u"lya$", u"lle")
+				c = tr.create_chain(BASED_ON_LEMMA, u"[sv]ya$")
+				c.append_step(u"a([sv]ya)$", u"á\\1")
+				c.append_step(u"e([sv]ya)$", u"é\\1")
+				c.append_step(u"o([sv]ya)$", u"ó\\1")
+				c.append_step(u"([^aeiouáíéóú])i([sv]ya)$", u"\\1í\\2")
+				c.append_step(u"([^aeiouáíéóú])u([sv]ya)$", u"\\1ú\\2")
+				c.append_step(u"$", u"e")
+				c = tr.create_chain(BASED_ON_LEMMA, u"ya$")
+				c.append_step(u"ya$", u"ne")
+				
+			c = tr.create_chain(BASED_ON_LEMMA, u"[rnm]$")
+			c.append_step(u"$", u"ne")
+			c = tr.create_chain(BASED_ON_LEMMA, u"([tc]$)|(qu$)")
+			c.append_step(u"([tc]$)|(qu$)", u"n\\1e")
+			c = tr.create_chain(BASED_ON_LEMMA, u"t[au]$")
+			c.append_step(u"t[au]$", u"nte")
+			c = tr.create_chain(BASED_ON_LEMMA, u"p[au]?$")
+			c.append_step(u"p[au]?$", u"mpe")
+			c = tr.create_chain(BASED_ON_LEMMA, u"l[au]?$")
+			c.append_step(u"l[au]?$", u"lle")
+			c = tr.create_chain(BASED_ON_LEMMA, u"[sv]$")
+			c.append_step(u"a([sv]$)", u"á\\1")
+			c.append_step(u"e([sv]$)", u"é\\1")
+			c.append_step(u"o([sv]$)", u"ó\\1")
+			c.append_step(u"([^aeiouáíéóú])i([sv])$", u"\\1í\\2")
+			c.append_step(u"([^aeiouáíéóú])u([sv])$", u"\\1ú\\2")
+			c.append_step(u"$", u"e")
+			c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiouáíéóú]qu[au]$")
+			c.append_step(u"$", u"ne") 
+			c = tr.create_chain(BASED_ON_LEMMA, u"x[au]$")
+			c.append_step(u"$", u"ne")
+			c = tr.create_chain(BASED_ON_LEMMA, u"[aeiou][ui][^aeiouáíéóú][au]$")
+			c.append_step(u"$", u"ne")
+			c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiou][^aeiouáíéóú][au]$")
+			c.append_step(u"$", u"ne")
+			c = tr.create_chain(BASED_ON_LEMMA)
+			c.append_step(u"$", u"ne") 
+			tr = f.create_transform((u"past", u"pl", u"0")) 
+			c = tr.create_chain((u"past", u"s", u"0"))
+			c.append_step(u"$", u"r")
 
-		tr = f.create_transform((u"fut", u"s", u"0")) 
-		c = tr.create_chain(BASED_ON_LEMMA, "u$")
-		c.append_step(u"u$", u"úva")
-		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"a?$", u"uva")
-		tr = f.create_transform((u"fut", u"pl", u"0")) 
-		c = tr.create_chain((u"fut", u"s", u"0"))
-		c.append_step(u"$", u"r")
 
-		TENSE = [u"aor",u"pres",u"past",u"perf",u"fut"]
-		SUBJ = {u"1s":[u"nye",u"n"], u"2":[u"lye",u"l"], u"3s":["rye","s"], u"1+2+3": [u"lve"], u"1+3": [u"lme"], u"1d": [u"mme"], u"3pl":[u"nte"]}
-		OBJ = {u"1s":u"n", u"2":u"l", u"3s":"s", u"3pl":u"t"}
-		for t in TENSE:
-			for k,v in SUBJ.iteritems():
-				tr = f.create_transform((t, k, u"0"))
-				c = tr.create_chain((t, u"s", u"0"))
-				if len(v)==1:
-					c.append_step(u"$", v[0])
-				else:
-					c.append_step(u"$", v[1])
-				for k1, v1 in OBJ.iteritems():
-					tr = f.create_transform((t, k, k1))
+
+			tr = f.create_transform((u"perf", u"s", u"0"))
+			c = tr.create_chain(BASED_ON_LEMMA,u"^[aeiouáíéóú]")
+			c.append_step(u"y*[au]?$", u"ie")
+			c = tr.create_chain(BASED_ON_LEMMA, u"[aeiou]{2}([^aeiouáíéóú]|qu)y*[au]?$")
+			c.append_step(u"y*[au]?$", u"")
+			c.append_step(u"^(.*)([aeiou])([aeiou])([^aeiouáíéóú]|qu)$", u"\\2\\1\\2\\3\\4")
+			c.append_step(u"$", u"ie")
+			c = tr.create_chain(BASED_ON_LEMMA, u"[aeiouáíéóú]([^aeiouáíéóú]|qu)y*[au]?$")
+			c.append_step(u"y*[au]?$", u"")
+			c.append_step(u"^(.*)[aá]([^aeiouáíéóú]|qu)$", u"a\\1á\\2")
+			c.append_step(u"^(.*)[eé]([^aeiouáíéóú]|qu)$", u"e\\1é\\2")
+			c.append_step(u"^(.*)[ií]([^aeiouáíéóú]|qu)$", u"i\\1í\\2")
+			c.append_step(u"^(.*)[oó]([^aeiouáíéóú]|qu)$", u"o\\1ó\\2")
+			c.append_step(u"^(.*)[uú]([^aeiouáíéóú]|qu)$", u"u\\1ú\\2")
+			c.append_step(u"$", u"ie")
+			c = tr.create_chain(BASED_ON_LEMMA)
+			c.append_step(u"y*[au]?$", u"")
+			c.append_step(u"^(.*)a", u"a\\1a")
+			c.append_step(u"^(.*)e", u"e\\1e")
+			c.append_step(u"^(.*)i", u"i\\1i")
+			c.append_step(u"^(.*)o", u"o\\1o")
+			c.append_step(u"^(.*)u", u"u\\1u")
+			c.append_step(u"$", u"ie")
+			tr = f.create_transform((u"perf", u"pl", u"0")) 
+			c = tr.create_chain((u"perf", u"s", u"0"))
+			c.append_step(u"$", u"r")
+
+			tr = f.create_transform((u"fut", u"s", u"0")) 
+			c = tr.create_chain(BASED_ON_LEMMA, "u$")
+			c.append_step(u"u$", u"úva")
+			c = tr.create_chain(BASED_ON_LEMMA)
+			c.append_step(u"a?$", u"uva")
+			tr = f.create_transform((u"fut", u"pl", u"0")) 
+			c = tr.create_chain((u"fut", u"s", u"0"))
+			c.append_step(u"$", u"r")
+
+			TENSE = [u"aor",u"pres",u"past",u"perf",u"fut"]
+			SUBJ = {u"1s":[u"nye",u"n"], u"2":[u"lye",u"l"], u"3s":["rye","s"], u"1+2+3": [u"lve"], u"1+3": [u"lme"], u"1d": [u"mme"], u"3pl":[u"nte"]}
+			OBJ = {u"1s":u"n", u"2":u"l", u"3s":"s", u"3pl":u"t"}
+			for t in TENSE:
+				for k,v in SUBJ.iteritems():
+					tr = f.create_transform((t, k, u"0"))
 					c = tr.create_chain((t, u"s", u"0"))
-					c.append_step(u"$", v[0]+v1)
+					if len(v)==1:
+						c.append_step(u"$", v[0])
+					else:
+						c.append_step(u"$", v[1])
+					if transitive:
+						for k1, v1 in OBJ.iteritems():
+							tr = f.create_transform((t, k, k1))
+							c = tr.create_chain((t, u"s", u"0"))
+							c.append_step(u"$", v[0]+v1)
+		
+		add_verb_flexion( CategoryFilter("in", (u"Acc", u"Acc+Dat")), True)
+		add_verb_flexion( CategoryFilter("ni", (u"Acc", u"Acc+Dat")), False)
 		
 
 	def nouns():
@@ -618,7 +652,7 @@ def run():
 		d.append(  (u"cas", u"cár", u"head") )
 		d.append(  (u"cos", u"cor", u"war") )
 		d.append(  (u"coa", u"coa", u"house", [(u"coavo", (u"s",u"Gen",u"0")),(u"coava", (u"s",u"Poss",u"0"))] ) )
-		d.append(  (u"mas", u"cor", u"home") )
+		d.append(  (u"mas", u"mar", u"home") )
 		d.append(  (u"nelc", u"nelet", u"tooth", [(u"neletse", (u"s",u"Loc",u"0"))] ) )
 		d.append(  (u"ilim", u"ilin", u"milk") )
 		d.append(  (u"hend", u"hen", u"eye") )
@@ -637,12 +671,14 @@ def run():
 		d.append(  (u"na", u"Nom", u"be", [(u"ne", (u"past",u"s",u"0"))]) ) 
 		d.append(  (u"ea", u"0", u"be", [(u"ea", (u"pres",u"s",u"0")), (u"engie", (u"perf",u"s",u"0")), (u"enge", (u"past",u"s",u"0"))]) ) 
 		d.append(  (u"cen", u"Acc", u"see") ) 
-		d.append(  (u"love", u"Acc", u"mel") ) 
+		d.append(  (u"mel", u"Acc", u"love") ) 
 		d.append(  (u"mat", u"Acc", u"eat") )
 		d.append(  (u"suc", u"Acc", u"drink") )
-		d.append(  (u"anta", u"Acc", u"give", [(u"áne", (u"past",u"s",u"0"))]) ) 
+		d.append(  (u"anta", u"Acc+Dat", u"give", [(u"áne", (u"past",u"s",u"0"))]) ) 
 		d.append(  (u"ista", u"Acc", u"know", [(u"sinte", (u"past",u"s",u"0"))]) ) 
-		d.append(  (u"lelya", u"Acc", u"go", [(u"lende", (u"past",u"s",u"0"))]) ) 
+		d.append(  (u"lelya", u"0", u"go", [(u"lende", (u"past",u"s",u"0"))]) )  
+		d.append(  (u"ulya", u"Acc", u"pour", [], 1) )  
+		d.append(  (u"ulya", u"0", u"pour", [], 2) )  
 		d.append(  (u"mar", u"0", u"dwell", [(u"ambárie", (u"perf",u"s",u"0"))]) ) 
 		return d
 

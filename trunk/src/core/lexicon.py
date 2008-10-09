@@ -25,7 +25,7 @@ class Lemma:
 	
 	Usually, lemmas or headwords are the I{entry words} in dictionaries and encyclopediae.
 	"""
-	def __init__(self, entry_form, id, p_o_s, categories, gloss):
+	def __init__(self, entry_form, id, p_o_s, categories = (), gloss = None):
 		"""
 		Create a lemma in a specific language for the I{entry word} specified.
 
@@ -67,8 +67,10 @@ class Lemma:
 		self.entry_form = entry_form
 		self.id = Utilities.nvl(id, 1)
 		self.p_o_s = p_o_s
-		self.categories = Utilities.nvl(categories, ())
-		self.gloss = gloss
+		if type(categories) is not tuple:
+			raise TypeError(categories)
+		self.categories = categories
+		self.gloss = Utilities.nvl(gloss, entry_form)
 
 	def key(self):
 		return (self.entry_form, self.id)
@@ -117,6 +119,8 @@ class Word:
 		    Categories can indicate word declensions or modifications.
 	
 		"""
+		if type(categories) is not tuple:
+			raise TypeError(categories)
 		self.form = form
 		self.lemma = lemma
 		self.categories = categories
@@ -157,7 +161,7 @@ class Particle(Word):
 	For example, I{li} in Toki Pona.
 	"""
 	def __init__(self, form, id, p_o_s):
-		Word.__init__(self, form, Lemma(form, id, p_o_s, None, None))
+		Word.__init__(self, form, Lemma(form, id, p_o_s, (), None))
 	def __repr__(self):
 		return self.form
 
@@ -169,19 +173,6 @@ class Lexicon:
 		self.__compiled = None
 		self.__indexed_words = {}
 		self.__valid = False
-
-	@staticmethod
-	def test_categories(filter_categories, categories):
-		if filter_categories is not None:
-			for i, test in enumerate(filter_categories):
-				if test is not None and i < len(categories):
-					v = categories[i]
-					if v is not None:
-						if not isinstance(test, CategoryFilter):
-							if test != v: return False
-						else:
-							if not test.match(v): return False
-		return True
 
 	def compile(self, properties, force = False):
 		if force or not self.__valid and self.__compiled is None:
@@ -216,7 +207,7 @@ class Lexicon:
 			for w in self.__indexed_words[lemma_key]:
 				if form is not None and form != w.form:
 					continue
-				if not Lexicon.test_categories(categories, w.categories):
+				if not CategoryFilter.test(categories, w.categories):
 					continue
 				ws.append(w)
 		else:
@@ -264,7 +255,7 @@ class Lexicon:
 				continue
 			if p_o_s is not None and p_o_s != i.p_o_s:
 				continue
-			if not Lexicon.test_categories(lemma_categories, i.categories):
+			if not CategoryFilter.test(lemma_categories, i.categories):
 				continue
 			f.append(j)
 		return f
@@ -285,7 +276,7 @@ class Lexicon:
 		err = set()
 		d = {}
 		for p in lect.get_p_o_s_names():
-			d[p] = lect.get_p_o_s(p)
+			d[p] = lect.get_categories(p)
 		for hw in self.__lemmas.itervalues():
 			if not d.has_key(hw.p_o_s):
 				err.add(hw)
@@ -320,18 +311,7 @@ class WordFilter(Literal):
 
 
 
-	def match(self, word): 
-		def test_attr(filter_categories, categories):
-			if filter_categories is not None:
-				for i, test in enumerate(filter_categories):
-					if test is not None and i < len(categories):
-						v = categories[i]
-						if v is not None:
-							if isinstance(test, CategoryFilter):
-								if not test.match(v): return False
-							else:
-								if test != v: return False
-			return True
+	def match(self, word):
 		def none_or_equal(v, w):
 			if v is None: return True
 			else: return v == w
@@ -344,9 +324,9 @@ class WordFilter(Literal):
 			return False
 		if not none_or_equal(self.content[3], word.lemma.p_o_s):
 			return False
-		if not test_attr(self.content[4], word.lemma.categories):
+		if not CategoryFilter.test(self.content[4], word.lemma.categories):
 			return False
-		if not test_attr(self.content[5], word.categories):
+		if not CategoryFilter.test(self.content[5], word.categories):
 			return False
 		return True
 
@@ -377,6 +357,10 @@ class WordCategoryFilter(WordFilter):
 	Regarded parameters: lemma.p_o_s, lemma.categories, word.categories
 	"""
 	def __init__(self, p_o_s = None, lemma_categories = None, categories = None):
+		if lemma_categories is not None and type(lemma_categories) is not tuple:
+			raise TypeError(lemma_categories)
+		if categories is not None and type(categories) is not tuple:
+			raise TypeError(categories)
 		Literal.__init__(self, (None, None, None, p_o_s, lemma_categories, categories))
 
 	def __str__(self):
@@ -415,6 +399,20 @@ class CategoryFilter:
 	FUNCTIONS = {}
 	FUNCTIONS["in"] = (lambda x, parameter: x in parameter, "%s")
 	FUNCTIONS["ni"] = (lambda x, parameter: x not in parameter, "¬%s")
+
+	@staticmethod
+	def test(filter_categories, categories):
+		if filter_categories is not None:
+			for i, test in enumerate(filter_categories):
+				if test is not None and i < len(categories):
+					v = categories[i]
+					if v is not None:
+						if not isinstance(test, CategoryFilter):
+							if test != v: return False
+						else:
+							if not test.match(v): return False
+		return True
+
 
 	def __init__(self, operator, parameter):
 		if not self.FUNCTIONS.has_key(operator):
@@ -455,8 +453,14 @@ def __test():
 	print `lx1`
 	print `lx2`
 	print `lx3`
-
 	print lx1.match(w), lx2.match(w), lx3.match(w)
+	
 
+	cf = CategoryFilter("in", ("A","B"))
+	cf2 = CategoryFilter("ni", ("A","B"))
+	print `cf`
+	print "Yes", cf.match("A"), CategoryFilter.test((cf2,), ("C",))
+	print "No", cf.match("C"), CategoryFilter.test((cf2,), ("A",))
+	
 if __name__ == "__main__":
 	__test()
