@@ -248,7 +248,7 @@ class Lexicon:
 		return self.__lemmas.get(lemma_key)
 		
 	def iter_lemmas(self):
-		return self.__lemmas.iterkeys()
+		return self.__lemmas.itervalues()
 		
 	def iter_words(self):
 		for lw in self.__indexed_words.itervalues():
@@ -270,7 +270,7 @@ class Lexicon:
 		return f
 
 	def __repr__(self):
-		return "[[%d lemmas, %d words]]" % (len(self.__lemmas), len(self.__words))
+		return "[[%d entries, %d forms]]" % (len(self.__lemmas), len(self.__words))
 		
 	def check(self, lect, corrective_p_o_s = None):
 		def check_length(w, l, err, corr):

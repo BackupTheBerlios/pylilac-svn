@@ -21,6 +21,21 @@ def run():
 
 
 	def build_lexicon(l, f):
+		def correct_table(table):
+			correct_word(table, u"^híninya", u"hínya")
+			v, w = u"aeiou", u"áéíóú"
+			for i in (0,1,2,3,4):
+				correct_word(table, w[i]+u"ll", v[i]+u"ll")
+				correct_word(table, w[i]+u"nn", v[i]+u"nn")
+				correct_word(table, w[i]+u"ss",  v[i]+u"ss")
+				correct_word(table, w[i]+u"lv",  v[i]+u"lv")
+				correct_word(table, w[i]+u"mm",  v[i]+u"mm")
+				correct_word(table, w[i]+u"lm",  v[i]+u"lm")
+				correct_word(table, w[i]+u"lt",  v[i]+u"lt")
+				correct_word(table, w[i]+u"nt",  v[i]+u"nt")
+				correct_word(table, w[i]+u"([^lnhcgr])y",  v[i]+u"\\1y")
+				correct_word(table, w[i]+u"([^lnhgr])w",  v[i]+u"\\1w")		
+
 		for h in nouns():
 			lemma = Lemma(h[0], 1, u"n", (), h[2])
 			word = Word(h[1], lemma, (u"s",u"Nom",u"0"))
@@ -30,7 +45,7 @@ def run():
 					word = Word(j[0], lemma, j[1])
 					words.append(word)
 			ft = f(lemma, words)
-
+			correct_table(ft)
 			l.add_lemma(lemma)
 			for w in ft.itervalues():
 				l.add_word(w)
@@ -47,19 +62,18 @@ def run():
 				lemma.entry_form = u"ná"
 				ft[(u"aor", u"s", u"0")]=Word(u"ná", lemma, (u"aor", u"s", u"0"))
 				ft[(u"past", u"s", u"0")]=Word(u"né", lemma, (u"past", u"s", u"0"))
-			
+
+			correct_table(ft)			
 			l.add_lemma(lemma)
 			for w in ft.itervalues():
 				l.add_word(w)
 		
-		
 
-	def correct_word(l, old, new):
-		for v in l.iter_words():
+	def correct_word(table, old, new):
+		for k, v in table.iteritems():
 			if re.search(old, v.form, re.I):
 				v2 = Word(re.sub(old, new, v.form, re.I), v.lemma, v.categories)
-				l.remove_word(v)
-				l.add_word(v2)
+				table[k] = v2
 
 	def build_flexions(fl):
 		f = fl.create_flexion(u"n",())
@@ -361,7 +375,7 @@ def run():
 			elif number == u"d":
 				v = u"u"
 			initial = POSS[person][0]
-			z.append_step(u"([^aiouáíéóú"+initial+u"])$", u"\\1"+v)
+			z.append_step(u"([^aeiouáíéóú"+initial+u"])$", u"\\1"+v)
 			z.append_step(initial + u"$", u"")
 			z.append_step(u"$", POSS[person])
 			return z
@@ -620,8 +634,8 @@ def run():
 	def verbs():
 		d = []
 		d.append(  (u"na", u"Nom", u"be", [(u"ne", (u"past",u"s",u"0"))]) ) 
-		d.append(  (u"ea", u"0", u"be", [(u"enge", (u"past",u"s",u"0"))]) ) 
-		d.append(  (u"cen", u"Acc", u"see", [(u"cenne", (u"past",u"s",u"0"))]) ) 
+		d.append(  (u"ea", u"0", u"be", [(u"ea", (u"pres",u"s",u"0")), (u"engie", (u"perf",u"s",u"0")), (u"enge", (u"past",u"s",u"0"))]) ) 
+		d.append(  (u"cen", u"Acc", u"see") ) 
 		d.append(  (u"love", u"Acc", u"mel") ) 
 		d.append(  (u"mat", u"Acc", u"eat") )
 		d.append(  (u"suc", u"Acc", u"drink") )
@@ -633,28 +647,16 @@ def run():
 
 
 	l = Lect(u"qya")
-	l.name = u"Quuenya"
+	l.name = u"Quenya"
 	l.english_name = u"Quenya"
-	l.append_p_o_s(u"v", (u"transitiveness",), (u"tense", u"person", u"object person"))
+	l.append_p_o_s(u"v", (u"arguments",), (u"tense", u"person", u"object person"))
 	l.append_p_o_s(u"n", (), (u"number", u"case", u"person"))
 	l.append_p_o_s(u"adj", (u"transitiveness",), (u"number", u"case", u"person"))
 	l.append_p_o_s(u"adv", (), ())
-	l.append_p_o_s(u"prep", (u"structure",), (u"object person",))
+	l.append_p_o_s(u"prep", (u"argument",), (u"object person",))
 	build_flexions(l.flexions)
 	build_lexicon(l.lexicon, l.flexions)
 	print l.lexicon
-	correct_word(l.lexicon, u"^híninya", u"hínya")
-	v, w = "aeiou", u"áéíóú"
-	for i in (0,1,2,3,4):
-		correct_word(l.lexicon, w[i]+u"ll", v[i]+u"ll")
-		correct_word(l.lexicon, w[i]+u"nn", v[i]+u"nn")
-		correct_word(l.lexicon, w[i]+u"ss",  v[i]+u"ss")
-		correct_word(l.lexicon, w[i]+u"lv",  v[i]+u"lv")
-		correct_word(l.lexicon, w[i]+u"mm",  v[i]+u"mm")
-		correct_word(l.lexicon, w[i]+u"lm",  v[i]+u"lm")
-		correct_word(l.lexicon, w[i]+u"lt",  v[i]+u"lt")
-		correct_word(l.lexicon, w[i]+u"([^lnhcgr])y",  v[i]+u"\\1y")
-		correct_word(l.lexicon, w[i]+u"([^lnhgr])w",  v[i]+u"\\1w")
 	#build_grammar(l.grammar)
 	l.properties[u"capitalization"] = 2 #lexical
 	l.save(u"test/qya.lct")

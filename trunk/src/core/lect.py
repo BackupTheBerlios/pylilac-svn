@@ -31,8 +31,8 @@ class Lect:
 		    A country/variant code and a representation system might be added: C{eng-US}, C{esp:ERG}, C{por-BR:IPA}
 		"""
 		self.code = code
-		self.name = unicode(code)
-		self.english_name = None
+		self.name = u""
+		self.english_name = u""
 		self.__p_o_s = ()
 		self.__lemma_categories = {}
 		self.__categories = {}
