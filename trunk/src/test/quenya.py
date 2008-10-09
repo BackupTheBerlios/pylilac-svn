@@ -23,6 +23,7 @@ def run():
 	def build_lexicon(l, f):
 		def correct_table(table):
 			correct_word(table, u"^híninya", u"hínya")
+			correct_word(table, u"^húa", u"hua")
 			v, w = u"aeiou", u"áéíóú"
 			for i in (0,1,2,3,4):
 				correct_word(table, w[i]+u"ll", v[i]+u"ll")
@@ -189,7 +190,7 @@ def run():
 		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiouáéíóú]cu$") 
 		c.append_step(u"[aeiou]?°", u"")
 		c.append_step(u"cu$", u"qui")
-		c = tr.create_chain(BASED_ON_LEMMA, u"([aiouáéíóú]$)|(ie$)") 
+		c = tr.create_chain(BASED_ON_LEMMA, u"[aiouáéíóú]$|ie$") 
 		c.append_step(u"[aeiou]?°", u"") 
 		c.append_step(u"$", u"r")
 		c = tr.create_chain(BASED_ON_LEMMA)
@@ -197,7 +198,7 @@ def run():
 		c.append_step(u"e?$", u"i")
 
 		tr = f.create_transform((u"d", u"Nom", u"0"))
-		c = tr.create_chain(BASED_ON_LEMMA, u"(u$)|(ie$)")
+		c = tr.create_chain(BASED_ON_LEMMA, u"u$|ie$")
 		c.append_step(u"[aeiou]?°", u"")
 		c.append_step(u"$", u"t")
 		c = tr.create_chain(BASED_ON_LEMMA, u"[dt].{0,4}$")
@@ -611,12 +612,12 @@ def run():
 		d.append(  (u"tal", u"tál", u"foot", [(u"talan", (u"s",u"Dat",u"0")) , (u"talain", (u"pl",u"Dat",u"0"))] ))
 		d.append(  (u"toll°", u"tol", u"island", [(u"tollon", (u"s",u"Dat",u"0")), (u"tolloin", (u"pl",u"Dat",u"0"))] ) )
 		d.append(  (u"samb", u"san", u"chamber") )
-		d.append(  (u"hún", u"huan", u"hound") )
+		d.append(  (u"húa°n", u"huan", u"hound") )
 		d.append(  (u"olor", u"olos", u"dream") )
 		d.append(  (u"ráv", u"rá", u"lion") )
 		d.append(  (u"cas", u"cár", u"head") )
 		d.append(  (u"cos", u"cor", u"war") )
-		d.append(  (u"coav°", u"coa", u"house"))
+		d.append(  (u"coa", u"coa", u"house", [(u"coavo", (u"s",u"Gen",u"0")),(u"coava", (u"s",u"Poss",u"0"))] ) )
 		d.append(  (u"mas", u"cor", u"home") )
 		d.append(  (u"nelc", u"nelet", u"tooth", [(u"neletse", (u"s",u"Loc",u"0"))] ) )
 		d.append(  (u"ilim", u"ilin", u"milk") )
