@@ -8,10 +8,10 @@ Hierarchy
 =========
 
 
-The classes in this module follow this hierarchy:
+The classes follow this hierarchy:
 
 
-G{classtree _Symbol Literal _Epsilon Reference _Closure _Expression}
+G{classtree _Symbol}
 
 
 
