@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -54,7 +54,7 @@ def run():
 			l.add_lemma(lemma)
 			for w in ft.itervalues():
 				l.add_word(w)
-				
+
 		for h in verbs():
 			if len(h)>4:
 				id = h[4]
@@ -76,7 +76,24 @@ def run():
 			l.add_lemma(lemma)
 			for w in ft.itervalues():
 				l.add_word(w)
-		
+				
+		for h in adjs():
+			if len(h)>2:
+				id = h[4]
+			else:
+				id = 1
+			lemma = Lemma(h[0], id, u"adj", (), h[1])
+			words = []
+			if len(h)>3:
+				for j in h[3]:
+					word = Word(j[0], lemma, j[1])
+					words.append(word)
+			ft = f(lemma, words)
+			correct_table(ft)			
+			l.add_lemma(lemma)
+			for w in ft.itervalues():
+				l.add_word(w)
+
 
 	def correct_word(table, old, new):
 		for k, v in table.iteritems():
@@ -101,7 +118,7 @@ def run():
 		c = tr.create_chain(BASED_ON_LEMMA)
 		c.append_step(u"[aeiou]?°", u"")
 		c.append_step(u"[ao]?$", u"o")
-		
+
 		tr = f.create_transform((u"s", u"Poss", u"0")) #no C°
 		c = tr.create_chain(BASED_ON_LEMMA, u"[^q]ui[^aeiouáéíóú][aeiou]$")
 		c.append_step(u"[^aeiou]?°", u"")
@@ -137,14 +154,14 @@ def run():
 		c.append_step(u"[aeiou]?°", u"") 
 		c.append_step(u"([^aeiouáéíóú])$", u"\\1e")
 		c.append_step(u"$", u"n")
-		
+
 		tr = f.create_transform((u"s", u"Abl", u"0")) #no C°
 		c = tr.create_chain(BASED_ON_LEMMA)
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"([aeiouáéíóú])[lnrs]$", u"\\1")
 		c.append_step(u"([^aeiouáéíóú])$", u"\\1e")
 		c.append_step(u"$", u"llo")
-		
+
 		tr = f.create_transform((u"s", u"All", u"0")) 
 		c = tr.create_chain(BASED_ON_LEMMA, u"([aeiou]l$)|(ll°$)")
 		c.append_step(u"[^aeiou]?°", u"")
@@ -154,7 +171,7 @@ def run():
 		c.append_step(u"([aeiouáéíóú])n$", u"\\1")
 		c.append_step(u"([^aeiouáéíóú])$", u"\\1e")
 		c.append_step(u"$", u"nna")
-		
+
 		tr = f.create_transform((u"s", u"Loc", u"0")) 
 		c = tr.create_chain(BASED_ON_LEMMA, u"([aeiou][ln]$)|(ll°$)|(nn°$)")
 		c.append_step(u"[^aeiou]?°", u"")
@@ -167,7 +184,7 @@ def run():
 		c.append_step(u"([aeiouáéíóú])s$", u"\\1")
 		c.append_step(u"([^aeiouáéíóú])$", u"\\1e")
 		c.append_step(u"$", u"sse")
-		
+
 		tr = f.create_transform((u"s", u"Instr", u"0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"[aeiou][pct]$")
 		c.append_step(u"[^aeiou]?°", u"")
@@ -513,7 +530,7 @@ def run():
 			c.append_step(u"$", u"ne")
 			c = tr.create_chain(BASED_ON_LEMMA, u"wa$")
 			c.append_step(u"wa$", u"ngwe")
-			
+
 			if transitive:
 				c = tr.create_chain(BASED_ON_LEMMA, u"ya$")
 				c.append_step(u"$", u"ne")
@@ -535,7 +552,7 @@ def run():
 				c.append_step(u"$", u"e")
 				c = tr.create_chain(BASED_ON_LEMMA, u"ya$")
 				c.append_step(u"ya$", u"ne")
-				
+
 			c = tr.create_chain(BASED_ON_LEMMA, u"[rnm]$")
 			c.append_step(u"$", u"ne")
 			c = tr.create_chain(BASED_ON_LEMMA, u"([tc]$)|(qu$)")
@@ -621,10 +638,254 @@ def run():
 							tr = f.create_transform((t, k, k1))
 							c = tr.create_chain((t, u"s", u"0"))
 							c.append_step(u"$", v[0]+v1)
-		
+
 		add_verb_flexion( CategoryFilter("in", (u"Acc", u"Acc+Dat")), True)
 		add_verb_flexion( CategoryFilter("ni", (u"Acc", u"Acc+Dat")), False)
 		
+		f = fl.create_flexion(u"adj",())
+
+		tr = f.create_transform((u"s", u"Nom", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA)
+
+		tr = f.create_transform((u"s", u"Gen", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
+		c.append_step(u"a$", u"o")
+		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
+		c.append_step(u"e$", u"io")
+		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
+		c.append_step(u"$", u"do")
+		tr = f.create_transform((u"s", u"Poss", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
+		c.append_step(u"a$", u"ava")
+		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
+		c.append_step(u"e$", u"iva")
+		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
+		c.append_step(u"$", u"wa")
+		tr = f.create_transform((u"s", u"Dat", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
+		c.append_step(u"$", u"n")
+		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
+		c.append_step(u"e$", u"in")
+		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
+		c.append_step(u"$", u"den")
+		tr = f.create_transform((u"s", u"Abl", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"s", u"Dat", u"0"))
+		c.append_step(u"n$", u"llo")
+		tr = f.create_transform((u"s", u"All", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"s", u"Dat", u"0"))
+		c.append_step(u"n$", u"nna")
+		tr = f.create_transform((u"s", u"Loc", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"s", u"Dat", u"0"))
+		c.append_step(u"n$", u"sse")
+		tr = f.create_transform((u"s", u"Instr", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"s", u"Dat", u"0"))
+		c.append_step(u"$", u"en")
+		tr = f.create_transform((u"s", u"Resp", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"s", u"Dat", u"0"))
+		c.append_step(u"n$", u"s")
+
+
+		tr = f.create_transform((u"pl", u"Nom", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
+		c.append_step(u"a$", u"e")
+		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
+		c.append_step(u"e$", u"i")
+		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
+		c.append_step(u"$", u"di")
+		tr = f.create_transform((u"pl", u"Gen", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"pl", u"Nom", u"0"))
+		c.append_step(u"$", u"on")
+		tr = f.create_transform((u"pl", u"Poss", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"pl", u"Dat", u"0"))
+		c.append_step(u"n$", u"va")
+		tr = f.create_transform((u"pl", u"Dat", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
+		c.append_step(u"a$", u"ain")
+		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
+		c.append_step(u"e$", u"ín")
+		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
+		c.append_step(u"$", u"din")
+		tr = f.create_transform((u"pl", u"Abl", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"s", u"Abl", u"0"))
+		c.append_step(u"$", u"n")
+		tr = f.create_transform((u"pl", u"All", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"s", u"All", u"0"))
+		c.append_step(u"$", u"r")
+		tr = f.create_transform((u"pl", u"Loc", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"s", u"Loc", u"0"))
+		c.append_step(u"$", u"n")
+		tr = f.create_transform((u"pl", u"Instr", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"pl", u"Dat", u"0"))
+		c.append_step(u"$", u"en")
+		tr = f.create_transform((u"pl", u"Resp", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"pl", u"Dat", u"0"))
+		c.append_step(u"n$", u"s")
+
+		tr = f.create_transform((u"d", u"Nom", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
+		c.append_step(u"a$", u"at")
+		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
+		c.append_step(u"e$", u"it")
+		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
+		c.append_step(u"$", u"det")
+
+		tr = f.create_transform((u"d", u"Gen", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"d", u"Nom", u"0"))
+		c.append_step(u"t$", u"to")
+
+		tr = f.create_transform((u"d", u"Poss", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr.append_step(u"t$", u"twa")
+
+		tr = f.create_transform((u"d", u"Dat", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr.append_step(u"t$", u"nt")
+
+		tr = f.create_transform((u"d", u"Abl", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr.append_step(u"t$", u"lto")
+
+		tr = f.create_transform((u"d", u"All", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr.append_step(u"t$", u"nta")
+
+		tr = f.create_transform((u"d", u"Loc", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr.append_step(u"t$", u"tse")
+
+		tr = f.create_transform((u"d", u"Instr", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr.append_step(u"t$", u"nten")
+
+		tr = f.create_transform((u"d", u"Resp", u"0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
+		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr.append_step(u"t$", u"tes")
+
+
+		tr = f.create_transform((u"s", u"Nom", u"abs"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
+		c.append_step(u"a$", u"alda")
+		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
+		c.append_step(u"e$", u"ilda")
+		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
+		c.append_step(u"[ie]n$", u"ilda")
+
+		tr = f.create_transform((u"s", u"Gen", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"a$", u"o")
+		tr = f.create_transform((u"s", u"Poss", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"va")
+		tr = f.create_transform((u"s", u"Dat", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"n")
+		tr = f.create_transform((u"s", u"Abl", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"llo")
+		tr = f.create_transform((u"s", u"All", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"nna")
+		tr = f.create_transform((u"s", u"Loc", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"sse")
+		tr = f.create_transform((u"s", u"Instr", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"nen")
+		tr = f.create_transform((u"s", u"Resp", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"s")
+
+		tr = f.create_transform((u"pl", u"Nom", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"a$", u"e")
+		tr = f.create_transform((u"pl", u"Gen", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"a$", u"eon")
+		tr = f.create_transform((u"pl", u"Poss", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"iva")
+		tr = f.create_transform((u"pl", u"Dat", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"in")
+		tr = f.create_transform((u"pl", u"Abl", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"llon")
+		tr = f.create_transform((u"pl", u"All", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"llar")
+		tr = f.create_transform((u"pl", u"Loc", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"ssen")
+		tr = f.create_transform((u"pl", u"Instr", u"abs"))
+		c = tr.create_chain((u"pl", u"Dat", u"abs"))
+		c.append_step(u"$", u"en")
+		tr = f.create_transform((u"pl", u"Resp", u"abs"))
+		c = tr.create_chain((u"pl", u"Dat", u"abs"))
+		c.append_step(u"n$", u"s")
+
+		tr = f.create_transform((u"d", u"Nom", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"t")
+
+		tr = f.create_transform((u"d", u"Gen", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"to")
+
+		tr = f.create_transform((u"d", u"Poss", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"twa")
+
+		tr = f.create_transform((u"d", u"Dat", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"nt")
+
+		tr = f.create_transform((u"d", u"Abl", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"lto")
+
+		tr = f.create_transform((u"d", u"All", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"nta")
+
+		tr = f.create_transform((u"d", u"Loc", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"tse")
+
+		tr = f.create_transform((u"d", u"Instr", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$",u"nten")
+
+		tr = f.create_transform((u"d", u"Resp", u"abs"))
+		c = tr.create_chain((u"s", u"Nom", u"abs"))
+		c.append_step(u"$", u"tes")
+
+
 
 	def nouns():
 		d = []
@@ -683,12 +944,17 @@ def run():
 		return d
 
 
+	def adjs():
+		d = []
+		d.append(  (u"alta", u"high") )
+		return d
+		
 	l = Lect(u"qya")
 	l.name = u"Quenya"
 	l.english_name = u"Quenya"
 	l.append_p_o_s(u"v", (u"arguments",), (u"tense", u"person", u"object person"))
 	l.append_p_o_s(u"n", (), (u"number", u"case", u"person"))
-	l.append_p_o_s(u"adj", (u"transitiveness",), (u"number", u"case", u"person"))
+	l.append_p_o_s(u"adj", (u"number", u"case", u"degree"))
 	l.append_p_o_s(u"adv", (), ())
 	l.append_p_o_s(u"prep", (u"argument",), (u"object person",))
 	build_flexions(l.flexions)

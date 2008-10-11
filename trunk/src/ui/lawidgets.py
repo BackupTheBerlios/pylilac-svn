@@ -72,7 +72,7 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 			category_sizer = wx.FlexGridSizer(2, 1, 0, 0)
 			button_sizer = wx.FlexGridSizer(1, 3, 0, 0)
 			ctrl_sizer = wx.BoxSizer(wx.VERTICAL)
-			
+
 			if self.__rows == 0:
 				caption = wx.StaticText(self.panel, -1, "No categories associated.")
 				caption.SetFont(wx.Font(8, wx.FONTFAMILY_SWISS, wx.ITALIC, wx.NORMAL, 0, ""))

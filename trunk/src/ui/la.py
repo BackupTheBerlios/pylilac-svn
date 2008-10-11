@@ -26,7 +26,7 @@ class LAFrame(wx.Frame):
 		self.language_sizer_2_staticbox = wx.StaticBox(self.la_language_pane, -1, "Properties:")
 		self.language_sizer_3_staticbox = wx.StaticBox(self.la_language_pane, -1, "Blabla:")
 		self.language_sizer_1_staticbox = wx.StaticBox(self.la_language_pane, -1, "Language:")
-		
+
 		# Menu Bar
 		self.la_frame_menubar = wx.MenuBar()
 		self.file_menu = wx.Menu()
@@ -154,7 +154,7 @@ class LAFrame(wx.Frame):
 		self.__filename = ""
 		self.__dirname = ""
 		self.data =  Lect()
-		
+
 		self.__load_tabs()
 
 		self.search_lemma.Bind(wx.EVT_SEARCHCTRL_SEARCH_BTN, self.OnDoSearch, self.search_lemma)
@@ -300,7 +300,7 @@ class LAFrame(wx.Frame):
 		self.SetSizer(la_frame_sizer)
 		self.Layout()
 		# end wxGlade
-		
+
 	def __load_tabs(self):
 		lang = self.data
 		self.code_ctrl.SetValue(lang.code)
@@ -311,11 +311,11 @@ class LAFrame(wx.Frame):
 		self.lemma_ctrl.Clear()
 		for hw in lang.lexicon.iter_lemmas():
 			self.lemma_ctrl.Append("%s.%d" % hw.key(), hw.key())
-		
+
 	def __set_dirty(self, value = True):
 		self.save_menu.Enable(value)
 		self.saveas_menu.Enable(value)
-		
+
 	def __get_dirty(self):
 		return self.save_menu.IsEnabled()		
 
@@ -402,7 +402,7 @@ class LAFrame(wx.Frame):
 		if not self.__cb_frame:
 			self.__cb_frame = CBFrame(self, -1, "")
 		self.__cb_frame.Show()
-		
+
 	def OnRunFilterEditor(self, event): # wxGlade: LAFrame.<event_handler>
 		print "Event handler `OnRunFilterEditor' not implemented!"
 		event.Skip()
@@ -462,7 +462,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		self.lemma_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[0])
 		self.lemma_category_ctrl.SetCategoryValues(hw.categories)
 		self.gloss_ctrl.SetValue(hw.gloss)
-        #categories
+	#categories
 		words = self.data.lexicon.retrieve_words(hw_key)
 		redim(self.word_grid, len(words))
 		for i, w in enumerate(words):
@@ -471,7 +471,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 			ROMAN = wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, "")
 			self.word_grid.SetCellFont(i, 0, ROMAN)
 			self.word_grid.SetCellFont(i, 1, ROMAN)
-		
+
 	def OnDoSearch(self, event): # wxGlade: LAFrame.<event_handler>
 		entry_form = self.search_lemma.GetValue()
 		print entry_form
@@ -487,7 +487,7 @@ class CBFrame(wx.Frame):
 		kwds["style"] = wx.CAPTION|wx.CLOSE_BOX|wx.MINIMIZE_BOX|wx.SYSTEM_MENU|wx.RESIZE_BORDER|wx.FRAME_FLOAT_ON_PARENT|wx.CLIP_CHILDREN
 		wx.Frame.__init__(self, *args, **kwds)
 		self.panel_1 = wx.Panel(self, -1)
-		
+
 		# Menu Bar
 		self.cb_frame_menubar = wx.MenuBar()
 		self.file_menu = wx.Menu()
@@ -559,7 +559,7 @@ class CBFrame(wx.Frame):
 		self.Bind(wx.EVT_BUTTON, self.OnUndo, self.cancel_button)
 		self.Bind(wx.EVT_BUTTON, self.OnApply, self.ok_button)
 		# end wxGlade
-		
+
 		self.data = Interlingua("Latejami")
 		self.data.load(self.FILENAME)
 		self.__do_tree()
@@ -629,18 +629,18 @@ class CBFrame(wx.Frame):
 	def __do_tree(self):
 		"""Prepare the tree metadata"""
 		tree = self.concept_tree_ctrl
-		
+
 		isz = (16, 16)
 		il = wx.ImageList(*isz)
 		#wx.ArtProvider_GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, isz)
 		self.__tree_icons = {
-		"N": il.Add(graphics.ArtProvider.get_bitmap("idea", wx.ART_OTHER, isz)),
-		"V": il.Add(graphics.ArtProvider.get_bitmap("action", wx.ART_OTHER, isz)),
-		"A": il.Add(graphics.ArtProvider.get_bitmap("label", wx.ART_OTHER, isz)),
-		"D": il.Add(graphics.ArtProvider.get_bitmap("brackets", wx.ART_OTHER, isz)),
-		"C": il.Add(graphics.ArtProvider.get_bitmap("link", wx.ART_OTHER, isz))
+			"N": il.Add(graphics.ArtProvider.get_bitmap("idea", wx.ART_OTHER, isz)),
+			"V": il.Add(graphics.ArtProvider.get_bitmap("action", wx.ART_OTHER, isz)),
+			"A": il.Add(graphics.ArtProvider.get_bitmap("label", wx.ART_OTHER, isz)),
+			"D": il.Add(graphics.ArtProvider.get_bitmap("brackets", wx.ART_OTHER, isz)),
+			"C": il.Add(graphics.ArtProvider.get_bitmap("link", wx.ART_OTHER, isz))
 		}
-	
+
 		self.tree_image_list = il
 		tree.SetImageList(il)
 
@@ -654,12 +654,12 @@ class CBFrame(wx.Frame):
 		tree.SetColumnWidth(1, 50)
 		tree.SetColumnWidth(2, 80)
 		tree.SetColumnWidth(3, 200)
-		
+
 		root = tree.AddRoot("[Root]")
 		tree.SetItemText(root, "0-n", 1)
 		tree.SetItemText(root, "Root", 2)
 		tree.SetItemText(root, "", 3)
-		
+
 		self.__load_tree()
 
 	def __load_tree(self):
@@ -675,9 +675,9 @@ class CBFrame(wx.Frame):
 
 		tree = self.concept_tree_ctrl
 		root = tree.GetRootItem()
-	
+
 		add_tree_children(root, None)
-			
+
 		tree.Expand(root)
 
 	def __fill_controls(self):
@@ -695,10 +695,10 @@ class CBFrame(wx.Frame):
 		self.meaning_text.SetValue(concept.meaning)
 		self.notes_text.SetValue(concept.notes)
 		self.reference_text.SetValue(Utilities.nvl(concept.reference, ""))
-		
+
 		self.__set_dirty(old_dirty)
 		self.ok_button.Enable(False)
-		
+
 	def __find_tree_item(self, parent, value, column = 0, test = 0):
 		if test == 1:
 			test = lambda x, y: (x.lower() == y.lower())
@@ -721,22 +721,22 @@ class CBFrame(wx.Frame):
 			item, cookie = tree.GetNextChild(parent, cookie)
 		return False
 
-	
+
 	def __reload_tree(self):
 		tree = self.concept_tree_ctrl
 		root = tree.GetRootItem()
 		tree.DeleteChildren(root)
 		self.__load_tree()
 		self.__find_tree_item(root, self.current)
-		
+
 	def __set_dirty(self, value = True):
 		self.reload_menu.Enable(value)
 		self.save_menu.Enable(value)
-		
+
 	def __get_dirty(self):
 		return self.save_menu.IsEnabled()
-		
-		
+
+
 	#Tree events
 	def OnRightUp(self, event): # wxGlade: CBFrame.<event_handler>
 		pos = event.GetPosition()
@@ -786,8 +786,8 @@ class CBFrame(wx.Frame):
 				out = open(path, "w")
 				for c in self.data.taxonomy:
 					out.write("%s,%s,%s,%s,%s,%s,%s,%s\n" %
-					(csv_format(c.interlingua), csv_format(c.p_o_s), csv_format(c.arg_struct), csv_format(c.meaning), csv_format(c.baseconcept), csv_format(c.derivation), csv_format(c.notes), csv_format(c.reference))
-					)
+						  (csv_format(c.interlingua), csv_format(c.p_o_s), csv_format(c.arg_struct), csv_format(c.meaning), csv_format(c.baseconcept), csv_format(c.derivation), csv_format(c.notes), csv_format(c.reference))
+						  )
 				out.flush()
 			finally:
 				out.close()
@@ -836,17 +836,17 @@ class CBFrame(wx.Frame):
 			self.current = self.interlingua_text.GetValue()
 		if self.current:
 			self.data.taxonomy.set(new_concept)
-			
+
 			#self.__refresh_tree()
 			self.__set_dirty(True)
-	
+
 		self.ok_button.Enable(False)
 		self.__reload_tree()
 
 
 	def OnNew(self, event): # wxGlade: CBFrame.<event_handler>
 		old_dirty = self.__get_dirty()
-		
+
 		baseconcept = self.data.taxonomy.get(self.current)
 		self.current = None
 
@@ -861,7 +861,7 @@ class CBFrame(wx.Frame):
 
 		self.__set_dirty(old_dirty)
 		self.ok_button.Enable(False)
-		
+
 
 	def OnDelete(self, event): # wxGlade: CBFrame.<event_handler>
 		baseconcept = self.data.taxonomy.get(self.current).baseconcept
@@ -926,7 +926,7 @@ class FindDialog(wx.Dialog):
 		sizer_5.AddGrowableCol(0)
 		self.Layout()
 		# end wxGlade
-	
+
 	def GetValue(self):
 		field = self.field_combo.GetValue()
 		if field[0] == "M":
@@ -940,7 +940,7 @@ class FindDialog(wx.Dialog):
 		else:
 			exact = 1
 		return (value, column, exact)
-	
+
 
 	def OnCancel(self, event): # wxGlade: FindDialog.<event_handler>
 		self.EndModal(wx.ID_CANCEL)

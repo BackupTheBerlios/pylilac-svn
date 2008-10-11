@@ -434,7 +434,6 @@ def build_grammar(w):
 	g["adverb"] = WordCategoryFilter("mod")
 	g["complement"] = WordCategoryFilter("prep") + Reference("noun-phrase") 
 
-
 	g.compile()
 	
 	return g
