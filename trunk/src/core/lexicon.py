@@ -19,7 +19,44 @@ from bnf import Literal
 class ExistingLemmaError(ValueError):
 	pass
 
-class Lemma:
+class Particle:
+	"""
+	A language specific particle.
+	
+	Practically, a L{Lemma} with no precise meaning, gloss or trasnlation.
+
+	For example, I{li} in Toki Pona.
+	"""
+	def __init__(self, entry_form, id, p_o_s, categories = ()):
+		self.entry_form = entry_form
+		self.id = Utilities.nvl(id, 1)
+		self.p_o_s = p_o_s
+		if type(categories) is not tuple:
+			raise TypeError(categories)
+		self.categories = categories
+
+	def key(self):
+		return (self.entry_form, self.id)
+
+	def __eq__(self, other):
+		"""
+		Compares memberwise two lemmas.
+		"""
+		if isinstance(other, Particle):
+			return self.entry_form == other.entry_form and self.id == other.id and self.p_o_s == other.p_o_s and self.categories == other.categories
+		else:
+			return False
+			
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
+	def __hash__(self):
+		return hash(self.entry_form) ^ self.id
+
+	def __repr__(self):
+		return "%s.%d" % (self.entry_form, self.id)
+
+class Lemma(Particle):
 	"""
 	A single unit of language, with no functional decoration.
 	
@@ -64,12 +101,7 @@ class Lemma:
 		    For the interlingua to use, Latejami or its successors are recommended.
 
 		"""
-		self.entry_form = entry_form
-		self.id = Utilities.nvl(id, 1)
-		self.p_o_s = p_o_s
-		if type(categories) is not tuple:
-			raise TypeError(categories)
-		self.categories = categories
+		Particle.__init__(self, entry_form, id, p_o_s, categories)
 		self.gloss = Utilities.nvl(gloss, entry_form)
 
 	def key(self):
@@ -77,20 +109,11 @@ class Lemma:
 
 	def __eq__(self, other):
 		"""
-		Compares memberwise two lemmas.
+		Compares memberwise two lemmas, disregardin the gloss.
+		
 		"""
-		if isinstance(other, Lemma):
-			return self.entry_form == other.entry_form and self.id == other.id and self.p_o_s == other.p_o_s and self.categories == other.categories
-		else:
-			return False
-	def __ne__(self, other):
-		return not self.__eq__(other)
+		return Particle.__eq__(self, other)
 
-	def __hash__(self):
-		return hash(self.entry_form) ^ self.id
-
-	def __repr__(self):
-		return "%s.%d" % (self.entry_form, self.id)
 
 class Word:
 	"""
@@ -154,17 +177,6 @@ class Word:
 		return self.form
 
 
-class Particle(Word):
-	"""
-	A language specific particle.
-
-	For example, I{li} in Toki Pona.
-	"""
-	def __init__(self, form, id, p_o_s):
-		Word.__init__(self, form, Lemma(form, id, p_o_s, (), None))
-	def __repr__(self):
-		return self.form
-
 
 class Lexicon:
 	def __init__(self):
@@ -188,6 +200,8 @@ class Lexicon:
 		self.__valid = False
 		
 	def add_word(self, word):
+		if not isinstance(word, Word):
+			raise TypeError(word)
 		lemma = word.lemma
 		if lemma:
 			word.lemma = self.add_lemma(lemma)
@@ -197,6 +211,8 @@ class Lexicon:
 		return word
 		
 	def remove_word(self, word):
+		if not isinstance(word, Word):
+			raise TypeError(word)
 		self.__indexed_words[word.lemma.key()].remove(word)
 		self.__words[word.form].remove(word)
 		self.__valid = False
@@ -217,6 +233,8 @@ class Lexicon:
 		return ws
 	
 	def add_lemma(self, lemma):
+		if not isinstance(lemma, Particle):
+			raise TypeError(lemma)
 		k = lemma.key()
 		if k in self.__lemmas:
 			if self.__lemmas[k] != lemma:
@@ -432,15 +450,15 @@ class CategoryFilter:
 def __test():
 
 	lx = Lexicon()
-	lx.add_word(Word(u"mi", Lemma(u"mi", 1, "pronoun", None, "bavi")))
-	lx.add_word(Word(u"sina", Lemma(u"sina", 1, "pronoun", None, "zavi")))
-	lx.add_word(Word(u"suli", Lemma(u"suli", 1, "adjective", None, "kemo")))
-	lx.add_word(Word(u"suna", Lemma(u"suna", 1, "noun", None, "Lakitisi")))
-	lx.add_word(Word(u"telo", Lemma(u"telo", 1, "noun", None, "bocivi")))
-	lx.add_word(Word(u"moku", Lemma(u"moku", 1, "verb", ("intr"), "fucala")))
-	lx.add_word(Word(u"moku", Lemma(u"moku", 2, "verb", ("tr"), "fucalinza")))
-	lx.add_word(Word(u"jan", Lemma(u"jan", 1, "noun", None, "becami")))
-	lx.add_word(Particle(u"li",1,"sep"))
+	lx.add_word(Word(u"mi", Lemma(u"mi", 1, "pronoun", (), "bavi")))
+	lx.add_word(Word(u"sina", Lemma(u"sina", 1, "pronoun", (), "zavi")))
+	lx.add_word(Word(u"suli", Lemma(u"suli", 1, "adjective", (), "kemo")))
+	lx.add_word(Word(u"suna", Lemma(u"suna", 1, "noun", (), "Lakitisi")))
+	lx.add_word(Word(u"telo", Lemma(u"telo", 1, "noun", (), "bocivi")))
+	lx.add_word(Word(u"moku", Lemma(u"moku", 1, "verb", ("intr",), "fucala")))
+	lx.add_word(Word(u"moku", Lemma(u"moku", 2, "verb", ("tr",), "fucalinza")))
+	lx.add_word(Word(u"jan", Lemma(u"jan", 1, "noun", (), "becami")))
+	lx.add_word(Word(u"li", Particle(u"li", 1, "sep")))
 	print lx
 	tk = lx.compile({"separator": " "})
 	print tk(u"jan li moku")
@@ -448,8 +466,8 @@ def __test():
 	lx = WordCategoryFilter("noun")
 	lx1 = WordCategoryFilter("noun", ("m", CategoryFilter("in", ["pl","s"])))
 	lx2 = WordCategoryFilter("noun", (CategoryFilter("ni", ["m"]), None))
-	lx3 = WordFilter(Word("man", Lemma("man", 1, "n", None, "None")))
-	w = Word("man", Lemma("man", 1, "noun", ("m"), "Uomo"))
+	lx3 = WordFilter(Word("man", Lemma("man", 1, "n", (), "None")))
+	w = Word("man", Lemma("man", 1, "noun", ("m",), "Uomo"))
 	print `lx1`
 	print `lx2`
 	print `lx3`

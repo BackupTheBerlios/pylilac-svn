@@ -7,8 +7,7 @@ A module to create Latejami lect file.
 from core.lect import Lect
 from core.grammar import Grammar
 from core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from core.lexicon import Lexicon, Particle, Word, Lemma
-from core.wordfilter import WordCategoryFilter, WordFilter, CategoryFilter
+from core.lexicon import Lexicon, Particle, Word, Lemma, WordCategoryFilter, WordFilter, CategoryFilter
 from core.interlingua import Interlingua, Concept
 
 def run():
@@ -41,7 +40,7 @@ def run():
 	
 def build_word(w0):
 	if (w0[2] == "V" or w0[2] == "D") and w0[4] == "0-n":
-		return Particle(w0[0], w0[1], w0[2])
+		return Word(w0[0], Particle(w0[0], w0[1],  w0[2]), ())
 	else:		
 		return Word(w0[0], Lemma(w0[0], w0[1], w0[2], (w0[4],), w0[3]))
 
@@ -103,15 +102,15 @@ def build_grammar(w):
   	g["heavy-modifier"] = Reference("open-adjective") + Reference("expression")
 
 	g["noun"] = WordCategoryFilter("N")
-	g["open-noun"] = WordCategoryFilter("N", {"argument-structure": CategoryFilter("in", ["P/F-s"])})
+	g["open-noun"] = WordCategoryFilter("N", (CategoryFilter("in", ["P/F-s"]),))
 	g["adjective"] = WordCategoryFilter("A")
-	g["open-adjective"] = WordCategoryFilter("A", {"argument-structure": CategoryFilter("in", ["P/F-s"])})
+	g["open-adjective"] = WordCategoryFilter("A", (CategoryFilter("in", ["P/F-s"]),))
 	g["verb"] = WordCategoryFilter("V")
 	g["adverb"] = WordCategoryFilter("D")
-	g["case-tag"] = WordCategoryFilter("D", {"argument-structure": CategoryFilter("in", ["P/F-s","P/F-d"])})
-	g["disjunct"] = WordCategoryFilter("D", {"argument-structure": CategoryFilter("in", ["P/F-s","P/F-d"])})
-	g["vocative-noun-phrase"] =  WordCategoryFilter("N", {"suffix": CategoryFilter("in", ["-we"])})
-	g["heavy-topicalization-particle"] = WordFilter(build_word(w["xojopa"])) 
+	g["case-tag"] = WordCategoryFilter("D", (CategoryFilter("in", ["P/F-s","P/F-d"]),))
+	g["disjunct"] = WordCategoryFilter("D", (CategoryFilter("in", ["P/F-s","P/F-d"]),))
+	g["vocative-noun-phrase"] =  WordCategoryFilter("N", (CategoryFilter("in", ["-we"]),))#????
+	g["heavy-topicalization-particle"] = WordFilter(build_word(w["xojopa"]))
 	g["reference-switching-particle"] = WordFilter(build_word(w["zunjopa"]))
 	g["valency-terminator"] = WordFilter(build_word(w["jojope"]))
 

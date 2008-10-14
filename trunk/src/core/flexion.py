@@ -14,6 +14,9 @@ from exceptions import Exception
 
 __docformat__ = "epytext en"
 
+BASED_ON_LEMMA = u"√"
+DEFECTIVE = u"∄"
+
 class _SortedDict(dict):
 	def __init__(self):
 		dict.__init__(self)
@@ -42,7 +45,6 @@ class _SortedDict(dict):
 		s += "]}"
 		return s
 
-BASED_ON_LEMMA = "LEMMA"
 
 class TransformError(ValueError):
 	pass
@@ -87,6 +89,8 @@ class Flexion:
 						s = w.form
 				if not s:
 					return None
+				if DEFECTIVE == s:
+					return DEFECTIVE #propagation
 				if not self.__cco.search(s):
 					return None
 				for r, cre, repl, mandatory in self.steps:
@@ -150,7 +154,8 @@ class Flexion:
 		table = _SortedDict()
 		for categories in self.__transforms.iterkeys():	
 			word = self.do_transform(lemma, words, categories)
-			table[word.categories] = word
+			if word.form <> DEFECTIVE:
+				table[word.categories] = word
 		return table
 
 class Flexions():
