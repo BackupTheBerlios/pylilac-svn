@@ -43,10 +43,14 @@ class Tokenizer(Parser):
 		fsa.add_state("")
 		fsa.set_initial("")
 		fsa.set_final("")
+		i = 0
+		lh = len(dict)
 		for k, v in dict.iteritems():
 			if type(v) is not list:
 				raise TypeError(v)
 			add_key(fsa, k)
+			i = i + 1
+			if i%100==0: print int(i*100/lh)," ",
 		return fsa
 
 	def __call__(self, stream):
