@@ -136,6 +136,17 @@ class FSA:
 		self.__states.add(state)
 		return state
 
+	def has_state(self, state):
+		"""
+		Verifies the existence of a state in M{S}.
+
+		@param state: A state.
+		"""
+		if state in self.__states:
+			return True
+		else:
+			return False
+
 	def remove_state(self, state):
 		"""
 		Remove a state from M{S}.
