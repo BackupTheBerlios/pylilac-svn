@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 """
 Common utilities functions.
@@ -23,6 +24,7 @@ class Utilities:
 	else:
 		return default
 
+    	
 def __test():
 	a = None
 	print nvl(a, [])

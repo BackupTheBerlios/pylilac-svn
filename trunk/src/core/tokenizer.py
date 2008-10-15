@@ -30,8 +30,13 @@ class Tokenizer(Parser):
 					if x == (label, end, tag):
 						return False
 				fsa.add_transition(start, label, end, tag)
+			
+			for j in range(len(key), -1, -1):
+				if j > 0 and fsa.has_state(key[:j]):
+					break
 			s = key + self._separator
-			for i, c in enumerate(s):
+			for i in range(j, len(s)):
+				c = s[i]
 				if i == len(s) - 1: #last step
 					end = fsa.get_initial()
 					tag = key
@@ -43,14 +48,10 @@ class Tokenizer(Parser):
 		fsa.add_state("")
 		fsa.set_initial("")
 		fsa.set_final("")
-		i = 0
-		lh = len(dict)
 		for k, v in dict.iteritems():
 			if type(v) is not list:
 				raise TypeError(v)
 			add_key(fsa, k)
-			i = i + 1
-			if i%100==0: print int(i*100/lh)," ",
 		return fsa
 
 	def __call__(self, stream):

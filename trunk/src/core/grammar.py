@@ -155,7 +155,6 @@ class Grammar:
 			self.__valid = False
 			
 			depth = self._browse(ignore_loops)
-			print "Proondita:",depth
 			if ignore_loops:
 				max_levels = int(depth * 1.2 + 4) #pretty deep, but it should takes seconds
 			else:

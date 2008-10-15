@@ -48,7 +48,7 @@ class Lect:
 	def save(self, filename = None):
 		if filename is None:
 			filename = "%s.lct" % self.code
-		f = GzipFile(filename, "wb")
+		f = GzipFile(filename, "wb", 3)
 		pickle.dump(self.__tuple(), f, 2)
 		f.flush()
 		f.close()

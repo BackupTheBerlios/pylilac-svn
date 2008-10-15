@@ -168,7 +168,10 @@ class Word:
 		"""
 		Give a verbose representation for a word in the format <form>(<lemma>)
 		"""
-		return "%s(%s)" % (self.form, self.lemma)
+		if len(self.categories) == 0:
+			return "%s(%s)"%(self.form, `self.lemma`)
+		else:
+			return "%s(%s, %s)"%(self.form, `self.lemma`, `self.categories`)
 
 	def __str__(self):
 		"""
@@ -206,7 +209,14 @@ class Lexicon:
 			raise TypeError(word)
 		lemma = word.lemma
 		if lemma:
-			word.lemma = self.add_lemma(lemma)
+			key = lemma.key()
+			if self.__lemmas.has_key(key):
+				if lemma != self.__lemmas[key]:
+					raise ExistingLemmaError(lemma)
+				else:
+					word.lemma = self.__lemmas[key]
+			else:
+				word.lemma = self.add_lemma(lemma)
 		self.__words.setdefault(word.form, []).append(word)
 		self.__indexed_words.setdefault(word.lemma.key(), []).append(word)
 		self.__valid = False
@@ -219,7 +229,7 @@ class Lexicon:
 		self.__words[word.form].remove(word)
 		self.__valid = False
 
-	def retrieve_words(self, lemma_key = None, form = None, categories = None):
+	def retrieve_words1(self, form = None, lemma_key = None, categories = None):
 		ws = []
 		if lemma_key is not None:
 			for w in self.__indexed_words[lemma_key]:
@@ -229,8 +239,8 @@ class Lexicon:
 					continue
 				ws.append(w)
 		else:
-			for w in self.__words.get(word_form, []):
-				if self.__test_categories(categories, w.categories):
+			for w in self.__words.get(form, []):
+				if CategoryFilter.test(categories, w.categories):
 					ws.append(w)
 		return ws
 	
@@ -239,10 +249,7 @@ class Lexicon:
 			raise TypeError(lemma)
 		k = lemma.key()
 		if k in self.__lemmas:
-			if self.__lemmas[k] != lemma:
-				raise ExistingLemmaError(lemma)
-			else:
-				lemma = self.__lemmas[k]
+			raise ExistingLemmaError(self.__lemmas[k])
 		else:
 			self.__lemmas[k] = lemma
 		self.__valid = False

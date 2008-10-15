@@ -11,6 +11,7 @@ from core.lexicon import Lexicon, Particle, Word, Lemma, CategoryFilter, WordCat
 from core.flexion import BASED_ON_LEMMA, DEFECTIVE
 import re
 
+
 def run():
 	def show(s):
 		print
@@ -43,8 +44,8 @@ def run():
 				id = h[4]
 			else:
 				id = 1
-			lemma = Lemma(h[0], id, u"n", (), h[2])
-			word = Word(h[1], lemma, (u"s",u"Nom",u"0"))
+			lemma = Lemma(h[0], id, "n", (), h[2])
+			word = Word(h[1], lemma, ("s","Nom","0"))
 			words = [word]
 			if len(h)>3:
 				for j in h[3]:
@@ -61,7 +62,7 @@ def run():
 			else:
 				proper = 0
 			for w in ft.itervalues():
-				if proper == 0 or (proper == 1 and w.categories[0] == u"s" and w.categories[2] == u"0")or (proper == 2 and w.categories[0] == u"pl" and w.categories[2] == u"0"):
+				if proper == 0 or (proper == 1 and w.categories[0] == "s" and w.categories[2] == "0")or (proper == 2 and w.categories[0] == "pl" and w.categories[2] == "0"):
 					l.add_word(w)
 
 		for h in verbs():
@@ -69,7 +70,7 @@ def run():
 				id = h[4]
 			else:
 				id = 1
-			lemma = Lemma(h[0], id, u"v", (h[1],), h[2])
+			lemma = Lemma(h[0], id, "v", (h[1],), h[2])
 			words = []
 			if len(h)>3:
 				for j in h[3]:
@@ -78,8 +79,8 @@ def run():
 			ft = f(lemma, words)
 			if lemma.entry_form == u"na":
 				lemma.entry_form = u"ná"
-				ft[(u"aor", u"s", u"0")]=Word(u"ná", lemma, (u"aor", u"s", u"0"))
-				ft[(u"past", u"s", u"0")]=Word(u"né", lemma, (u"past", u"s", u"0"))
+				ft[("aor", "s", "0")]=Word(u"ná", lemma, (u"aor", "s", "0"))
+				ft[(u"past", "s", "0")]=Word(u"né", lemma, (u"past", "s", "0"))
 
 			correct_table(ft)			
 			l.add_lemma(lemma)
@@ -91,7 +92,7 @@ def run():
 				id = h[3]
 			else:
 				id = 1
-			lemma = Lemma(h[0], id, u"adj", (), h[1])
+			lemma = Lemma(h[0], id, "adj", (), h[1])
 			words = []
 			if len(h)>2:
 				for j in h[2]:
@@ -112,9 +113,9 @@ def run():
 				adverb = u"vande"
 			
 			adverb_gloss = re.sub(u"o$",u"e", h[1])
-			l.add_word(Word(adverb, Lemma(adverb, id, u"adv", (), adverb_gloss), ()))
+			l.add_word(Word(adverb, Lemma(adverb, id, "adv", (), adverb_gloss), ()))
 		
-		l.add_word(Word(u"i", Particle(u"i", 1, u"adj", ()), ("0", "0", "0")))
+		l.add_word(Word(u"i", Particle(u"i", 1, "adj", ()), ("0", "0", "0")))
 		
 
 
@@ -125,13 +126,13 @@ def run():
 				table[k] = v2
 
 	def build_flexions(fl):
-		f = fl.create_flexion(u"n",())
+		f = fl.create_flexion("n",())
 
-		tr = f.create_transform((u"s", u"Nom", u"0"))
+		tr = f.create_transform(("s", "Nom", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA)
 		c.append_step(u"°", u"") 
 
-		tr = f.create_transform((u"s", u"Gen", u"0")) #no V°
+		tr = f.create_transform(("s", "Gen", "0")) #no V°
 		c = tr.create_chain(BASED_ON_LEMMA, u"ie$") 
 		c.append_step(u"[aeiou]?°", u"") 
 		c.append_step(u"e$", u"éo")
@@ -142,7 +143,7 @@ def run():
 		c.append_step(u"[aeiou]?°", u"")
 		c.append_step(u"[ao]?$", u"o")
 
-		tr = f.create_transform((u"s", u"Poss", u"0")) #no C°
+		tr = f.create_transform(("s", "Poss", "0")) #no C°
 		c = tr.create_chain(BASED_ON_LEMMA, u"[^q]ui[^aeiouáéíóú][aeiou]$")
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"$", u"va")
@@ -172,20 +173,20 @@ def run():
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"$", u"wa")
 
-		tr = f.create_transform((u"s", u"Dat", u"0"))  #no V°
+		tr = f.create_transform(("s", "Dat", "0"))  #no V°
 		c = tr.create_chain(BASED_ON_LEMMA) 
 		c.append_step(u"[aeiou]?°", u"") 
 		c.append_step(u"(?<=[^aeiouáéíóú])$", u"e")
 		c.append_step(u"$", u"n")
 
-		tr = f.create_transform((u"s", u"Abl", u"0")) #no C°
+		tr = f.create_transform(("s", "Abl", "0")) #no C°
 		c = tr.create_chain(BASED_ON_LEMMA)
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"(?<=[aeiouáéíóú])[lnrs]$", u"")
 		c.append_step(u"(?<=[^aeiouáéíóú])$", u"e")
 		c.append_step(u"$", u"llo")
 
-		tr = f.create_transform((u"s", u"All", u"0")) 
+		tr = f.create_transform(("s", "All", "0")) 
 		c = tr.create_chain(BASED_ON_LEMMA, u"(?:[aeiou]l$)|(?:ll°$)")
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"$", u"da")
@@ -195,7 +196,7 @@ def run():
 		c.append_step(u"(?<=[^aeiouáéíóú])$", u"e")
 		c.append_step(u"$", u"nna")
 
-		tr = f.create_transform((u"s", u"Loc", u"0")) 
+		tr = f.create_transform(("s", "Loc", "0")) 
 		c = tr.create_chain(BASED_ON_LEMMA, u"(?:[aeiou][ln]$)|(?:ll°$)|(?:nn°$)")
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"$", u"de")
@@ -208,7 +209,7 @@ def run():
 		c.append_step(u"(?<=[^aeiouáéíóú])$", u"e")
 		c.append_step(u"$", u"sse")
 
-		tr = f.create_transform((u"s", u"Instr", u"0"))
+		tr = f.create_transform(("s", "Instr", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"[aeiou][pct]$")
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"([pct])$", u"n\\1en")
@@ -225,8 +226,8 @@ def run():
 		c.append_step(u"$", u"nen")
 
 
-		tr = f.create_transform((u"s", u"Resp", u"0")) 
-		c = tr.create_chain((u"s", u"Dat", u"0"))
+		tr = f.create_transform(("s", "Resp", "0")) 
+		c = tr.create_chain(("s", "Dat", "0"))
 		c.append_step(u"n$", u"s")
 
 
@@ -235,7 +236,7 @@ def run():
 
 		#Nominative non singular
 
-		tr = f.create_transform((u"pl", u"Nom", u"0")) #no V°
+		tr = f.create_transform(("pl", "Nom", "0")) #no V°
 		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiouáéíóú][cgh]u$") 
 		c.append_step(u"[aeiou]?°", u"")
 		c.append_step(u"cu$", u"qui")
@@ -248,7 +249,7 @@ def run():
 		c.append_step(u"[aeiou]?°", u"")
 		c.append_step(u"e?$", u"i")
 
-		tr = f.create_transform((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Nom", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"u$|ie$")
 		c.append_step(u"[aeiou]?°", u"")
 		c.append_step(u"$", u"t")
@@ -260,7 +261,7 @@ def run():
 		c.append_step(u"([^aeiouáéíóú])$", u"\\1e")
 		c.append_step(u"$", u"t")
 
-		tr = f.create_transform((u"part", u"Nom", u"0"))
+		tr = f.create_transform(("part", "Nom", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"[cgh]u$")
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"cu$", u"quili")
@@ -275,16 +276,16 @@ def run():
 
 		#Indirect plural
 
-		tr = f.create_transform((u"pl", u"Gen", u"0")) 
-		c = tr.create_chain((u"pl", u"Nom", u"0"))
+		tr = f.create_transform(("pl", "Gen", "0")) 
+		c = tr.create_chain(("pl", "Nom", "0"))
 		c.append_step(u"ier$", u"iér") 
 		c.append_step(u"$", u"on") 
 
-		tr = f.create_transform((u"pl",u"Poss", u"0"))
-		c = tr.create_chain((u"pl",u"Dat", u"0"))
+		tr = f.create_transform(("pl","Poss", "0"))
+		c = tr.create_chain(("pl","Dat", "0"))
 		tr.append_step(u"n$", u"va")
 
-		tr = f.create_transform((u"pl",u"Dat", u"0")) 
+		tr = f.create_transform(("pl","Dat", "0")) 
 		c = tr.create_chain(BASED_ON_LEMMA, u"i$|e$|(ie)$")
 		c.append_step(u"[aeiou]?°", u"")
 		c.append_step(u"i$|e$|(ie)$", u"ín") 
@@ -293,7 +294,7 @@ def run():
 		c.append_step(u"cu$", u"qu")
 		c.append_step(u"$", u"in")
 
-		tr = f.create_transform((u"pl",u"Abl", u"0")) 
+		tr = f.create_transform(("pl","Abl", "0")) 
 		c = tr.create_chain(BASED_ON_LEMMA)
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"cu$", u"qui")
@@ -301,7 +302,7 @@ def run():
 		c.append_step(u"([^aeiouáéíóú])$", u"\\1i")
 		c.append_step(u"$", u"llon")
 
-		tr = f.create_transform((u"pl",u"All", u"0"))
+		tr = f.create_transform(("pl","All", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA)
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"cu$", u"qui")
@@ -309,7 +310,7 @@ def run():
 		c.append_step(u"([^aeiouáéíóú])$", u"\\1i")
 		c.append_step(u"$", u"nnar")
 
-		tr = f.create_transform((u"pl",u"Loc", u"0"))
+		tr = f.create_transform(("pl","Loc", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, "ts$")
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"$", u"en")
@@ -325,12 +326,12 @@ def run():
 		c.append_step(u"$", u"ssen")
 
 
-		tr = f.create_transform((u"pl",u"Instr", u"0"))
-		c = tr.create_chain((u"pl",u"Dat", u"0"))
+		tr = f.create_transform(("pl","Instr", "0"))
+		c = tr.create_chain(("pl","Dat", "0"))
 		tr.append_step(u"$", u"en")
 
-		tr = f.create_transform((u"pl",u"Resp", u"0"))
-		c = tr.create_chain((u"pl",u"Dat", u"0"))
+		tr = f.create_transform(("pl","Resp", "0"))
+		c = tr.create_chain(("pl","Dat", "0"))
 		tr.append_step(u"n$", u"s")
 
 
@@ -339,82 +340,82 @@ def run():
 
 		#Indirect dual
 
-		tr = f.create_transform((u"d", u"Gen", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Gen", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"eu$", u"et")
 		tr.append_step(u"([aeiouáéíóú][lnrs])et$", u"\\1t")
 		tr.append_step(u"iet$", u"iét")
 		c.append_step(u"$", u"o")
 
-		tr = f.create_transform((u"d", u"Poss", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Poss", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"u$", u"uva")
 		tr.append_step(u"t$", u"twa")
 
-		tr = f.create_transform((u"d", u"Dat", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Dat", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"u$", u"un")
 		tr.append_step(u"t$", u"nt")
 
-		tr = f.create_transform((u"d", u"Abl", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Abl", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"u$", u"ullo")
 		tr.append_step(u"t$", u"lto")
 
-		tr = f.create_transform((u"d", u"All", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "All", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"u$", u"unna")
 		tr.append_step(u"t$", u"nta")
 
-		tr = f.create_transform((u"d", u"Loc", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Loc", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"u$", u"usse")
 		tr.append_step(u"t$", u"tse")
 
-		tr = f.create_transform((u"d", u"Instr", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Instr", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"u$", u"unen")
 		tr.append_step(u"t$", u"nten")
 
-		tr = f.create_transform((u"d", u"Resp", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Resp", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"u$", u"us")
 		tr.append_step(u"t$", u"tes")
 
 
 		#Indirect partitive
-		tr = f.create_transform((u"part", u"Gen", u"0"))
-		c = tr.create_chain((u"part", u"Nom", u"0"))
+		tr = f.create_transform(("part", "Gen", "0"))
+		c = tr.create_chain(("part", "Nom", "0"))
 		tr.append_step(u"$", u"on")
 
-		tr = f.create_transform((u"part", u"Poss", u"0"))
-		c = tr.create_chain((u"part", u"Nom", u"0"))
+		tr = f.create_transform(("part", "Poss", "0"))
+		c = tr.create_chain(("part", "Nom", "0"))
 		tr.append_step(u"([^l])li$", u"\\1lí")
 		tr.append_step(u"$", u"va")
 
-		tr = f.create_transform((u"part", u"Dat", u"0"))
-		c = tr.create_chain((u"part", u"Nom", u"0"))
+		tr = f.create_transform(("part", "Dat", "0"))
+		c = tr.create_chain(("part", "Nom", "0"))
 		tr.append_step(u"$", u"n")
 
-		tr = f.create_transform((u"part", u"Abl", u"0"))
-		c = tr.create_chain((u"part", u"Nom", u"0"))
+		tr = f.create_transform(("part", "Abl", "0"))
+		c = tr.create_chain(("part", "Nom", "0"))
 		tr.append_step(u"$", u"llon")
 
-		tr = f.create_transform((u"part", u"All", u"0"))
-		c = tr.create_chain((u"part", u"Nom", u"0"))
+		tr = f.create_transform(("part", "All", "0"))
+		c = tr.create_chain(("part", "Nom", "0"))
 		tr.append_step(u"$", u"nnar")
 
-		tr = f.create_transform((u"part", u"Loc", u"0"))
-		c = tr.create_chain((u"part", u"Nom", u"0"))
+		tr = f.create_transform(("part", "Loc", "0"))
+		c = tr.create_chain(("part", "Nom", "0"))
 		tr.append_step(u"$", u"ssen")
 
-		tr = f.create_transform((u"part", u"Instr", u"0"))
-		c = tr.create_chain((u"part", u"Nom", u"0"))
+		tr = f.create_transform(("part", "Instr", "0"))
+		c = tr.create_chain(("part", "Nom", "0"))
 		tr.append_step(u"([^l])li$", u"\\1lí")
 		tr.append_step(u"$", u"nen")
 
-		tr = f.create_transform((u"part", u"Resp", u"0"))
-		c = tr.create_chain((u"part", u"Nom", u"0"))
+		tr = f.create_transform(("part", "Resp", "0"))
+		c = tr.create_chain(("part", "Nom", "0"))
 		tr.append_step(u"$", u"s")
 
 		#Personal forms
@@ -425,9 +426,9 @@ def run():
 			z = x.create_chain(BASED_ON_LEMMA)
 			z.append_step(u"[^aeiou]?°", u"")
 			v = u"e"
-			if number == u"pl" or number == u"part" or person == "1":
+			if number == "pl" or number == "part" or person == "1":
 				v = u"i"
-			elif number == u"d":
+			elif number == "d":
 				v = u"u"
 			initial = POSS[person][0]
 			z.append_step(u"([^aeiouáíéóú"+initial+u"])$", u"\\1"+v)
@@ -436,85 +437,85 @@ def run():
 			return z
 
 		for p in POSS.iterkeys():
-			c = add_personal(u"s", u"Nom", p)
+			c = add_personal("s", "Nom", p)
 
-			c = add_personal(u"s", u"Gen", p)
+			c = add_personal("s", "Gen", p)
 			c.append_step(u"a$", u"o")
 
-			#f.create_transform((u"s", u"Gen", p))
-			#c = tr.create_chain((u"s", u"Nom", p))
+			#f.create_transform(("s", "Gen", p))
+			#c = tr.create_chain(("s", "Nom", p))
 			#c.append_step(u"a$", u"o")
 
-			c = add_personal(u"s", u"Poss", p)
+			c = add_personal("s", "Poss", p)
 			c.append_step(u"$", u"va")
-			c = add_personal(u"s", u"Dat", p)
+			c = add_personal("s", "Dat", p)
 			c.append_step(u"$", u"n")
-			c = add_personal(u"s", u"Abl", p)
+			c = add_personal("s", "Abl", p)
 			c.append_step(u"$", u"llo")
-			c = add_personal(u"s", u"All", p)
+			c = add_personal("s", "All", p)
 			c.append_step(u"$", u"nna")
-			c = add_personal(u"s", u"Loc", p)
+			c = add_personal("s", "Loc", p)
 			c.append_step(u"$", u"sse")
-			c = add_personal(u"s", u"Instr", p)
+			c = add_personal("s", "Instr", p)
 			c.append_step(u"$", u"nen")
-			c = add_personal(u"s", u"Resp", p)
+			c = add_personal("s", "Resp", p)
 			c.append_step(u"$", u"s")
 
-			c = add_personal(u"pl", u"Nom", p)
+			c = add_personal("pl", "Nom", p)
 			c.append_step(u"$", u"r")
-			c = add_personal(u"pl", u"Gen", p)
+			c = add_personal("pl", "Gen", p)
 			c.append_step(u"$", u"ron")
-			c = add_personal(u"pl", u"Poss", p)
+			c = add_personal("pl", "Poss", p)
 			c.append_step(u"$", u"iva")
-			c = add_personal(u"pl", u"Dat", p)
+			c = add_personal("pl", "Dat", p)
 			c.append_step(u"$", u"in")
-			c = add_personal(u"pl", u"Abl", p)
+			c = add_personal("pl", "Abl", p)
 			c.append_step(u"$", u"llon")
-			c = add_personal(u"pl", u"All", p)
+			c = add_personal("pl", "All", p)
 			c.append_step(u"$", u"nnar")
-			c = add_personal(u"pl", u"Loc", p)
+			c = add_personal("pl", "Loc", p)
 			c.append_step(u"$", u"ssen")
-			c = add_personal(u"pl", u"Instr", p)
+			c = add_personal("pl", "Instr", p)
 			c.append_step(u"$", u"inen")
-			c = add_personal(u"pl", u"Resp", p)
+			c = add_personal("pl", "Resp", p)
 			c.append_step(u"$", u"is")
 
-			c = add_personal(u"d", u"Nom", p)
+			c = add_personal("d", "Nom", p)
 			c.append_step(u"$", u"t")
-			c = add_personal(u"d", u"Gen", p)
+			c = add_personal("d", "Gen", p)
 			c.append_step(u"$", u"to")
-			c = add_personal(u"d", u"Poss", p)
+			c = add_personal("d", "Poss", p)
 			c.append_step(u"$", u"twa")
-			c = add_personal(u"d", u"Dat", p)
+			c = add_personal("d", "Dat", p)
 			c.append_step(u"$", u"nt")
-			c = add_personal(u"d", u"Abl", p)
+			c = add_personal("d", "Abl", p)
 			c.append_step(u"$", u"lto")
-			c = add_personal(u"d", u"All", p)
+			c = add_personal("d", "All", p)
 			c.append_step(u"$", u"nta")
-			c = add_personal(u"d", u"Loc", p)
+			c = add_personal("d", "Loc", p)
 			c.append_step(u"$", u"tse")
-			c = add_personal(u"d", u"Instr", p)
+			c = add_personal("d", "Instr", p)
 			c.append_step(u"$", u"nten")
-			c = add_personal(u"d", u"Resp", p)
+			c = add_personal("d", "Resp", p)
 			c.append_step(u"$", u"tes")
 
-			c = add_personal(u"part", u"Nom", p)
+			c = add_personal("part", "Nom", p)
 			c.append_step(u"$", u"li")
-			c = add_personal(u"part", u"Gen", p)
+			c = add_personal("part", "Gen", p)
 			c.append_step(u"$", u"lion")
-			c = add_personal(u"part", u"Poss", p)
+			c = add_personal("part", "Poss", p)
 			c.append_step(u"$", u"líva")
-			c = add_personal(u"part", u"Dat", p)
+			c = add_personal("part", "Dat", p)
 			c.append_step(u"$", u"lin")
-			c = add_personal(u"part", u"Abl", p)
+			c = add_personal("part", "Abl", p)
 			c.append_step(u"$", u"lillon")
-			c = add_personal(u"part", u"All", p)
+			c = add_personal("part", "All", p)
 			c.append_step(u"$", u"linnar")
-			c = add_personal(u"part", u"Loc", p)
+			c = add_personal("part", "Loc", p)
 			c.append_step(u"$", u"lisse")
-			c = add_personal(u"part", u"Instr", p)
+			c = add_personal("part", "Instr", p)
 			c.append_step(u"$", u"línen")
-			c = add_personal(u"part", u"Resp", p)
+			c = add_personal("part", "Resp", p)
 			c.append_step(u"$", u"lis")
 
 
@@ -522,19 +523,19 @@ def run():
 		def add_verb_flexion(args, transitive):
 			f = fl.create_flexion(u"v", (args,))
 
-			tr = f.create_transform((u"aor", u"s", u"0")) 
+			tr = f.create_transform((u"aor", "s", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA, "a$")
 			c = tr.create_chain(BASED_ON_LEMMA, "u$")
 			c.append_step(u"u$", u"o")
 			c = tr.create_chain(BASED_ON_LEMMA)
 			c.append_step(u"$", u"e")
-			tr = f.create_transform((u"aor", u"pl", u"0")) 
+			tr = f.create_transform((u"aor", "pl", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA, "[au]$")
 			c.append_step(u"$", u"r")
 			c = tr.create_chain(BASED_ON_LEMMA)
 			c.append_step(u"$", u"ir")
 
-			tr = f.create_transform((u"pres", u"s", u"0")) 
+			tr = f.create_transform((u"pres", "s", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA)
 			c.append_step(u"a(?=[^aeiouáíéóú][yw]?[au]?$)", u"á")
 			c.append_step(u"a(?=qu[au]?$)", u"á")
@@ -548,12 +549,12 @@ def run():
 			c.append_step(u"([^aeiouáíéóú])u(qu[au]?)$", u"\\1ú\\2")
 			c.append_step(u"a$", u"e")
 			c.append_step(u"$", u"a")
-			tr = f.create_transform((u"pres", u"pl", u"0")) 
-			c = tr.create_chain((u"pres", u"s", u"0"))
+			tr = f.create_transform((u"pres", "pl", "0")) 
+			c = tr.create_chain((u"pres", "s", "0"))
 			c.append_step(u"$", u"r")
 
 
-			tr = f.create_transform((u"past", u"s", u"0")) 
+			tr = f.create_transform((u"past", "s", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA, u"ha$")
 			c.append_step(u"$", u"ne")
 			c = tr.create_chain(BASED_ON_LEMMA, u"wa$")
@@ -608,13 +609,13 @@ def run():
 			c.append_step(u"$", u"ne")
 			c = tr.create_chain(BASED_ON_LEMMA)
 			c.append_step(u"$", u"ne") 
-			tr = f.create_transform((u"past", u"pl", u"0")) 
-			c = tr.create_chain((u"past", u"s", u"0"))
+			tr = f.create_transform((u"past", "pl", "0")) 
+			c = tr.create_chain((u"past", "s", "0"))
 			c.append_step(u"$", u"r")
 
 
 
-			tr = f.create_transform((u"perf", u"s", u"0"))
+			tr = f.create_transform(("perf", "s", "0"))
 			c = tr.create_chain(BASED_ON_LEMMA,u"^[aeiouáíéóú]")
 			c.append_step(u"y*[au]?$", u"ie")
 			c = tr.create_chain(BASED_ON_LEMMA, u"[aeiou]{2}([^aeiouáíéóú]|qu)y*[au]?$")
@@ -637,21 +638,21 @@ def run():
 			c.append_step(u"^(.*)o", u"o\\1o")
 			c.append_step(u"^(.*)u", u"u\\1u")
 			c.append_step(u"$", u"ie")
-			tr = f.create_transform((u"perf", u"pl", u"0")) 
-			c = tr.create_chain((u"perf", u"s", u"0"))
+			tr = f.create_transform(("perf", "pl", "0")) 
+			c = tr.create_chain(("perf", "s", "0"))
 			c.append_step(u"$", u"r")
 
-			tr = f.create_transform((u"fut", u"s", u"0")) 
+			tr = f.create_transform(("fut", "s", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA, "u$")
 			c.append_step(u"u$", u"úva")
 			c = tr.create_chain(BASED_ON_LEMMA)
 			c.append_step(u"a?$", u"uva")
-			tr = f.create_transform((u"fut", u"pl", u"0")) 
-			c = tr.create_chain((u"fut", u"s", u"0"))
+			tr = f.create_transform(("fut", "pl", "0")) 
+			c = tr.create_chain(("fut", "s", "0"))
 			c.append_step(u"$", u"r")
 
 
-			tr = f.create_transform((u"inf", u"0", u"0")) 
+			tr = f.create_transform((u"inf", "0", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA, "a$")
 			c = tr.create_chain(BASED_ON_LEMMA, "u$")
 			c.append_step(u"u$", u"o")
@@ -659,10 +660,10 @@ def run():
 			c.append_step(u"$", u"e")
 			
 
-			tr = f.create_transform((u"imp", u"2", u"0")) 
-			c = tr.create_chain((u"inf", u"0", u"0"))
+			tr = f.create_transform((u"imp", u"2", "0")) 
+			c = tr.create_chain((u"inf", "0", "0"))
 			
-			tr = f.create_transform((u"act-part", u"0", u"0")) 
+			tr = f.create_transform((u"act-part", "0", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA)
 			c.append_step(u"a([^aeiouáíéóú][yw]?[au]?)$", u"á\\1")
 			c.append_step(u"a(qu[au]?)$", u"á\\1")
@@ -677,7 +678,7 @@ def run():
 			c.append_step(u"(?<=[^au])$", u"a")
 			c.append_step(u"$", u"la")
 			
-			tr = f.create_transform((u"pass-part", u"0", u"0")) 
+			tr = f.create_transform((u"pass-part", "0", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA, u"qu$")
 			c.append_step(u"a(?=qu)$", u"á")
 			c.append_step(u"e(?=qu)$", u"é")
@@ -698,13 +699,13 @@ def run():
 			c.append_step(u"(?<=[^rmn])$", u"i")
 			c.append_step(u"$", u"na")	
 
-			TENSE = [u"aor",u"pres",u"past",u"perf",u"fut"]
+			TENSE = [u"aor",u"pres",u"past","perf","fut"]
 			SUBJ = {u"1s":[u"nye",u"n"], u"2":[u"lye",u"l"], u"3s":["rye","s"], u"1+2+3": [u"lve"], u"1+3": [u"lme"], u"1d": [u"mme"], u"3pl":[u"nte"]}
 			OBJ = {u"1s":u"n", u"2":u"l", u"3s":"s", u"3pl":u"t"}
 			for t in TENSE:
 				for k,v in SUBJ.iteritems():
-					tr = f.create_transform((t, k, u"0"))
-					c = tr.create_chain((t, u"s", u"0"))
+					tr = f.create_transform((t, k, "0"))
+					c = tr.create_chain((t, u"s", "0"))
 					if len(v)==1:
 						c.append_step(u"$", v[0])
 					else:
@@ -714,12 +715,12 @@ def run():
 					if transitive:
 						for k1, v1 in OBJ.iteritems():
 							tr = f.create_transform((t, k, k1))
-							c = tr.create_chain((t, u"s", u"0"))
+							c = tr.create_chain((t, u"s", "0"))
 							c.append_step(u"$", v[0]+v1)
 
 			if transitive:
 				for k1, v1 in OBJ.iteritems():
-					tr = f.create_transform((u"inf", u"0", k1))
+					tr = f.create_transform((u"inf", "0", k1))
 					c = tr.create_chain(BASED_ON_LEMMA)
 					c.append_step(u"(?<=[^au])$", u"i")
 					c.append_step(u"$", u"ta"+v1)
@@ -729,48 +730,48 @@ def run():
 		
 		f = fl.create_flexion(u"adj",())
 
-		tr = f.create_transform((u"s", u"Nom", u"0"))
+		tr = f.create_transform(("s", "Nom", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA)
 
-		tr = f.create_transform((u"s", u"Gen", u"0"))
+		tr = f.create_transform(("s", "Gen", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
 		c.append_step(u"a$", u"o")
 		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
 		c.append_step(u"e$", u"io")
 		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
 		c.append_step(u"$", u"do")
-		tr = f.create_transform((u"s", u"Poss", u"0"))
+		tr = f.create_transform(("s", "Poss", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
 		c.append_step(u"a$", u"ava")
 		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
 		c.append_step(u"e$", u"iva")
 		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
 		c.append_step(u"$", u"wa")
-		tr = f.create_transform((u"s", u"Dat", u"0"))
+		tr = f.create_transform(("s", "Dat", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
 		c.append_step(u"$", u"n")
 		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
 		c.append_step(u"e$", u"in")
 		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
 		c.append_step(u"$", u"den")
-		tr = f.create_transform((u"s", u"Abl", u"0"))
-		c = tr.create_chain((u"s", u"Dat", u"0"))
+		tr = f.create_transform(("s", "Abl", "0"))
+		c = tr.create_chain(("s", "Dat", "0"))
 		c.append_step(u"n$", u"llo")
-		tr = f.create_transform((u"s", u"All", u"0"))
-		c = tr.create_chain((u"s", u"Dat", u"0"))
+		tr = f.create_transform(("s", "All", "0"))
+		c = tr.create_chain(("s", "Dat", "0"))
 		c.append_step(u"n$", u"nna")
-		tr = f.create_transform((u"s", u"Loc", u"0"))
-		c = tr.create_chain((u"s", u"Dat", u"0"))
+		tr = f.create_transform(("s", "Loc", "0"))
+		c = tr.create_chain(("s", "Dat", "0"))
 		c.append_step(u"n$", u"sse")
-		tr = f.create_transform((u"s", u"Instr", u"0"))
-		c = tr.create_chain((u"s", u"Dat", u"0"))
+		tr = f.create_transform(("s", "Instr", "0"))
+		c = tr.create_chain(("s", "Dat", "0"))
 		c.append_step(u"$", u"en")
-		tr = f.create_transform((u"s", u"Resp", u"0"))
-		c = tr.create_chain((u"s", u"Dat", u"0"))
+		tr = f.create_transform(("s", "Resp", "0"))
+		c = tr.create_chain(("s", "Dat", "0"))
 		c.append_step(u"n$", u"s")
 
 
-		tr = f.create_transform((u"pl", u"Nom", u"0"))
+		tr = f.create_transform(("pl", "Nom", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
 		c.append_step(u"ea$", u"ie")
 		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
@@ -779,15 +780,15 @@ def run():
 		c.append_step(u"e$", u"i")
 		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
 		c.append_step(u"$", u"di")
-		tr = f.create_transform((u"pl", u"Gen", u"0"))
-		c = tr.create_chain((u"pl", u"Nom", u"0"), u"ie")
+		tr = f.create_transform(("pl", "Gen", "0"))
+		c = tr.create_chain(("pl", "Nom", "0"), u"ie")
 		c.append_step(u"ie$", u"iéon")
-		c = tr.create_chain((u"pl", u"Nom", u"0"))
+		c = tr.create_chain(("pl", "Nom", "0"))
 		c.append_step(u"$", u"on")
-		tr = f.create_transform((u"pl", u"Poss", u"0"))
-		c = tr.create_chain((u"pl", u"Dat", u"0"))
+		tr = f.create_transform(("pl", "Poss", "0"))
+		c = tr.create_chain(("pl", "Dat", "0"))
 		c.append_step(u"n$", u"va")
-		tr = f.create_transform((u"pl", u"Dat", u"0"))
+		tr = f.create_transform(("pl", "Dat", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
 		c.append_step(u"ea$", u"ín")
 		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
@@ -796,23 +797,23 @@ def run():
 		c.append_step(u"e$", u"ín")
 		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
 		c.append_step(u"$", u"din")
-		tr = f.create_transform((u"pl", u"Abl", u"0"))
-		c = tr.create_chain((u"s", u"Abl", u"0"))
+		tr = f.create_transform(("pl", "Abl", "0"))
+		c = tr.create_chain(("s", "Abl", "0"))
 		c.append_step(u"$", u"n")
-		tr = f.create_transform((u"pl", u"All", u"0"))
-		c = tr.create_chain((u"s", u"All", u"0"))
+		tr = f.create_transform(("pl", "All", "0"))
+		c = tr.create_chain(("s", "All", "0"))
 		c.append_step(u"$", u"r")
-		tr = f.create_transform((u"pl", u"Loc", u"0"))
-		c = tr.create_chain((u"s", u"Loc", u"0"))
+		tr = f.create_transform(("pl", "Loc", "0"))
+		c = tr.create_chain(("s", "Loc", "0"))
 		c.append_step(u"$", u"n")
-		tr = f.create_transform((u"pl", u"Instr", u"0"))
-		c = tr.create_chain((u"pl", u"Dat", u"0"))
+		tr = f.create_transform(("pl", "Instr", "0"))
+		c = tr.create_chain(("pl", "Dat", "0"))
 		c.append_step(u"$", u"en")
-		tr = f.create_transform((u"pl", u"Resp", u"0"))
-		c = tr.create_chain((u"pl", u"Dat", u"0"))
+		tr = f.create_transform(("pl", "Resp", "0"))
+		c = tr.create_chain(("pl", "Dat", "0"))
 		c.append_step(u"n$", u"s")
 
-		tr = f.create_transform((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Nom", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
 		c.append_step(u"ea$", u"iet")
 		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
@@ -822,132 +823,132 @@ def run():
 		c = tr.create_chain(BASED_ON_LEMMA, u"n$")
 		c.append_step(u"$", u"det")
 
-		tr = f.create_transform((u"d", u"Gen", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"), u"iet")
+		tr = f.create_transform(("d", "Gen", "0"))
+		c = tr.create_chain(("d", "Nom", "0"), u"iet")
 		c.append_step(u"et$", u"éto")
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		c.append_step(u"t$", u"to")
 
-		tr = f.create_transform((u"d", u"Poss", u"0"))
+		tr = f.create_transform(("d", "Poss", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"ea$")
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"t$", u"twa")
 
-		tr = f.create_transform((u"d", u"Dat", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Dat", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"t$", u"nt")
 
-		tr = f.create_transform((u"d", u"Abl", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Abl", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"t$", u"lto")
 
-		tr = f.create_transform((u"d", u"All", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "All", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"t$", u"nta")
 
-		tr = f.create_transform((u"d", u"Loc", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Loc", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"t$", u"tse")
 
-		tr = f.create_transform((u"d", u"Instr", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Instr", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"t$", u"nten")
 
-		tr = f.create_transform((u"d", u"Resp", u"0"))
-		c = tr.create_chain((u"d", u"Nom", u"0"))
+		tr = f.create_transform(("d", "Resp", "0"))
+		c = tr.create_chain(("d", "Nom", "0"))
 		tr.append_step(u"t$", u"tes")
 
 		def add_grd(g):
-			tr = f.create_transform((u"s", u"Gen", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("s", "Gen", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"a$", u"o")
-			tr = f.create_transform((u"s", u"Poss", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("s", "Poss", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"va")
-			tr = f.create_transform((u"s", u"Dat", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("s", "Dat", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"n")
-			tr = f.create_transform((u"s", u"Abl", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("s", "Abl", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"llo")
-			tr = f.create_transform((u"s", u"All", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("s", "All", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"nna")
-			tr = f.create_transform((u"s", u"Loc", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("s", "Loc", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"sse")
-			tr = f.create_transform((u"s", u"Instr", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("s", "Instr", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"nen")
-			tr = f.create_transform((u"s", u"Resp", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("s", "Resp", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"s")
 
-			tr = f.create_transform((u"pl", u"Nom", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("pl", "Nom", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"a$", u"e")
-			tr = f.create_transform((u"pl", u"Gen", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("pl", "Gen", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"a$", u"eon")
-			tr = f.create_transform((u"pl", u"Poss", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("pl", "Poss", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"iva")
-			tr = f.create_transform((u"pl", u"Dat", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("pl", "Dat", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"in")
-			tr = f.create_transform((u"pl", u"Abl", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("pl", "Abl", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"llon")
-			tr = f.create_transform((u"pl", u"All", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("pl", "All", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"llar")
-			tr = f.create_transform((u"pl", u"Loc", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("pl", "Loc", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"ssen")
-			tr = f.create_transform((u"pl", u"Instr", g))
-			c = tr.create_chain((u"pl", u"Dat", g))
+			tr = f.create_transform(("pl", "Instr", g))
+			c = tr.create_chain(("pl", "Dat", g))
 			c.append_step(u"$", u"en")
-			tr = f.create_transform((u"pl", u"Resp", g))
-			c = tr.create_chain((u"pl", u"Dat", g))
+			tr = f.create_transform(("pl", "Resp", g))
+			c = tr.create_chain(("pl", "Dat", g))
 			c.append_step(u"n$", u"s")
 
-			tr = f.create_transform((u"d", u"Nom", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("d", "Nom", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"t")
 
-			tr = f.create_transform((u"d", u"Gen", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("d", "Gen", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"to")
 
-			tr = f.create_transform((u"d", u"Poss", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("d", "Poss", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"twa")
 
-			tr = f.create_transform((u"d", u"Dat", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("d", "Dat", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"nt")
 
-			tr = f.create_transform((u"d", u"Abl", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("d", "Abl", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"lto")
 
-			tr = f.create_transform((u"d", u"All", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("d", "All", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"nta")
 
-			tr = f.create_transform((u"d", u"Loc", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("d", "Loc", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"tse")
 
-			tr = f.create_transform((u"d", u"Instr", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("d", "Instr", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$",u"nten")
 
-			tr = f.create_transform((u"d", u"Resp", g))
-			c = tr.create_chain((u"s", u"Nom", g))
+			tr = f.create_transform(("d", "Resp", g))
+			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"tes")		
 
-		tr = f.create_transform((u"s", u"Nom", u"rel"))
+		tr = f.create_transform(("s", "Nom", u"rel"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
 		c.append_step(u"a$", u"alda")
 		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
@@ -957,7 +958,7 @@ def run():
 
 		add_grd(u"rel")
 
-		tr = f.create_transform((u"s", u"Nom", u"abs"))
+		tr = f.create_transform(("s", "Nom", u"abs"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"^[lmrs]")
 		c.append_step(u"^([lmrs])", u"a\\1\\1")
 		c = tr.create_chain(BASED_ON_LEMMA, u"^p")
@@ -993,7 +994,7 @@ def run():
 					cond = cond | expr
 			return cond
 
-		finite = (u"pres", u"past", u"perf", u"fut")
+		finite = (u"pres", u"past", "perf", "aor", "fut")
 		tr = (u"Acc", u"Acc+Dat")
 		n0 = CategoryFilter("ni", "0")
 		gr["sentence"] = Reference("Vso")
@@ -1019,19 +1020,19 @@ def run():
 		d.append(  (u"cas", u"cár", u"cesi") ) #head
 		d.append(  (u"cumbo", u"cumbo", u"fucesi") ) #belly
 		d.append(  (u"hon", u"hón", u"kawcesi") ) #heart
-		d.append(  (u"esse", u"esse", u"tedapemi", [(u"essi", (u"pl",u"Nom",u"0"))] ) ) #name
+		d.append(  (u"esse", u"esse", u"tedapemi", [(u"essi", ("pl","Nom","0"))] ) ) #name
 		d.append(  (u"sambe", u"sambe", u"depi") ) #room
 		d.append(  (u"card", u"car", u"byekigi") ) #building
 		d.append(  (u"telme", u"telme", u"bidetavi") ) #blanket
 		d.append(  (u"limpe", u"limpe", u"zoyfupi") ) #spirits
-		d.append(  (u"síra", u"0", u"bape-tovay") ) #today
+		d.append(  (u"síra", "0", u"bape-tovay") ) #today
 		d.append(  (u"sovasamb", u"sovasan", u"bodepi") ) #restroom
 		d.append(  (u"lindale", u"lindale", u"dinjami") ) #music
 		d.append(  (u"colla", u"colla", u"byetavi") ) #garment
 		d.append(  (u"tecil", u"tecil", u"bofifusi") ) #pen
 		d.append(  (u"hríve", u"hríve", u"cayfemi") ) #winter
 		d.append(  (u"laire", u"laire", u"fefemi") ) #summer
-		d.append(  (u"henets", u"henet", u"kifigi", [(u"henetwa", (u"s",u"Poss",u"0"))] ) ) #window
+		d.append(  (u"henets", u"henet", u"kifigi", [(u"henetwa", ("s","Poss","0"))] ) ) #window
 		d.append(  (u"rancu", u"ranco", u"twecesi") ) #arm
 		d.append(  (u"nonwa", u"nonwa", u"kobisi") ) #computer
 		d.append(  (u"palancen", u"palancen", u"kifabisi") ) #television
@@ -1039,7 +1040,7 @@ def run():
 		d.append(  (u"nolyasse", u"nolyasse", u"kokigi") ) #school
 		d.append(  (u"ner", u"nér", u"loybegi") ) #man
 		d.append(  (u"niss", u"nís", u"lawbegi") ) #woman
-		d.append(  (u"híni", u"hína", u"fobegi", [(u"híni", (u"pl",u"Nom",u"0"))] ) )#child
+		d.append(  (u"híni", u"hína", u"fobegi", [(u"híni", ("pl","Nom","0"))] ) )#child
 		d.append(  (u"huo", u"huo", u"zovi") ) #dog
 		d.append(  (u"yaule", u"yaule", u"kwizovi") ) #cat
 		d.append(  (u"aiwe", u"aiwe", u"byedami") ) #bird
@@ -1062,7 +1063,7 @@ def run():
 		d.append(  (u"meldo", u"meldo", u"zoyzevi") ) #friend
 		d.append(  (u"aure", u"aure", u"tovi") ) #day
 		d.append(  (u"ear", u"ear", u"kebivi") ) #sea
-		d.append(  (u"malle", u"malle", u"zegi", [(u"maller", (u"pl",u"Nom",u"0"))]))#road
+		d.append(  (u"malle", u"malle", u"zegi", [(u"maller", ("pl","Nom","0"))]))#road
 		d.append(  (u"caima", u"caima", u"kunjisi") ) #bed
 		d.append(  (u"telpe", u"telpe", u"jafimi") ) #money
 		d.append(  (u"ando", u"ando", u"tifigi") ) #door
@@ -1075,24 +1076,24 @@ def run():
 		d.append(  (u"amill°", u"amil", u"ditasaw") ) #mother
 		d.append(  (u"elen", u"elen", u"kitisi") ) #star
 		d.append(  (u"filic", u"filit", u"byedami") ) #bird (little)
-		d.append(  (u"sell", u"seler", u"zitasaw", [(u"selerwa", (u"s",u"Poss",u"0")), (u"selernen", (u"s",u"Instr",u"0"))] ) )
+		d.append(  (u"sell", u"seler", u"zitasaw", [(u"selerwa", ("s","Poss","0")), (u"selernen", ("s","Instr","0"))] ) )
 		d.append(  (u"atar", u"atar", u"dutasaw") ) #father
 		d.append(  (u"tie", u"tie", u"zuzegi") ) #path
 		d.append(  (u"máqua", u"máqua", u"zicesi") ) #hand
-		d.append(  (u"tal", u"tál", u"cucesi", [(u"talan", (u"s",u"Dat",u"0")) , (u"talain", (u"pl",u"Dat",u"0"))] ))#foot
-		d.append(  (u"toll°", u"tol", u"ketisi", [(u"tollon", (u"s",u"Dat",u"0")), (u"tolloin", (u"pl",u"Dat",u"0"))] ) )#island
+		d.append(  (u"tal", u"tál", u"cucesi", [(u"talan", ("s","Dat","0")) , (u"talain", ("pl","Dat","0"))] ))#foot
+		d.append(  (u"toll°", u"tol", u"ketisi", [(u"tollon", ("s","Dat","0")), (u"tolloin", ("pl","Dat","0"))] ) )#island
 		d.append(  (u"ráv", u"rá", u"xozovi") ) #lion
 		d.append(  (u"raine", u"raine", u"baxasoni") ) #peace
 		d.append(  (u"cos", u"cor", u"bizozugi") ) #war
-		d.append(  (u"coa", u"coa", u"kigi", [(u"coavo", (u"s",u"Gen",u"0")),(u"coava", (u"s",u"Poss",u"0"))] ) )#house
-		d.append(  (u"mas", u"mar", u"kwicalaymi") ) #home
-		d.append(  (u"nelc", u"nelet", u"futevi", [(u"neletse", (u"s",u"Loc",u"0"))] ) ) #tooth
+		d.append(  (u"coa", u"coa", u"kigi", [(u"coavo", ("s","Gen","0")),(u"coava", ("s","Poss","0"))] ) )#house
+		d.append(  (u"mas", u"mar", u"kwicalaymi",[], 2) ) #home
+		d.append(  (u"nelc", u"nelet", u"futevi", [(u"neletse", ("s","Loc","0"))] ) ) #tooth
 		d.append(  (u"hend", u"hen", u"kicesi") ) #eye
-		d.append(  (u"pé", u"pé", u"teduncesi", [(u"péu", (u"d",u"Nom",u"0")), (u"pein", (u"pl",u"Dat",u"0"))]) ) #lip
-		d.append(  (u"lar", u"lár", u"foycesi", [(u"laru", (u"d",u"Nom",u"0"))]) ) #ear
+		d.append(  (u"pé", u"pé", u"teduncesi", [(u"péu", ("d","Nom","0")), (u"pein", ("pl","Dat","0"))]) ) #lip
+		d.append(  (u"lar", u"lár", u"foycesi", [(u"laru", ("d","Nom","0"))]) ) #ear
 		d.append(  (u"fiond", u"fion", u"bedami") ) #hawk
-		d.append(  (u"ré", u"ré", u"tovi", [(u"rein", (u"pl",u"Dat",u"0"))]) ) #24hours
-		d.append(  (u"pí", u"pí", u"byekagi", [(u"pín", (u"pl",u"Dat",u"0"))]) ) #insect
+		d.append(  (u"ré", u"ré", u"tovi", [(u"rein", ("pl","Dat","0"))]) ) #24hours
+		d.append(  (u"pí", u"pí", u"byekagi", [(u"pín", ("pl","Dat","0"))]) ) #insect
 		d.append(  (u"oxi", u"ohte", u"docesi")) #egg
 		
 		d.append(  (u"Cemen", u"Cemen", u"Ladijotisi")) #earth
@@ -1107,9 +1108,9 @@ def run():
 		d.append(  (u"Endor", u"Endor", u"Lacundugi") ) #China
 		d.append(  (u"Peicing", u"Peicin", u"Lacunxodugi") ) #Peking
 		d.append(  (u"Mexicosto", u"Mexicosto", u"Laxixodugi") ) #Mexico City
-		d.append(  (u"Mumba", u"Mumbai", u"Labunxodugi", [(u"Mumbai", (u"pl",u"Nom",u"0"))]) ) #Bombay
+		d.append(  (u"Mumba", u"Mumbai", u"Labunxodugi", [(u"Mumbai", ("pl","Nom","0"))]) ) #Bombay
 		d.append(  (u"Sampaulo", u"Sampaulo", u"Lapawxodugi") ) #São Paulo
-		d.append(  (u"Sanga", u"Sangai", u"Lazanxodugi", [(u"Sangai", (u"pl",u"Nom",u"0"))]) ) #Shanghai
+		d.append(  (u"Sanga", u"Sangai", u"Lazanxodugi", [(u"Sangai", ("pl","Nom","0"))]) ) #Shanghai
 		d.append(  (u"Masiqua", u"Masiqua", u"Laruxodugi") ) #Moscow
 		d.append(  (u"Isil", u"Isil", u"Labatisi") ) #moon
 		
@@ -1118,30 +1119,29 @@ def run():
 
 	def verbs():
 		d = []
-		d.append(  (u"na", u"Nom", u"dapa", [(u"ne", (u"past",u"s",u"0"))]) ) 
-		d.append(  (u"ea", u"Loc", u"zoga", [(u"ea", (u"pres",u"s",u"0")), (u"engie", (u"perf",u"s",u"0")), (u"enge", (u"past",u"s",u"0"))]) ) 
+		d.append(  (u"na", "Nom", u"dapa", [(u"ne", (u"past","s","0"))]) ) 
+		d.append(  (u"ea", "Loc", u"zoga", [(u"ea", (u"pres","s","0")), (u"engie", ("perf","s","0")), (u"enge", (u"past","s","0"))]) ) 
 		d.append(  (u"cen", u"Acc", u"kiva") ) 
 		d.append(  (u"mel", u"Acc", u"bakopa") )  #love
-		d.append(  (u"mat", u"0", u"fucala") ) #eat
-		d.append(  (u"suc", u"0", u"bofucala") ) #drink
-		d.append(  (u"ista", u"Acc", u"kopa", [(u"sinte", (u"past",u"s",u"0")), (u"isintie", (u"perf",u"s",u"0"))]) ) 
-		d.append(  (u"lelya", u"0", u"ticala", [(u"lende", (u"past",u"s",u"0"))]) )  
+		d.append(  (u"mat", "0", u"fucala") ) #eat
+		d.append(  (u"suc", "0", u"bofucala") ) #drink
+		d.append(  (u"ista", u"Acc", u"kopa", [(u"sinte", (u"past","s","0")), (u"isintie", ("perf","s","0"))]) ) 
+		d.append(  (u"lelya", "0", u"ticala", [(u"lende", (u"past","s","0"))]) )  
 		d.append(  (u"ulya", u"Acc", u"tibokavasa", [], 1) )  
-		d.append(  (u"ulya", u"0", u"tibokava", [], 2) )  
-		d.append(  (u"mar", u"0", u"kwicala", [(u"ambárie", (u"perf",u"s",u"0"))]) )
- 		d.append(  (u"móta", u"0", u"bucala") ) #work
-		d.append(  (u"mel", u"Acc", u"bakopa") ) #love
+		d.append(  (u"ulya", "0", u"tibokava", [], 2) )  
+		d.append(  (u"mar", "0", u"kwicala", [(u"ambárie", ("perf","s","0"))]) )
+ 		d.append(  (u"móta", "0", u"bucala") ) #work
 		#d.append(  (u"mára", u"Acc", u"zoykopa") ) #like
-		d.append(  (u"tyal", u"0", u"dwecala" ) ) #play
+		d.append(  (u"tyal", "0", u"dwecala" ) ) #play
 		d.append(  (u"canta", u"Acc", u"joykavapa") ) #fix
 		d.append(  (u"rac", u"Acc", u"joyjuvapa") ) #break
 		d.append(  (u"nyar", u"Acc+Dat", u"tega") ) #tell
-		d.append(  (u"quet", u"Dat", u"tegapa") ) #tell
-		d.append(  (u"mala", u"0", u"xonkepa") ) #suffer
-		d.append(  (u"lor", u"0", u"kunkepa") ) #sleep
+		d.append(  (u"quet", "Dat", u"tegapa") ) #tell
+		d.append(  (u"mala", "0", u"xonkepa") ) #suffer
+		d.append(  (u"lor", "0", u"kunkepa") ) #sleep
 		d.append(  (u"mer", u"Acc", u"cakopa") ) #want
 		d.append(  (u"appa", u"Acc", u"kenbusa") ) #touch
-		d.append(  (u"anta", u"Acc+Dat", u"ximamba", [(u"áne", (u"past",u"s",u"0"))]) )  #give
+		d.append(  (u"anta", u"Acc+Dat", u"ximamba", [(u"áne", (u"past","s","0"))]) )  #give
 		return d
 
 
@@ -1165,12 +1165,13 @@ def run():
 		d.append(  (u"hlaiwa", u"joykolo") ) #sick
 		d.append(  (u"lauca", u"feculo") ) #warm
 		d.append(  (u"ringa", u"fedelo") ) #cold		
-		d.append(  (u"vanya", u"kekaykemo", [(u"ambanya", (u"s",u"Nom",u"abs"))]) )   #beautiful
-		d.append(  (u"vára", u"cinjuvo", [(u"anwára", (u"s",u"Nom",u"abs"))]) )   #dirty
+		d.append(  (u"vanya", u"kekaykemo", [(u"ambanya", ("s","Nom",u"abs"))]) )   #beautiful
+		d.append(  (u"vára", u"cinjuvo", [(u"anwára", ("s","Nom",u"abs"))]) )   #dirty
 		d.append(  (u"laurea", u"todapyu taykocivo")  ) #golden
 		
 		return d
-		
+
+
 	l = Lect(u"qya")
 	l.name = u"Quenya"
 	l.english_name = u"Quenya"
@@ -1184,20 +1185,22 @@ def run():
 	print l.lexicon
 	build_grammar(l.grammar)
 	print l.grammar
-	l.properties[u"capitalization"] = 2 #lexical
+	l.properties["capitalization"] = 2 #lexical
+	l.properties["separator"] = u" " #lexical
 	print "now saving"
-	l.save(u"test/qya.lct")
+	l.save("test/qya.lct")
 	print "now compiling lexicon"
 	l.lexicon.compile(l.properties)
 	print "lexicon compiled"
 	print "now compiling grammar"
 	l.grammar.compile()
 	print "grammar compiled"
-	print "now saving again"
-	l.save(u"test/qya.lct")
-	print "saved"
 	print "now reading"
-	print l.read("melir yauler aldar")
+	print l.read(u"malan")
+	print l.read(u"melin fion")
+	print l.read(u"fion melin")
+	print "now saving"
+	l.save("test/qya.lct")
 
 
 if __name__ == "__main__":
