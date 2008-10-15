@@ -99,7 +99,7 @@ class FSA:
 		self.__initial_state = None
 		self.__final_states = set()
 		self.__states = set()
-		self.__transitions = [] #(start, label, end, tag)
+		self.__transitions = {} #{start: [(label, end, tag)...]}
 
 	def __len__(self):
 		return len(self.__transitions)
@@ -134,6 +134,7 @@ class FSA:
 			if state in self.__states:
 				raise StateError(state)
 		self.__states.add(state)
+		self.__transitions[state] = []
 		return state
 
 	def has_state(self, state):
@@ -159,7 +160,11 @@ class FSA:
 		if state not in self.__states:
 			raise StateError(state)
 		self.__states.remove(state)
-		self.__transitions = [transition for transition in self.__transitions if not transition[0] == state and not transition[2] == state] #State.__eq__
+		del self.__transitions[state]
+		for transitions in self.__transitions:
+			for transition in transitions:
+				if transition[1] == state: #State.__eq__
+					transitions.remove(transition)
 		if self.__initial_state == state:
 			if self.__states:
 				self.__initial_state = self.__states[0]
@@ -226,17 +231,16 @@ class FSA:
 		"""
 		if start not in self.__states:
 			raise StateError(start)
-		return [(label, end, tag) for s, label, end, tag in self.__transitions if s == start] #State.__eq__
+		return self.__transitions[start] #State.__eq__, State.__hash__
 
 
 	def add_transition(self, start, label, end, tag = None):
 		"""
 		Define a new association M{S{delta}(C{start}, C{(label, tag)}) S{->} C{end}}.
 
-		@param start: The start state of the transitions to remove. 
-		@param label: The label of the transitions to remove.
-		@param end: The end state of the transitions to remove. 
-		@raise StateError: Fired if the state does not exist.
+		@param start: The start state of the transitions to add. 
+		@param label: The label of the transitions to add.
+		@param end: The end state of the transitions to add. 
 		"""
 		if self.__initial_state is None:
 			self.__initial_state = start
@@ -244,7 +248,9 @@ class FSA:
 		self.__states.add(end)
 		if not label:
 			tag = None
-		self.__transitions.append((start, label, end, tag))
+		self.__transitions.setdefault(start, []).append((label, end, tag))
+		if not self.__transitions.has_key(end):
+			self.__transitions[end] = []
 
 	def remove_transitions(self, start, label, end):
 		"""
@@ -258,15 +264,26 @@ class FSA:
 		"""
 		if start not in self.__states:
 			raise StateError(start)
-		b_len = len(self.__transitions)
-		self.__transitions = [transition for transition in self.__transitions if not transition[0] == start or not transition[1] == label or not transition[2] == end] #State.__eq__, Label.__eq__
-		a_len = len(self.__transitions)
-		if a_len == b_len:
+		found = 0
+		transitions = self.__transitions[start]
+		for transition in self.__transitions[start]:
+			if transition[0] == label and transition[1] == end: #State.__eq__, State.__hash__, Label.__eq__
+				transitions.remove(transition)
+				found += 1
+		if found == 0:
 			raise TransitionError(start, label, end)
-		return b_len - a_len
+		else:
+			return found
+		
 
 
 	#Transformations and methods
+
+	def iter_transitions(self):
+		for state, transitions in self.__transitions.iteritems():
+			for transition in transitions:
+				yield (state, transition[0], transition[1], transition[2])
+		
 
 	def __repr__(self):
 		def format_state(state):
@@ -289,7 +306,7 @@ class FSA:
 			return "%s -> %s %s%s" % tuple(f)
 		states = ", ".join([format_state(state) for state in self.__states])
 		if self.__transitions:
-			transitions = ";\n".join([format_transition(transition) for transition in self.__transitions])
+			transitions = ";\n".join([format_transition(transition) for transition in self.iter_transitions()])
 			return "%s{\n%s.\n%s\n}" % (self.__class__.__name__, states, transitions)
 		else:
 			return "%s{\n%s\n}" % (self.__class__.__name__, states)
@@ -314,8 +331,8 @@ class FSA:
 			state, index = v_s[index], index + 1
 			if not state in self.__states: #State.__eq__
 				raise StateError(state)
-			for s, l, end, t in self.__transitions:
-				if s == state and l == EPSILON and end not in v_s: #State.__eq__, Label.__eq__
+			for l, end, t in self.__transitions[state]:
+				if l == EPSILON and end not in v_s: #State.__eq__, State.__hash__, Label.__eq__
 					v_s.append(end)
 		return frozenset(v_s)#State.__hash__, State.__eq__
 
@@ -323,23 +340,24 @@ class FSA:
 		return self.__class__()
 
 	def is_reduced(self):
-		t = set()
-		for start, label, e, tag in self.__transitions:
-			if label == EPSILON:
-				return False
-			if (start, label, tag) in t:
-				return False
-			else:
-				t.add((start, label, tag))
+		for transitions in self.__transitions.itervalues():
+			t = set()
+			for label, e, tag in transitions:
+				if label == EPSILON: 
+					return False
+				if (label, tag) in t: 
+					return False
+				else:
+					t.add((label, tag)) 
 		return True
 
 	def is_minimized(self):
 		EXIT = None
 		start_dict = {}
-		for start, label, end, tag in self.__transitions:
-			state = start_dict.setdefault(start, []).append((label, end, tag))
+		for start, transitions in self.__transitions.iteritems():
+			start_dict[start] = transitions[:]
 		for state in self.__final_states:
-			start_dict.setdefault(state, []).append(EXIT)
+			start_dict[state].append(EXIT)
 
 		t = set()
 		for v in start_dict.itervalues():
@@ -359,14 +377,20 @@ class FSA:
 		@return: The reduced equivalent FSA.
 		"""
 		def move(starts, label, tag):
-			return [end for s, l, end, t in self.__transitions if s in starts and l == label and t == tag] #State.__eq__, Label.__eq__, Tag.__eq__
+			mv = []
+			for start in starts:
+				for l, end, t in self.__transitions[start]:
+					if l == label and t == tag:
+						mv.append(end)
+			return mv
 		def tr_from(starts):
 			d = set()
-			for s, label, e, tag in self.__transitions:
-				if s in starts and label != EPSILON: #State.__eq__, Label.__eq__
-					d.add((label, tag))            #Label.__eq__, Tag.__eq__
+			for start in starts:
+				for label, e, tag in self.__transitions[start]:
+					if label != EPSILON:
+						d.add((label, tag))
 			return d
-			
+		
 		dfa = self.__instance()
 		dfa.add_state(0)
 		dfa.set_initial(0)
@@ -405,12 +429,11 @@ class FSA:
 		"""
 		#Label, State, Tag.__hash__ + __eq__
 		EXIT = None
-		start_dict = {} #a dictionary associating all starts to their own transitions; final states associated to EXIT
-		# start_dict == {0: [('a', 1)], 1: [('b', 2), ('a', 1), ('b', 2)], 2: [EXIT]}
-		for start, label, end, tag in self.__transitions:
-			start_dict.setdefault(start, []).append((label, end, tag))
+		start_dict = {}
+		for start, transitions in self.__transitions.iteritems():
+			start_dict[start] = transitions[:]
 		for state in self.__final_states:
-			start_dict.setdefault(state, []).append(EXIT)
+			start_dict[state].append(EXIT)
 
 		# freeze it
 		# start_dict == {0: frozenset([('a', 1)]), 1: frozenset([('b', 2), ('a', 1)]), 2: frozenset([EXIT])}
@@ -434,7 +457,11 @@ class FSA:
 		mfa.__initial_state = eq_dict.get(self.__initial_state, self.__initial_state)
 		mfa.__final_states = set([eq_dict.get(f,f) for f in self.__final_states])
 		mfa.__states = set([eq_dict.get(f,f) for f in self.__states])
-		mfa.__transitions = [(start, label, eq_dict.get(end, end), tag) for start, label, end, tag in self.__transitions if start in mfa.__states] 
+		for start in mfa.__states:
+			z = []
+			for label, end, tag in self.__transitions[start]:
+				z.append((label, eq_dict.get(end, end), tag))
+			mfa.__transitions[start] = z
 		return mfa
 
 	def copy(self):
@@ -445,7 +472,8 @@ class FSA:
 		cp.__initial_state = self.__initial_state
 		cp.__final_states = self.__final_states.copy()
 		cp.__states = self.__states.copy()
-		cp.__transitions = self.__transitions[:]
+		for state, transitions in self.__transitions.iteritems():
+			cp.__transitions[state] = transitions[:]
 		return cp
 
 class ParseError(StandardError):
@@ -594,6 +622,7 @@ def __test():
 	print td
 	print td.reduced()
 	print td.reduced().minimized()
+	print "Td is min", td.is_minimized()
 	print "Td is red", td.is_reduced()
 	print "Td.rm is red", td.reduced().minimized().is_reduced()
 	print "Td.rm is min", td.reduced().minimized().is_minimized()
