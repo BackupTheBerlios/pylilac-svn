@@ -7,7 +7,7 @@ A module to create Quenya language file.
 
 from core.lect import Lect
 from core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from core.lexicon import Lexicon, Particle, Word, Lemma, CategoryFilter, WordCategoryFilter
+from core.lexicon import Lexicon, Particle, Word, Lemma, CategoryFilter, WordCategoryFilter, WordFilter
 from core.flexion import BASED_ON_LEMMA, DEFECTIVE
 import re
 
@@ -994,26 +994,73 @@ def run():
 					cond = cond | expr
 			return cond
 
-		finite = (u"pres", u"past", "perf", "aor", "fut")
-		tr = (u"Acc", u"Acc+Dat")
+		fin = CategoryFilter("in", ("pres", "past", "perf", "aor", "fut"))
 		n0 = CategoryFilter("ni", "0")
-		gr["sentence"] = Reference("Vso")
-		gr["sentence"] = free_order(Reference("S1"), Reference("V1o"))|free_order(Reference("S2"), Reference("V2o"))
-		gr["sentence"] = free_order(Reference("Vs"), Reference("O"))
-		gr["sentence"] = free_order(Reference("S1"), Reference("V1"), Reference("O")) | free_order(Reference("S2"), Reference("V2"), Reference("O"))
-		gr["Vso"] = WordCategoryFilter("v", (CategoryFilter("ni", tr),), (None, n0, "0") )
-		gr["Vso"] = WordCategoryFilter("v", (CategoryFilter("in", tr),), (None, n0, n0))
-		gr["S1"] = WordCategoryFilter("n", (), ("s", "Nom", None))
-		gr["S2"] = WordCategoryFilter("n", (), (CategoryFilter("ni", ("s",)), "Nom", None))
-		gr["V1o"] = WordCategoryFilter("v", (CategoryFilter("ni", tr),), (CategoryFilter("in", finite), "s", "0"))
-		gr["V1o"] = WordCategoryFilter("v", (CategoryFilter("in", tr),), (CategoryFilter("in", finite), "s", n0))
-		gr["V2o"] = WordCategoryFilter("v", (CategoryFilter("ni", tr),), (CategoryFilter("in", finite), "pl", "0"))
-		gr["V2o"] = WordCategoryFilter("v", (CategoryFilter("in", tr),), (CategoryFilter("in", finite), "pl", n0))
-		gr["Vs"] = WordCategoryFilter("v", (CategoryFilter("in", tr),), (CategoryFilter("in", finite), CategoryFilter("ni", ("s", "pl")), "0"))
-		gr["O"] = WordCategoryFilter("n", (), (None, "Nom", None))
-		gr["V1"] = WordCategoryFilter("v", (CategoryFilter("in", tr),), (CategoryFilter("in", finite), "s", "0"))
-		gr["V2"] = WordCategoryFilter("v", (CategoryFilter("in", tr),), (CategoryFilter("in", finite), "pl", "0"))
+		
+		def auto_noun_phrase(gr):
+			for case in ("Gen", "Poss", "Dat", "Abl", "All", "Loc", "Instr", "Resp"):
+				for num in ("s", "d", "pl", "part"):
+					if num == "part":
+						gr["noun-phrase,"+case] = WordCategoryFilter("n", (), (num, case, None)) + WordCategoryFilter("adj", (), ("pl", "Nom", None))
+						gr["noun-phrase,"+case] = WordCategoryFilter("adj", (), ("pl", "Nom", None)) + WordCategoryFilter("n", (), (num, case, None))
+						gr["noun-phrase,"+case] = WordCategoryFilter("n", (), (num, case, None))
+					else:
+						gr["noun-phrase,"+case] = WordCategoryFilter("n", (), (num, "Nom", None)) + WordCategoryFilter("adj", (), (num, case, None))
+						gr["noun-phrase,"+case] = WordCategoryFilter("adj", (), (num, "Nom", None)) + WordCategoryFilter("n", (), (num, case, None))
+						gr["noun-phrase,"+case] = WordCategoryFilter("n", (), (num, case, None))
+
+			
+		gr["sentence"] = Reference("nucleus") + Reference("complements")
+		gr["nucleus"] = Reference("Vso")|Reference("Vs O")|Reference("S Vo")|Reference("S V O") # verbal sentence: o === 0/O
+		#gr["nucleus"] = Reference("Cs N") | Reference("S C N")  # nominal sentence 
+		#gr["nucleus"] = Reference("Vso D")|Reference("Vs O D")|Reference("S V O D") # dative sentence
+		
+		gr["S Vo"] = free_order(Reference("S,s"), Reference("Vo,s"))|free_order(Reference("S,m"), Reference("Vo,m"))
+		gr["Vs O"] = free_order(Reference("Vs"), Reference("O"))
+		gr["S V O"] = free_order(Reference("S,s"), Reference("V,s"), Reference("O")) | free_order(Reference("S,m"), Reference("V,m"), Reference("O"))
+
+		#gr["Cs N"] = free_order(Reference("Cs"), Reference("N"))|free_order(Reference("Cs,s"), Reference("Na,s"))|free_order(Reference("Cs,m"), Reference("Na,m"))
+		#gr["S C N"] = free_order(Reference("S,s"), Reference("C,s"), Reference("N")) | free_order(Reference("S,m"), Reference("C,m"), Reference("N"))
+
 	
+		
+		gr["Vso"] = WordCategoryFilter("v", ("0",), (fin, n0, "0"))
+		gr["Vso"] = WordCategoryFilter("v", ("Acc",), (fin, n0, n0))
+		gr["Vo,s"] = WordCategoryFilter("v", ("0",), (fin, "s", "0"))
+		gr["Vo,s"] = WordCategoryFilter("v", ("Acc",), (fin, "s", n0))
+		gr["Vo,m"] = WordCategoryFilter("v", ("0",), (fin, "pl", "0"))
+		gr["Vo,m"] = WordCategoryFilter("v", ("Acc",), (fin, "pl", n0))
+		gr["V,s"] = WordCategoryFilter("v", ("Acc",), (fin, "s", "0"))
+		gr["V,m"] = WordCategoryFilter("v", ("Acc",), (fin, "pl", "0"))
+		gr["Vs"] = WordCategoryFilter("v", ("Acc",), (fin, CategoryFilter("ni", ("s", "pl")), "0"))
+		gr["O"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,Nom") + Reference("noun-complements")
+		gr["S,s"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,s,Nom") + Reference("noun-complements")
+		gr["S,m"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,m,Nom") + Reference("noun-complements")
+		gr["noun-phrase,Nom"] = Reference("noun-phrase,s,Nom")|Reference("noun-phrase,m,Nom")
+		gr["noun-phrase,s,Nom"] = WordCategoryFilter("n", (), ("s", "Nom", None)) + WordCategoryFilter("adj", (), ("s", "Nom", None))
+		gr["noun-phrase,s,Nom"] = WordCategoryFilter("adj", (), ("s", "Nom", None)) + WordCategoryFilter("n", (), ("s", "Nom", None))
+		gr["noun-phrase,s,Nom"] = WordCategoryFilter("n", (), ("s", "Nom", None))
+		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("pl", "Nom", None)) + WordCategoryFilter("adj", (), ("pl", "Nom", None))
+		gr["noun-phrase,m,Nom"] = WordCategoryFilter("adj", (), ("pl", "Nom", None)) + WordCategoryFilter("n", (), ("pl", "Nom", None))
+		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("pl", "Nom", None))
+		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("d", "Nom", None)) + WordCategoryFilter("adj", (), ("d", "Nom", None))
+		gr["noun-phrase,m,Nom"] = WordCategoryFilter("adj", (), ("d", "Nom", None)) + WordCategoryFilter("n", (), ("d", "Nom", None))
+		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("d", "Nom", None))
+		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("part", "Nom", None)) + WordCategoryFilter("adj", (), ("pl", "Nom", None))
+		gr["noun-phrase,m,Nom"] = WordCategoryFilter("adj", (), ("pl", "Nom", None)) + WordCategoryFilter("n", (), ("part", "Nom", None))
+		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("part", "Nom", None))
+		gr["article"] = WordFilter(Word(u"i", Particle(u"i", 1, "adj")))
+		gr["noun-complements"] = Reference("noun-complement") * KLEENE_CLOSURE
+		gr["noun-complement"] = Reference("Cposs") | Reference("Cgen")
+		gr["Cposs"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,Poss")
+		gr["Cgen"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,Gen")
+		gr["complements"] = Reference("noun-complement") * KLEENE_CLOSURE
+		gr["complement"] = Reference("Cloc") | Reference("Cmod") | Reference("adverb")
+		gr["Cloc"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,Loc")
+		gr["Cmod"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,Instr")
+		gr["adverb"] = WordCategoryFilter("adv")
+		auto_noun_phrase(gr)
+		
 	
 	def nouns():
 		d = []
@@ -1174,7 +1221,7 @@ def run():
 
 	l = Lect(u"qya")
 	l.name = u"Quenya"
-	l.english_name = u"Quenya"
+	l.english_name = u"Neo-Quenya"
 	l.append_p_o_s(u"v", (u"arguments",), (u"tense", u"person", u"object person"))
 	l.append_p_o_s(u"n", (), (u"number", u"case", u"person"))
 	l.append_p_o_s(u"adj", (), (u"number", u"case", u"degree"))
@@ -1184,23 +1231,19 @@ def run():
 	build_lexicon(l.lexicon, l.flexions)
 	print l.lexicon
 	build_grammar(l.grammar)
-	print l.grammar
 	l.properties["capitalization"] = 2 #lexical
 	l.properties["separator"] = u" " #lexical
+	print "now compiling"
+	l.compile()
+	print "compiled"
 	print "now saving"
 	l.save("test/qya.lct")
-	print "now compiling lexicon"
-	l.lexicon.compile(l.properties)
-	print "lexicon compiled"
-	print "now compiling grammar"
-	l.grammar.compile()
-	print "grammar compiled"
+	print "done!"
 	print "now reading"
 	print l.read(u"malan")
-	print l.read(u"melin fion")
-	print l.read(u"fion melin")
-	print "now saving"
-	l.save("test/qya.lct")
+	print l.read(u"melin fion ringa")
+	print l.read(u"cor vanya mele i lauca alda")
+	print l.read(u"melis i alda")
 
 
 if __name__ == "__main__":

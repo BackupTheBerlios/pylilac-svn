@@ -81,6 +81,10 @@ class Lect:
 		grammatical_fsa = self.grammar.compile()
 		er = ExpressionReader(lexical_fsa, grammatical_fsa)
 		return er(expression)
+		
+	def compile(self, force = False):
+		self.lexicon.compile(self.properties, force)
+		self.grammar.compile(force)
 			
 
 

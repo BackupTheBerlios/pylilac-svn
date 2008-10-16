@@ -68,7 +68,14 @@ class Tokenizer(Parser):
 		try:
 			p = Parser.__call__(self, terminated)
 		except ParseError, pe:
-			raise UnknownTokenException(stream[len(pe) - 1 :])
+			dead_end = len(pe) - 1
+			rgt = max(stream.rfind(self._separator, 0, dead_end-1)+1,0)
+			lft = stream.find(self._separator, dead_end+1)
+			if lft<>-1:
+				ell = u"..."
+			else:
+				ell = u""
+			raise UnknownTokenException(stream[rgt:dead_end]+u"?"+stream[dead_end:lft]+ell)
 		ot = OptionTree()
 		for u in p.expand():
 			ot.append(explode_list(self.__dict, [y[1] for y in u if y[1] is not None], 0))
