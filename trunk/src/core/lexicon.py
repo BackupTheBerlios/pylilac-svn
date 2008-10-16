@@ -229,7 +229,7 @@ class Lexicon:
 		self.__words[word.form].remove(word)
 		self.__valid = False
 
-	def retrieve_words1(self, form = None, lemma_key = None, categories = None):
+	def retrieve_words(self, form = None, lemma_key = None, categories = None):
 		ws = []
 		if lemma_key is not None:
 			for w in self.__indexed_words[lemma_key]:

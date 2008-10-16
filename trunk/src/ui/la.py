@@ -26,7 +26,7 @@ class LAFrame(wx.Frame):
 		self.language_sizer_2_staticbox = wx.StaticBox(self.la_language_pane, -1, "Properties:")
 		self.language_sizer_3_staticbox = wx.StaticBox(self.la_language_pane, -1, "Blabla:")
 		self.language_sizer_1_staticbox = wx.StaticBox(self.la_language_pane, -1, "Language:")
-
+		
 		# Menu Bar
 		self.la_frame_menubar = wx.MenuBar()
 		self.file_menu = wx.Menu()
@@ -187,7 +187,6 @@ class LAFrame(wx.Frame):
 		self.word_grid.SetRowLabelSize(0)
 		self.word_grid.SetColLabelSize(0)
 		self.word_grid.EnableEditing(0)
-		self.word_grid.EnableGridLines(0)
 		self.word_grid.EnableDragRowSize(0)
 		self.word_grid.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 		self.word_grid.SetColLabelValue(0, "Categories")
@@ -236,10 +235,10 @@ class LAFrame(wx.Frame):
 		language_grid_sizer_2.Add(self.separator_ctrl, 0, wx.EXPAND, 0)
 		language_grid_sizer_2.Add(self.label_13, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		language_grid_sizer_2.Add(self.text_ctrl_13, 0, wx.EXPAND, 0)
-		language_grid_sizer_2.Add(self.label_12, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		language_grid_sizer_2.Add(self.label_12, 0, 0, 0)
 		language_grid_sizer_2.Add(self.capitalization_ctrl, 0, wx.EXPAND, 0)
-		language_grid_sizer_2.Add(self.label_14, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		language_grid_sizer_2.Add(self.text_ctrl_14, 0, wx.EXPAND, 0)
+		language_grid_sizer_2.Add(self.label_14, 0, 0, 0)
+		language_grid_sizer_2.Add(self.text_ctrl_14, 0, wx.SHAPED, 0)
 		language_grid_sizer_2.AddGrowableCol(1)
 		language_grid_sizer_2.AddGrowableCol(3)
 		language_sizer_2.Add(language_grid_sizer_2, 1, wx.EXPAND, 0)
@@ -278,7 +277,7 @@ class LAFrame(wx.Frame):
 		lemma_sizer_2.AddGrowableCol(3)
 		lemma_sizer_1.Add(lemma_sizer_2, 1, wx.EXPAND, 0)
 		lemma_sizer_1.Add(self.gloss_ctrl, 0, wx.EXPAND, 0)
-		lemma_sizer_1.Add(self.word_grid, 1, wx.EXPAND, 0)
+		lemma_sizer_1.Add(self.word_grid, 1, wx.TOP|wx.EXPAND, 5)
 		self.lemma_pane.SetSizer(lemma_sizer_1)
 		lemma_sizer_1.AddGrowableRow(2)
 		lemma_sizer_1.AddGrowableCol(0)
@@ -461,9 +460,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		self.pos_ctrl.SetValue(hw.p_o_s)
 		self.lemma_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[0])
 		self.lemma_category_ctrl.SetCategoryValues(hw.categories)
-		self.gloss_ctrl.SetValue(hw.gloss)
+		if isinstance(hw, Lemma):
+			self.gloss_ctrl.SetValue(hw.gloss)
+		else:
+			self.gloss_ctrl.SetValue("(particle)")
 	#categories
-		words = self.data.lexicon.retrieve_words(hw_key)
+		words = self.data.lexicon.retrieve_words(None, hw_key)
 		redim(self.word_grid, len(words))
 		for i, w in enumerate(words):
 			self.word_grid.SetCellValue(i, 0, w.form)
@@ -487,7 +489,7 @@ class CBFrame(wx.Frame):
 		kwds["style"] = wx.CAPTION|wx.CLOSE_BOX|wx.MINIMIZE_BOX|wx.SYSTEM_MENU|wx.RESIZE_BORDER|wx.FRAME_FLOAT_ON_PARENT|wx.CLIP_CHILDREN
 		wx.Frame.__init__(self, *args, **kwds)
 		self.panel_1 = wx.Panel(self, -1)
-
+		
 		# Menu Bar
 		self.cb_frame_menubar = wx.MenuBar()
 		self.file_menu = wx.Menu()
