@@ -75,7 +75,7 @@ class Tokenizer(Parser):
 				ell = u"..."
 			else:
 				ell = u""
-			raise UnknownTokenException(stream[rgt:dead_end]+u"?"+stream[dead_end:lft]+ell)
+			raise UnknownTokenException(stream[rgt:lft]+ell)
 		ot = OptionTree()
 		for u in p.expand():
 			ot.append(explode_list(self.__dict, [y[1] for y in u if y[1] is not None], 0))

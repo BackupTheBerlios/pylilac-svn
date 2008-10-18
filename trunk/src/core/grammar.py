@@ -138,7 +138,7 @@ class Grammar:
 			raise GrammarError("No starting symbol defined")
 		return descend(self.starting)
 
-	def compile(self, ignore_loops = False, force = False):
+	def compile(self, force = False, ignore_loops = False):
 		"""
 		Compile the set of rules into a Finite State Automaton (FSA).
 

@@ -100,9 +100,11 @@ def run():
 					words.append(word)
 			ft = f(lemma, words)
 			correct_table(ft)			
+			
 			l.add_lemma(lemma)
 			for w in ft.itervalues():
 				l.add_word(w)
+				
 			if h[0][-1] == u"a":
 				adverb = re.sub(u"a$",u"ave", h[0])
 			elif h[0][-1] == u"e":
@@ -116,6 +118,7 @@ def run():
 			l.add_word(Word(adverb, Lemma(adverb, id, "adv", (), adverb_gloss), ()))
 		
 		l.add_word(Word(u"i", Particle(u"i", 1, "adj", ()), ("0", "0", "0")))
+		l.add_word(Word(u"er", Particle(u"er", 1, "adj", ()), ("0", "0", "0")))
 		
 
 
@@ -1143,6 +1146,9 @@ def run():
 		d.append(  (u"pí", u"pí", u"byekagi", [(u"pín", ("pl","Dat","0"))]) ) #insect
 		d.append(  (u"oxi", u"ohte", u"docesi")) #egg
 		
+		d.append(  (u"ambar", u"ambar", u"jotisi")) #planet, world
+		d.append(  (u"istar", u"istar", u"joybegi", [(u"istari", ("pl","Nom","0"))])) #doctor, wizard
+		
 		d.append(  (u"Cemen", u"Cemen", u"Ladijotisi")) #earth
 		d.append(  (u"Anar", u"Anar", u"Lakitisi") ) #sun
 		#d.append(  Periphrase(g["noun"], u"i Ertaini Nóri") ) #United States
@@ -1160,6 +1166,17 @@ def run():
 		d.append(  (u"Sanga", u"Sangai", u"Lazanxodugi", [(u"Sangai", ("pl","Nom","0"))]) ) #Shanghai
 		d.append(  (u"Masiqua", u"Masiqua", u"Laruxodugi") ) #Moscow
 		d.append(  (u"Isil", u"Isil", u"Labatisi") ) #moon
+		d.append( (u"kuiveyulda", u"kuiveyulda", u"cafefupi") ) #coffee
+		#d.append( (u"norolle liéva ", u"norolle liéva ", u"zetimi") ) #bus
+		d.append( (u"vilyacirya", u"vilyacirya", u"datimi") ) #airplane
+		d.append( (u"vilyahopasse", u"vilyahopasse", u"dakigi") ) #airport
+		d.append( (u"sarno", u"sarno", u"bujisi") ) #table
+		d.append( (u"yáve", u"yáve", u"babemi") ) #fruit (a -)
+		d.append( (u"olpe", u"olpe", u"finzipi") ) #bottle
+		d.append( (u"angatea", u"angatea", u"kuzegi") ) #railroad
+		#d.append( (u"norolle angaina", u"norolle angaina", u"kuzetimi") ) #train
+		d.append( (u"lambe", u"lambe", u"tejami") ) #language
+		d.append( (u"quetta", u"quetta", u"tekusi") ) #word
 		
 		return d
 
@@ -1172,7 +1189,7 @@ def run():
 		d.append(  (u"mel", u"Acc", u"bakopa") )  #love
 		d.append(  (u"mat", "0", u"fucala") ) #eat
 		d.append(  (u"suc", "0", u"bofucala") ) #drink
-		d.append(  (u"ista", u"Acc", u"kopa", [(u"sinte", (u"past","s","0")), (u"isintie", ("perf","s","0"))]) ) 
+		d.append(  (u"ista", u"Acc", u"kopa", [(u"sinte", (u"past","s","0")), (u"isintie", ("perf","s","0")), (u"sinwa", ("pass-part","0","0"))]) ) 
 		d.append(  (u"lelya", "0", u"ticala", [(u"lende", (u"past","s","0"))]) )  
 		d.append(  (u"ulya", u"Acc", u"tibokavasa", [], 1) )  
 		d.append(  (u"ulya", "0", u"tibokava", [], 2) )  
@@ -1183,12 +1200,14 @@ def run():
 		d.append(  (u"canta", u"Acc", u"joykavapa") ) #fix
 		d.append(  (u"rac", u"Acc", u"joyjuvapa") ) #break
 		d.append(  (u"nyar", u"Acc+Dat", u"tega") ) #tell
-		d.append(  (u"quet", "Dat", u"tegapa") ) #tell
+		d.append(  (u"quet", "Dat", u"tegapa") ) #speak to 
 		d.append(  (u"mala", "0", u"xonkepa") ) #suffer
 		d.append(  (u"lor", "0", u"kunkepa") ) #sleep
 		d.append(  (u"mer", u"Acc", u"cakopa") ) #want
 		d.append(  (u"appa", u"Acc", u"kenbusa") ) #touch
 		d.append(  (u"anta", u"Acc+Dat", u"ximamba", [(u"áne", (u"past","s","0"))]) )  #give
+		d.append(  (u"yuhta", u"Acc", u"busasa") ) #use, control
+		d.append(  (u"lanta", u"0", u"dafagupa") ) #fall
 		return d
 
 
@@ -1198,7 +1217,7 @@ def run():
 		d.append(  (u"tana", u"zaso") ) #that
 		d.append(  (u"alwa", u"joykepo") ) #healthy
 		d.append(  (u"mára", u"cakemo") ) #good
-		d.append(  (u"olca", u"cafomo") ) #bad
+		d.append(  (u"olca", u"cafomo") ) #bad, evil
 		d.append(  (u"pitya", u"fomo") ) #small
 		d.append(  (u"alta", u"kemo") ) #big
 		d.append(  (u"yára", u"zonculo") ) #old (vs.young)
@@ -1215,9 +1234,14 @@ def run():
 		d.append(  (u"vanya", u"kekaykemo", [(u"ambanya", ("s","Nom",u"abs"))]) )   #beautiful
 		d.append(  (u"vára", u"cinjuvo", [(u"anwára", ("s","Nom",u"abs"))]) )   #dirty
 		d.append(  (u"laurea", u"todapyu taykocivo")  ) #golden
+		d.append(  (u"ilya", u"bikavo")  ) #all, whole
 		
 		return d
 
+	def adv():
+		d = []
+		d.append((u"ehtala", u"dipe-tovay")) #tomorrow
+		return d
 
 	l = Lect(u"qya")
 	l.name = u"Quenya"
@@ -1243,7 +1267,7 @@ def run():
 	print l.read(u"malan")
 	print l.read(u"melin fion ringa")
 	print l.read(u"cor vanya mele i lauca alda")
-	print l.read(u"melis i alda")
+	print l.read(u"ilya ambar sinte lambe er ar yuhtane quetie er.")
 
 
 if __name__ == "__main__":

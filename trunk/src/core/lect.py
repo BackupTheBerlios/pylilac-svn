@@ -45,10 +45,13 @@ class Lect:
 	def __tuple(self):
 		return (self.code, self.name, self.english_name, self.__p_o_s, self.__lemma_categories, self.__categories, self.grammar, self.lexicon, self.properties)
 
-	def save(self, filename = None):
+	def save(self, filename = None, compact = False):
 		if filename is None:
 			filename = "%s.lct" % self.code
-		f = GzipFile(filename, "wb", 3)
+		f = GzipFile(filename, "wb", 6)
+		if compact:
+			self.lexicon.reset()
+			self.grammar.reset()
 		pickle.dump(self.__tuple(), f, 2)
 		f.flush()
 		f.close()
@@ -84,7 +87,7 @@ class Lect:
 		
 	def compile(self, force = False):
 		self.lexicon.compile(self.properties, force)
-		self.grammar.compile(force)
+		self.grammar.compile(force, False)
 			
 
 

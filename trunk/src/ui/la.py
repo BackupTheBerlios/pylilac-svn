@@ -9,6 +9,7 @@ import os
 from core.interlingua import Interlingua, Concept
 from core.utilities import Utilities
 from core.lect import Lect
+from core.lexicon import Lemma
 from ui.lawidgets import StockBitmapButton, CategoryPanelComboCtrl
 
 
