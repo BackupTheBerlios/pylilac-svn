@@ -156,7 +156,7 @@ class Grammar:
 			
 			depth = self._browse(ignore_loops)
 			if ignore_loops:
-				max_levels = int(depth * 1.2 + 4) #pretty deep, but it should takes seconds
+				max_levels = int(depth * 1.8 + 4) #pretty deep, but it should takes seconds
 			else:
 				max_levels = 100 #very very deep, endless, a technological limit
 
