@@ -47,7 +47,7 @@ M{S{Sigma}} has the following properties:
 Conversion to a Graph
 =====================
 
-A L{grammar<grammar.Grammar>} can be converted into a L{Finite State Automaton<fsa.FSA>} by the recursive use of L{insert_transitions<_Symbol.insert_transitions>} method, applied to its starting symbol.
+A L{grammar<grammar.Grammar>} can be converted into a L{Finite State Automaton<fsa.FSA>} by the recursive use of L{build<_Symbol.build>} method, applied to its starting symbol.
 
 The technique is based on the representation in form of graph of the different symbols.
 
@@ -118,7 +118,7 @@ class _Symbol:
 		"""
 		return frozenset()
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
+	def build(self, grammar, fsa, initial, final, tag, max_levels):
 		"""
 		Inserts a sub-FSA in a L{FSA<fsa.FSA>} according to the rules in a L{grammar<grammar.Grammar>}.
 		"""
@@ -161,11 +161,11 @@ class Reference(_Symbol):
 	def dependencies(self):
 		return frozenset([self.reference])
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
+	def build(self, grammar, fsa, initial, final, tag, max_levels):
 		if max_levels == 0: return
 		tag = Utilities.nvl(tag, ())
 		rhs = grammar[self.reference]
-		rhs.insert_transitions(grammar, fsa, initial, final, tag + (self.reference,), max_levels - 1)
+		rhs.build(grammar, fsa, initial, final, tag + (self.reference,), max_levels - 1)
 
 	def __mul__(self, closure):
 		return _Closure(self, closure)
@@ -206,7 +206,7 @@ class Literal(_Symbol):
 	def process(self, token):
 		return token
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
+	def build(self, grammar, fsa, initial, final, tag, max_levels):
 		fsa.add_transition(initial, self, final, tag)
 
 
@@ -266,21 +266,21 @@ class _Expression(_Symbol):
 		return frozenset(dep)
 
 	
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
-		def concatenation_insert_transitions(symbols, grammar, fsa, initial, final):
+	def build(self, grammar, fsa, initial, final, tag, max_levels):
+		def concatenation_build(symbols, grammar, fsa, initial, final, tag):
 			prev = initial
 			for n, symbol in enumerate(symbols):
 				if n + 1 == len(symbols):
 					next = final
 				else:
 					next = fsa.add_state()
-				symbol.insert_transitions(grammar, fsa, prev, next, tag, max_levels - 1)
+				symbol.build(grammar, fsa, prev, next, tag, max_levels - 1)
 				prev = next
 				
 		if max_levels == 0: return
 		tag = Utilities.nvl(tag, ())
 		for concatenation in self.__fsot:
-			concatenation_insert_transitions(concatenation, grammar, fsa, initial, final)
+			concatenation_build(concatenation, grammar, fsa, initial, final, tag)
 
 class _Closure(Reference):
 	"""
@@ -351,9 +351,9 @@ class _Closure(Reference):
 		self.__forward, self.__back = forward_back
 
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
-		def insert_reference_transitions(initial_node, final_node):
-			Reference.insert_transitions(self, grammar, fsa, initial_node, final_node, tag, max_levels - 1)
+	def build(self, grammar, fsa, initial, final, tag, max_levels):
+		def build_reference(grammar, fsa, initial_node, final_node, tag, max_levels):
+			Reference.build(self, grammar, fsa, initial_node, final_node, tag, max_levels)
 			
 		def insert_back():
 			# initial -> b super;
@@ -361,7 +361,7 @@ class _Closure(Reference):
 			# b -> final epsilon
 			
 			back_end = fsa.add_state()
-			insert_reference_transitions(initial, back_end)
+			build_reference(grammar, fsa, initial, back_end, tag, max_levels)
 			fsa.add_transition(back_end, EPSILON_SYMBOL, initial)
 			fsa.add_transition(back_end, EPSILON_SYMBOL, final)
 
@@ -371,7 +371,7 @@ class _Closure(Reference):
 		if self.__back:
 			insert_back()
 		else:
-			insert_reference_transitions(initial, final)
+			build_reference(grammar, fsa, initial, final, tag, max_levels)
 			
 	def __repr__(self):
 		index = (self.__back & 1) << 1 | (self.__forward & 1)
@@ -440,9 +440,9 @@ class _Epsilon(Literal):
 			return False
 
 	def __repr__(self):
-		return "e"
+		return u"ε"
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 100):
+	def build(self, grammar, fsa, initial, final, tag, max_levels):
 		fsa.add_transition(initial, EPSILON_SYMBOL, final, tag)
 
 	def __nonzero__(self):

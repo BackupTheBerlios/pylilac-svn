@@ -22,6 +22,12 @@ class Tokenizer(Parser):
 		fsa = self.__create_key_fsa(dict)
 		Parser.__init__(self, fsa)
 		self.__dict = dict
+		
+	def process(self, label, token):
+		"""
+		No processing required for tokenizing.
+		"""
+		return None		
 
 	def __create_key_fsa(self, dict):
 		def add_key(fsa, key):
@@ -76,6 +82,7 @@ class Tokenizer(Parser):
 			else:
 				ell = u""
 			raise UnknownTokenException(stream[rgt:lft]+ell)
+		print p
 		ot = OptionTree()
 		for u in p.expand():
 			ot.append(explode_list(self.__dict, [y[1] for y in u if y[1] is not None], 0))

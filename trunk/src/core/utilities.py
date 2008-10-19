@@ -24,7 +24,35 @@ class Utilities:
 	else:
 		return default
 
-    	
+
+class SortedDict(dict):
+	def __init__(self):
+		dict.__init__(self)
+		self.__sort = []
+	def __setitem__(self, key, value):
+		is_new = dict.has_key(self, key)
+		dict.__setitem__(self, key, value)
+		if not is_new: self.__sort.append(key)
+	def iterkeys(self):
+		for key in self.__sort:
+			yield key
+	def itervalues(self):
+		for key in self.__sort:
+			yield self[key]
+	def iteritems(self):
+		for key in self.__sort:
+			yield (key, self[key])
+	def __repr__(self):
+		s = ""
+		for key in self.__sort:
+			if s == "":
+				s = "{["
+			else:
+				s += ", "
+			s += `key` + " : " + `self[key]`
+		s += "]}"
+		return s
+
 def __test():
 	a = None
 	print nvl(a, [])

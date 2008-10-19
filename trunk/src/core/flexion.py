@@ -11,39 +11,12 @@ A module for the generation of flexed forms.
 import re
 from lexicon import Word, Lemma, Lexicon, CategoryFilter
 from exceptions import Exception
+from utilities import SortedDict
 
 __docformat__ = "epytext en"
 
 BASED_ON_LEMMA = u"√"
 DEFECTIVE = u"∄"
-
-class _SortedDict(dict):
-	def __init__(self):
-		dict.__init__(self)
-		self.__sort = []
-	def __setitem__(self, key, value):
-		is_new = dict.has_key(self, key)
-		dict.__setitem__(self, key, value)
-		if not is_new: self.__sort.append(key)
-	def iterkeys(self):
-		for key in self.__sort:
-			yield key
-	def itervalues(self):
-		for key in self.__sort:
-			yield self[key]
-	def iteritems(self):
-		for key in self.__sort:
-			yield (key, self[key])
-	def __repr__(self):
-		s = ""
-		for key in self.__sort:
-			if s == "":
-				s = "{["
-			else:
-				s += ", "
-			s += `key` + " : " + `self[key]`
-		s += "]}"
-		return s
 
 
 class TransformError(ValueError):
@@ -127,7 +100,7 @@ class Flexion:
 			raise TransformError("Transform cannot apply %s to lemma '%s'" % (`self.categories`, lemma.entry_form))
 			
 	def __init__(self):
-		self.__transforms = _SortedDict()
+		self.__transforms = SortedDict()
 
 	def create_transform(self, categories):
 		if type(categories) is not tuple:
@@ -151,7 +124,7 @@ class Flexion:
 		return word
 
 	def __call__(self, lemma, words):
-		table = _SortedDict()
+		table = SortedDict()
 		for categories in self.__transforms.iterkeys():	
 			word = self.do_transform(lemma, words, categories)
 			if word.form <> DEFECTIVE:

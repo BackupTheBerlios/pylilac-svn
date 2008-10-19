@@ -6,6 +6,8 @@ import wx.grid
 import wx.gizmos
 import graphics
 import os
+import sys
+from optparse import OptionParser
 from core.interlingua import Interlingua, Concept
 from core.utilities import Utilities
 from core.lect import Lect
@@ -152,9 +154,18 @@ class LAFrame(wx.Frame):
 		# end wxGlade
 
 		# members
-		self.__filename = ""
-		self.__dirname = ""
-		self.data =  Lect()
+		language_file, interlingua, admin = self.__parse_args()
+		if language_file:
+			self.__filename = os.path.basename(language_file)
+			self.__dirname = os.path.dirname(language_file)
+			self.data = Lect()
+			self.data.load(language_file)
+		else:
+			self.__filename = ""
+			self.__dirname = ""
+			self.data = Lect()
+			
+		self.admin = admin
 
 		self.__load_tabs()
 
@@ -162,6 +173,27 @@ class LAFrame(wx.Frame):
 
 		self.__cb_frame = None
 		self.__set_dirty(False)
+		
+	def __parse_args(self):
+		parser = OptionParser("usage: %prog [options] [language_file]")
+
+		parser.add_option("-i", "--interlingua", dest="interlingua",
+			default = "data/Latejami.ilt", help="Interlingua file to use.", type="string")
+		parser.add_option("-a", "--admin", action="store_true", dest="admin",
+			default = False, help="Allow administrative tasks.")
+			
+		options, args = parser.parse_args()
+
+		if len(args)>1:
+			parser.print_help()
+			sys.exit(0)	
+
+		language_file = None
+		if len(args)>0:
+			language_file = args[0]
+		interlingua = options.interlingua
+		admin = options.admin
+		return (language_file, interlingua, admin)		
 
 	def __set_properties(self):
 		# begin wxGlade: LAFrame.__set_properties
@@ -960,13 +992,10 @@ class FindDialog(wx.Dialog):
 class LAApp(wx.App):
 	def OnInit(self):
 		wx.InitAllImageHandlers()
-		la_frame = LAFrame(None, -1, "")
+		la_frame = LAFrame(None, -1, "Linguistic Laboratory")
 		self.SetTopWindow(la_frame)
 		la_frame.Show()
 		return 1
 
 # end of class LAApp
 
-if __name__ == "__main__":
-	language_architect = LAApp(0)
-	language_architect.MainLoop()

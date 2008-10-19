@@ -1,4 +1,5 @@
 ﻿#!/usr/bin/python
+
 # -*- coding: utf-8 -*-
 
 """
@@ -499,31 +500,15 @@ class ExpectedStopError(ParseError):
 		return "[" + " ".join([repr(t) for t in self.tokens]) + " ?]@"+ str(self.state)
 
 
-def _eq(x, y):
-	return x == y
-def _sec_elem(x, y):
-	return y
-	
-
 class Parser:
 	"""
 	An FSA adapter.
-	It encapsulates a reduced and minimized copy of the FSA, the I{match} logics and the I{process} logics.
+	It encapsulates a deterministic FSA, the I{match} logics and the I{stamp} logics.
 	"""
-	def __init__(self, fsa, match = None, process = None):
-		if fsa.is_reduced() and fsa.is_minimized():
-			self.__fsa = fsa.copy()
-		else:
-			self.__fsa = fsa.reduced().minimized()
-		if match is None:
-			self.__match = _eq
-		else:
-			self.__match = match
-		if process is None:
-			self.__process = _sec_elem
-		else:
-			self.__process = process
-	
+	def __init__(self, fsa):
+		if not fsa.is_reduced() or not fsa.is_minimized():
+			raise ValueError("FSA is not deterministic.")
+		self.__fsa = fsa
 
 	def __call__(self, tokens):
 		def parse_from(fsa, tokens, index, state):
@@ -537,7 +522,7 @@ class Parser:
 					raise ExpectedStopError(tokens[:index+1], state)
 			transitions = fsa.transitions_from(state)
 			token = tokens[index]
-			matching = [(label, end, tag) for label, end, tag in transitions if self.__match(label, token)]
+			matching = [(label, end, tag) for label, end, tag in transitions if self.match(label, token)]
 			if len(matching) == 0:
 				raise ParseError(tokens[:index+1], state)
 			
@@ -545,7 +530,7 @@ class Parser:
 			for label, end, tag in matching:
 				try:
 					following = parse_from(fsa, tokens, index + 1, end) 
-					following.element = (self.__process(label, token), tag)
+					following.element = (self.process(label, token), tag)
 					output.append(following)
 				except ParseError, pe:
 					if (not m_pe) or len(pe) > len(m_pe):
@@ -559,6 +544,11 @@ class Parser:
 
 
 		return parse_from(self.__fsa, tokens, 0, self.__fsa.get_initial())
+	
+	def match(self, label, token):
+		return label == token
+	def process(self, label, token):
+		return token
 	
 
 def __test():

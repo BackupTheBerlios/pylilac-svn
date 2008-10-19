@@ -1261,7 +1261,7 @@ def run():
 	l.compile()
 	print "compiled"
 	print "now saving"
-	l.save("test/qya.lct")
+	l.save("test/qya.lct", True)
 	print "done!"
 	print "now reading"
 	print l.read(u"malan")

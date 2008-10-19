@@ -30,17 +30,18 @@ class CyclicReferenceError(GrammarError):
 	def __str__(self):
 		return "<%s>(<%s>)" % self.args 
 
-def call_match_method(label, token):
-	"""
-	Call L{match<lexicon.WordFilter.match>} method.
-	"""
-	return label.match(token)
+class _GrammarParser(Parser):
+	def match(self, label, token):
+		"""
+		Call L{match<lexicon.WordFilter.match>} method.
+		"""
+		return label.match(token)
 
-def call_process_method(label, token):
-	"""
-	Call L{match<lexicon.WordFilter.process>} method.
-	"""
-	return label.process(token)
+	def process(self, label, token):
+		"""
+		Call L{match<lexicon.WordFilter.process>} method.
+		"""
+		return label.process(token)
 
 class Grammar:
 	"""
@@ -165,11 +166,12 @@ class Grammar:
 			nfa.set_initial(initial)
 			final = nfa.add_state()
 			nfa.set_final(final)
-
+			
 			s = self.__rules[self.starting]
-			s.insert_transitions(self, nfa, initial, final, None, max_levels)
-
-			self.__compiled = Parser(nfa, call_match_method, call_process_method)
+			s.build(self, nfa, initial, final, (), max_levels)
+			dfa = nfa.reduced().minimized()
+			nfa = None #saves memory
+			self.__compiled = _GrammarParser(dfa)
 			self.__valid = True
 		return self.__compiled
 

@@ -45,7 +45,7 @@ class Lect:
 	def __tuple(self):
 		return (self.code, self.name, self.english_name, self.__p_o_s, self.__lemma_categories, self.__categories, self.grammar, self.lexicon, self.properties)
 
-	def save(self, filename = None, compact = False):
+	def save(self, filename, compact = False):
 		if filename is None:
 			filename = "%s.lct" % self.code
 		f = GzipFile(filename, "wb", 6)
@@ -56,7 +56,7 @@ class Lect:
 		f.flush()
 		f.close()
 
-	def load(self, filename = None):
+	def load(self, filename):
 		if filename is None:
 			filename = "%s.lct" % self.code
 		f = GzipFile(filename, "rb")
@@ -80,11 +80,11 @@ class Lect:
  		return (self.__lemma_categories[name], self.__categories[name])
  		
 	def read(self, expression):
-		lexical_fsa = self.lexicon.compile(self.properties)
-		grammatical_fsa = self.grammar.compile()
-		er = ExpressionReader(lexical_fsa, grammatical_fsa)
+		tokenizer = self.lexicon.compile(self.properties)
+		parser = self.grammar.compile()
+		er = ExpressionReader(tokenizer, parser)
 		return er(expression)
-		
+	
 	def compile(self, force = False):
 		self.lexicon.compile(self.properties, force)
 		self.grammar.compile(force, False)
