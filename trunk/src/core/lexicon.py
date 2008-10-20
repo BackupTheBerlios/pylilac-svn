@@ -62,7 +62,7 @@ class Lemma(Particle):
 	"""
 	A single unit of language, with no functional decoration.
 	
-	Usually, lemmas or headwords are the I{entry words} in dictionaries and encyclopediae.
+	Usually, lemmas or headwords are the I{entry words} in dictionaries.
 	"""
 	def __init__(self, entry_form, id, p_o_s, categories = (), gloss = None):
 		"""
