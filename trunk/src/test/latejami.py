@@ -114,7 +114,7 @@ def build_grammar(w):
 	g["reference-switching-particle"] = WordFilter(build_word(w["zunjopa"]))
 	g["valency-terminator"] = WordFilter(build_word(w["jojope"]))
 
-	g.compile(True)
+	g.compile(True, True)
 	
 	return g
 
