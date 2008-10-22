@@ -82,7 +82,6 @@ class Tokenizer(Parser):
 			else:
 				ell = u""
 			raise UnknownTokenException(stream[rgt:lft]+ell)
-		print p
 		ot = OptionTree()
 		for u in p.expand():
 			ot.append(explode_list(self.__dict, [y[1] for y in u if y[1] is not None], 0))

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -14,14 +14,77 @@ G{classtree Particle, Word}
 __docformat__ = "epytext en"
 
 from sys import maxint
-from utilities import Utilities
 from tokenizer import Tokenizer
 from bnf import Literal
+
+
+DEFECTIVE = u"∄"
 
 class ExistingLemmaError(ValueError):
 	pass
 
-class Particle:
+class Lemma:
+	"""
+	A single unit of language, with no functional decoration.
+	
+	Usually, lemmas or headwords are the I{entry words} in dictionaries.
+	"""
+	def __init__(self, entry_form, id, p_o_s, categories = (), gloss = None):
+		if self.__class__ is Lemma: raise NotImplementedError("Lemma is abstract and cannot be instantiated.")
+		self.__entry_form = unicode(entry_form)
+		self.__id = id
+		self.p_o_s = p_o_s
+		if type(categories) is not tuple:
+			raise TypeError(categories)
+		self.categories = categories
+		self.gloss = None
+
+	def entry_form(self):
+		return self.__entry_form
+	def id(self):
+		return self.__id
+
+	def key(self):
+		return (self.__entry_form, self.__id)
+
+	def __eq__(self, other):
+		"""
+		Compares memberwise two particles.
+		"""
+		if self.__class__ is other.__class__:
+			return self.__entry_form == other.__entry_form and self.__id == other.__id and self.p_o_s == other.p_o_s and self.categories == other.categories
+		else:
+			return False
+			
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
+	def __hash__(self):
+		return hash(self.__entry_form) ^ (self.__id - 1)
+
+	def __repr__(self):
+		return "%s.%d" % (self.__entry_form, self.__id)
+
+	def __str__(self):
+		"""
+		Give a concise representation for a word.
+
+		@return: The word's form.
+		"""
+		raise NotImplementedError()
+
+	def __unicode__(self):
+		"""
+		Give a concise representation for a word.
+
+		@return: The word's form.
+		"""
+		return self__entry_form
+
+
+	
+
+class Particle(Lemma):
 	"""
 	A language specific particle.
 	
@@ -30,35 +93,10 @@ class Particle:
 	For example, I{li} in Toki Pona.
 	"""
 	def __init__(self, entry_form, id, p_o_s, categories = ()):
-		self.entry_form = entry_form
-		self.id = Utilities.nvl(id, 1)
-		self.p_o_s = p_o_s
-		if type(categories) is not tuple:
-			raise TypeError(categories)
-		self.categories = categories
+		Lemma.__init__(self, entry_form, id, p_o_s, categories, None)
 
-	def key(self):
-		return (self.entry_form, self.id)
 
-	def __eq__(self, other):
-		"""
-		Compares memberwise two lemmas.
-		"""
-		if isinstance(other, Particle):
-			return self.entry_form == other.entry_form and self.id == other.id and self.p_o_s == other.p_o_s and self.categories == other.categories
-		else:
-			return False
-			
-	def __ne__(self, other):
-		return not self.__eq__(other)
-
-	def __hash__(self):
-		return hash(self.entry_form) ^ self.id
-
-	def __repr__(self):
-		return "%s.%d" % (self.entry_form, self.id)
-
-class Lemma(Particle):
+class Root(Particle):
 	"""
 	A single unit of language, with no functional decoration.
 	
@@ -103,18 +141,7 @@ class Lemma(Particle):
 		    For the interlingua to use, Latejami or its successors are recommended.
 
 		"""
-		Particle.__init__(self, entry_form, id, p_o_s, categories)
-		self.gloss = Utilities.nvl(gloss, entry_form)
-
-	def key(self):
-		return (self.entry_form, self.id)
-
-	def __eq__(self, other):
-		"""
-		Compares memberwise two lemmas, disregardin the gloss.
-		
-		"""
-		return Particle.__eq__(self, other)
+		Lemma.__init__(self, entry_form, id, p_o_s, categories, gloss)
 
 
 class Word:
@@ -146,9 +173,14 @@ class Word:
 		"""
 		if type(categories) is not tuple:
 			raise TypeError(categories)
-		self.form = form
-		self.lemma = lemma
+		self.__form = unicode(form)
+		self.__lemma = lemma
 		self.categories = categories
+
+	def form(self):
+		return self.__form
+	def lemma(self):
+		return self.__lemma
 
 	def __eq__(self, other):
 		"""
@@ -169,9 +201,9 @@ class Word:
 		Give a verbose representation for a word in the format <form>(<lemma>)
 		"""
 		if len(self.categories) == 0:
-			return "%s(%s)"%(self.form, `self.lemma`)
+			return "%s(%s)"%(self.__form, `self.__lemma`)
 		else:
-			return "%s(%s, %s)"%(self.form, `self.lemma`, `self.categories`)
+			return "%s(%s, %s)"%(self.__form, `self.__lemma`, `self.categories`)
 
 	def __str__(self):
 		"""
@@ -179,8 +211,23 @@ class Word:
 
 		@return: The word's form.
 		"""
-		return self.form
+		raise NotImplementedError()
 
+	def __unicode__(self):
+		"""
+		Give a concise representation for a word.
+
+		@return: The word's form.
+		"""
+		return self.__form
+
+	def copy(self, lemma = None):
+		if lemma is None:
+			lemma = self.__lemma
+		return Word(self.__form, lemma, self.categories[:])
+
+	def __nonzero__(self):
+		return self.__form <> DEFECTIVE
 
 
 class Lexicon:
@@ -207,18 +254,18 @@ class Lexicon:
 	def add_word(self, word):
 		if not isinstance(word, Word):
 			raise TypeError(word)
-		lemma = word.lemma
+		lemma = word.lemma()
 		if lemma:
 			key = lemma.key()
 			if self.__lemmas.has_key(key):
 				if lemma != self.__lemmas[key]:
 					raise ExistingLemmaError(lemma)
 				else:
-					word.lemma = self.__lemmas[key]
+					word = word.copy(self.__lemmas[key])
 			else:
-				word.lemma = self.add_lemma(lemma)
-		self.__words.setdefault(word.form, []).append(word)
-		self.__indexed_words.setdefault(word.lemma.key(), []).append(word)
+				word = word.copy(self.add_lemma(lemma))
+		self.__words.setdefault(word.form(), []).append(word)
+		self.__indexed_words.setdefault(word.lemma().key(), []).append(word)
 		self.__valid = False
 		return word
 		
@@ -276,9 +323,9 @@ class Lexicon:
 	def retrieve_lemmas(self, entry_form, id = None, p_o_s = None, lemma_categories = None):
 		f = []
 		for i in self.__lemmas.itervalues():
-			if entry_form is not None and entry_form != i.entry_form:
+			if entry_form is not None and entry_form != i.entry_form():
 				continue
-			if id is not None and id != i.id:
+			if id is not None and id != i.id():
 				continue
 			if p_o_s is not None and p_o_s != i.p_o_s:
 				continue
@@ -313,7 +360,7 @@ class Lexicon:
 				check_length(hw, len(d[hw.p_o_s][0]), err, corrective_p_o_s)
 		for wz in self.__words.itervalues():
 			for w in wz:
-				p_o_s = w.lemma.p_o_s
+				p_o_s = w.lemma().p_o_s
 				if d.has_key(p_o_s):
 					check_length(w, len(d[p_o_s][1]), err, corrective_p_o_s)
 		self.__valid = False
@@ -326,7 +373,7 @@ class WordFilter(Literal):
 	def __init__(self, word):
 		if not isinstance(word, Word):
 			raise TypeError(word)
-		Literal.__init__(self, (word.form, word.lemma.entry_form, word.lemma.id, None, None, word.categories))
+		Literal.__init__(self, (word.form(), word.lemma().entry_form(), word.lemma().id(), None, None, word.categories))
 
 	def __hash__(self):
 		def dict_hash(x, i):
@@ -343,15 +390,15 @@ class WordFilter(Literal):
 			if v is None: return True
 			else: return v == w
 
-		if not none_or_equal(self.content[0], word.form):
+		if not none_or_equal(self.content[0], word.form()):
 			return False
-		if not none_or_equal(self.content[1], word.lemma.entry_form):
+		if not none_or_equal(self.content[1], word.lemma().entry_form()):
 			return False
-		if not none_or_equal(self.content[2], word.lemma.id):
+		if not none_or_equal(self.content[2], word.lemma().id()):
 			return False
-		if not none_or_equal(self.content[3], word.lemma.p_o_s):
+		if not none_or_equal(self.content[3], word.lemma().p_o_s):
 			return False
-		if not CategoryFilter.test(self.content[4], word.lemma.categories):
+		if not CategoryFilter.test(self.content[4], word.lemma().categories):
 			return False
 		if not CategoryFilter.test(self.content[5], word.categories):
 			return False
@@ -459,14 +506,15 @@ class CategoryFilter:
 def __test():
 
 	lx = Lexicon()
-	lx.add_word(Word(u"mi", Lemma(u"mi", 1, "pronoun", (), "bavi")))
-	lx.add_word(Word(u"sina", Lemma(u"sina", 1, "pronoun", (), "zavi")))
-	lx.add_word(Word(u"suli", Lemma(u"suli", 1, "adjective", (), "kemo")))
-	lx.add_word(Word(u"suna", Lemma(u"suna", 1, "noun", (), "Lakitisi")))
-	lx.add_word(Word(u"telo", Lemma(u"telo", 1, "noun", (), "bocivi")))
-	lx.add_word(Word(u"moku", Lemma(u"moku", 1, "verb", ("intr",), "fucala")))
-	lx.add_word(Word(u"moku", Lemma(u"moku", 2, "verb", ("tr",), "fucalinza")))
-	lx.add_word(Word(u"jan", Lemma(u"jan", 1, "noun", (), "becami")))
+	r = Root(u"ken", 1, "verb", ("tr",), "kus")
+	lx.add_word(Word(u"mi", Root(u"mi", 1, "pronoun", (), "bavi")))
+	lx.add_word(Word(u"sina", Root(u"sina", 1, "pronoun", (), "zavi")))
+	lx.add_word(Word(u"suli", Root(u"suli", 1, "adjective", (), "kemo")))
+	lx.add_word(Word(u"suna", Root(u"suna", 1, "noun", (), "Lakitisi")))
+	lx.add_word(Word(u"telo", Root(u"telo", 1, "noun", (), "bocivi")))
+	lx.add_word(Word(u"moku", Root(u"moku", 1, "verb", ("intr",), "fucala")))
+	lx.add_word(Word(u"moku", Root(u"moku", 2, "verb", ("tr",), "fucalinza")))
+	lx.add_word(Word(u"jan", Root(u"jan", 1, "noun", (), "becami")))
 	lx.add_word(Word(u"li", Particle(u"li", 1, "sep")))
 	print lx
 	tk = lx.compile({"separator": " "})
@@ -475,8 +523,8 @@ def __test():
 	lx = WordCategoryFilter("noun")
 	lx1 = WordCategoryFilter("noun", ("m", CategoryFilter("in", ["pl","s"])))
 	lx2 = WordCategoryFilter("noun", (CategoryFilter("ni", ["m"]), None))
-	lx3 = WordFilter(Word("man", Lemma("man", 1, "n", (), "None")))
-	w = Word("man", Lemma("man", 1, "noun", ("m",), "Uomo"))
+	lx3 = WordFilter(Word("man", Root("man", 1, "n", (), "None")))
+	w = Word("man", Root("man", 1, "noun", ("m",), "Uomo"))
 	print `lx1`
 	print `lx2`
 	print `lx3`

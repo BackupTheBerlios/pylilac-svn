@@ -7,8 +7,8 @@ A module to create Quenya language file.
 
 from core.lect import Lect
 from core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from core.lexicon import Lexicon, Particle, Word, Lemma, CategoryFilter, WordCategoryFilter, WordFilter
-from core.flexion import BASED_ON_LEMMA, DEFECTIVE
+from core.lexicon import Lexicon, Particle, Word, Root, CategoryFilter, WordCategoryFilter, WordFilter, DEFECTIVE
+from core.flexion import BASED_ON_LEMMA
 import re
 
 
@@ -44,7 +44,7 @@ def run():
 				id = h[4]
 			else:
 				id = 1
-			lemma = Lemma(h[0], id, "n", (), h[2])
+			lemma = Root(h[0], id, "n", (), h[2])
 			word = Word(h[1], lemma, ("s","Nom","0"))
 			words = [word]
 			if len(h)>3:
@@ -70,15 +70,17 @@ def run():
 				id = h[4]
 			else:
 				id = 1
-			lemma = Lemma(h[0], id, "v", (h[1],), h[2])
+			lemma = Root(h[0], id, "v", (h[1],), h[2])
 			words = []
 			if len(h)>3:
 				for j in h[3]:
 					word = Word(j[0], lemma, j[1])
 					words.append(word)
 			ft = f(lemma, words)
-			if lemma.entry_form == u"na":
-				lemma.entry_form = u"ná"
+			if lemma.entry_form() == u"na":
+				lemma = Root(u"ná", 1, lemma.p_o_s, lemma.categories, lemma.gloss)
+				for k in ft.iterkeys():
+					ft[k] = ft[k].copy(lemma)
 				ft[("aor", "s", "0")]=Word(u"ná", lemma, (u"aor", "s", "0"))
 				ft[(u"past", "s", "0")]=Word(u"né", lemma, (u"past", "s", "0"))
 
@@ -92,7 +94,7 @@ def run():
 				id = h[3]
 			else:
 				id = 1
-			lemma = Lemma(h[0], id, "adj", (), h[1])
+			lemma = Root(h[0], id, "adj", (), h[1])
 			words = []
 			if len(h)>2:
 				for j in h[2]:
@@ -115,7 +117,7 @@ def run():
 				adverb = u"vande"
 			
 			adverb_gloss = re.sub(u"o$",u"e", h[1])
-			l.add_word(Word(adverb, Lemma(adverb, id, "adv", (), adverb_gloss), ()))
+			l.add_word(Word(adverb, Root(adverb, id, "adv", (), adverb_gloss), ()))
 		
 		l.add_word(Word(u"i", Particle(u"i", 1, "adj", ()), ("0", "0", "0")))
 		l.add_word(Word(u"er", Particle(u"er", 1, "adj", ()), ("0", "0", "0")))
@@ -124,8 +126,8 @@ def run():
 
 	def correct_word(table, old, new):
 		for k, v in table.iteritems():
-			if re.search(old, v.form, re.I):
-				v2 = Word(re.sub(old, new, v.form, re.I), v.lemma, v.categories)
+			if re.search(old, v.form(), re.I):
+				v2 = Word(re.sub(old, new, v.form(), re.I), v.lemma(), v.categories)
 				table[k] = v2
 
 	def build_flexions(fl):

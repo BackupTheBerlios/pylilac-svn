@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -9,14 +9,13 @@ A module for the generation of flexed forms.
 """
 
 import re
-from lexicon import Word, Lemma, Lexicon, CategoryFilter
+from lexicon import Word, Lemma, Lexicon, CategoryFilter, DEFECTIVE
 from exceptions import Exception
 from utilities import SortedDict
 
 __docformat__ = "epytext en"
 
 BASED_ON_LEMMA = u"√"
-DEFECTIVE = u"∄"
 
 
 class TransformError(ValueError):
@@ -50,16 +49,16 @@ class Flexion:
 				if not CategoryFilter.test(self.lemma_categories, lemma.categories):
 					return None
 				if self.based_on is None:
-					s = lemma.entry_form
+					s = lemma.entry_form()
 				else:
 					s = None
 					for w in words:
 						if CategoryFilter.test(self.based_on, w.categories):
-							s = w.form
+							s = w.form()
 							break
 					if not s:
 						w = self.__parent.do_transform(lemma, words, self.based_on)
-						s = w.form
+						s = w.form()
 				if not s:
 					return None
 				if DEFECTIVE == s:
@@ -82,7 +81,7 @@ class Flexion:
 			self.categories = categories
 			self.chains = []
 			
-		def create_chain(self, based_on = BASED_ON_LEMMA, condition = ".", lemma_categories = None):
+		def create_chain(self, based_on = BASED_ON_LEMMA, condition = u".", lemma_categories = None):
 			c = self.__Chain(self.__parent, based_on , condition, lemma_categories)
 			self.chains.append(c)
 			return c
@@ -127,7 +126,7 @@ class Flexion:
 		table = SortedDict()
 		for categories in self.__transforms.iterkeys():	
 			word = self.do_transform(lemma, words, categories)
-			if word.form <> DEFECTIVE:
+			if word.form() <> DEFECTIVE:
 				table[word.categories] = word
 		return table
 

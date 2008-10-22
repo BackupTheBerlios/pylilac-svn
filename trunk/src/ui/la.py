@@ -489,19 +489,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 				grid.DeleteRows(new_rows, rows - new_rows)
 		hw_key = event.GetClientData()
 		hw = self.data.lexicon.get_lemma_by_key(hw_key)
-		self.entry_form_ctrl.SetValue(hw.entry_form)
+		self.entry_form_ctrl.SetValue(hw.entry_form())
 		self.pos_ctrl.SetValue(hw.p_o_s)
 		self.lemma_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[0])
 		self.lemma_category_ctrl.SetCategoryValues(hw.categories)
-		if isinstance(hw, Lemma):
+		if hw.gloss:
 			self.gloss_ctrl.SetValue(hw.gloss)
 		else:
-			self.gloss_ctrl.SetValue("(particle)")
+			self.gloss_ctrl.SetValue("-")
 	#categories
 		words = self.data.lexicon.retrieve_words(None, hw_key)
 		redim(self.word_grid, len(words))
 		for i, w in enumerate(words):
-			self.word_grid.SetCellValue(i, 0, w.form)
+			self.word_grid.SetCellValue(i, 0, w.form())
 			self.word_grid.SetCellValue(i, 1, " ".join(w.categories))
 			ROMAN = wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, "")
 			self.word_grid.SetCellFont(i, 0, ROMAN)
