@@ -71,7 +71,7 @@ class Lemma:
 
 		@return: The word's form.
 		"""
-		return self__entry_form
+		raise UnicodeError("__str__ method is deprecated")
 
 	def __unicode__(self):
 		"""
@@ -211,7 +211,7 @@ class Word:
 
 		@return: The word's form.
 		"""
-		return self.__form
+		raise UnicodeError("__str__ method is deprecated")
 
 	def __unicode__(self):
 		"""

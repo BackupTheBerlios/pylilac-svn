@@ -124,18 +124,18 @@ class ParseTree:
 	def __repr__(self):
 		s = []
 		if self.__content:
-			s.append(str(self.__content))
+			s.append(unicode(self.__content))
 		else:
-			s.append("(")
+			s.append(u"(")
 			c = False
 			for k, v in self.__elements.iteritems():
 				if c:
-					s.append(", ")
+					s.append(u", ")
 				else:
 					c = True
-				s.append(k+" : "+str(v))
-			s.append(")")
-		return "".join(s)
+				s.append(k+u" : "+unicode(v))
+			s.append(u")")
+		return u"".join(s)
 		
 
 def __test():
