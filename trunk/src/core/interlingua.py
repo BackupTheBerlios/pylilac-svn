@@ -44,7 +44,7 @@ class Interlingua:
 	def __tuple(self):
 		return (self.name, self.p_o_s, self.arg_struct, self.taxonomy)
 
-	def save(self, filename = None):
+	def save(self, filename):
 		"""
 		Save the interlingua object to a file, using the L{pickle} module.
 
@@ -58,7 +58,7 @@ class Interlingua:
 		f.flush()
 		f.close()
 
-	def load(self, filename = None):
+	def load(self, filename):
 		"""
 		Load the interlingua object from a file, using the L{pickle} module.
 		The internal status of the onject is changed to the loaded values.

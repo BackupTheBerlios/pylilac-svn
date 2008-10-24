@@ -14,6 +14,7 @@ The module offers the high-level interfaces to internal structures.
 __docformat__ = "epytext en" 
 
 from fsa import ParseError
+from utilities import SortedDict
 
 
 class ExpressionParseError(StandardError):
@@ -84,12 +85,52 @@ class ExpressionReader:
 		for expansion in token_tree.expand():
 			try:
 				parse_tree = self.__parser(expansion)
-				results += parse_tree.expand()
+				results.append(parse_tree.expand())
 			except ParseError, pe:
 				errors.include(pe)
 		if len(results)==0 and len(errors)>0:
 			raise errors
 		return results
+
+class ParseTree:
+	def __init__(self, recognition = None):
+		self.__content = None
+		self.__elements = SortedDict()
+		if recognition:
+			self.add_recognition(recognition)
+
+	def add_recognition(self, recognition):
+		for item, path in recognition:
+			self.add(item, path)
+
+	def get(self, path):
+		st = self
+		for segm in path:
+			st = st.__elements[segm]
+		return st.__content
+		
+	def add(self, path, item):
+		st = self
+		for segm in path:
+			if st.__elements.has_key(segm):
+				st = st.__element[segm]
+			else:
+				st = ParseTree()
+				st.__elements[segm] = st
+		st.__content = item
+
+	def __repr__(self):
+		s = []
+		s.append(repr(self.__content)+": (")
+		c = False
+		for k, v in self.__elements.iteritems():
+			if c:
+				s.append(", ")
+				c = True
+			s.append(repr(k)+": "+repr(v))
+		s.append(")")
+		return "".join(s)
+		
 
 def __test():
 	pass
