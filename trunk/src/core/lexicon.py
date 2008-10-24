@@ -71,7 +71,7 @@ class Lemma:
 
 		@return: The word's form.
 		"""
-		raise NotImplementedError()
+		return self__entry_form
 
 	def __unicode__(self):
 		"""
@@ -211,7 +211,7 @@ class Word:
 
 		@return: The word's form.
 		"""
-		raise NotImplementedError()
+		return self.__form
 
 	def __unicode__(self):
 		"""

@@ -84,8 +84,9 @@ class ExpressionReader:
 		errors = ExpressionParseError()
 		for expansion in token_tree.expand():
 			try:
-				parse_tree = self.__parser(expansion)
-				results.append(parse_tree.expand())
+				rot = self.__parser(expansion)
+				for recognition in rot.expand():
+					results.append(ParseTree(recognition))
 			except ParseError, pe:
 				errors.include(pe)
 		if len(results)==0 and len(errors)>0:
@@ -109,26 +110,31 @@ class ParseTree:
 			st = st.__elements[segm]
 		return st.__content
 		
-	def add(self, path, item):
+	def add(self, item, path):
 		st = self
 		for segm in path:
 			if st.__elements.has_key(segm):
-				st = st.__element[segm]
+				st = st.__elements[segm]
 			else:
-				st = ParseTree()
-				st.__elements[segm] = st
+				nst = ParseTree()
+				st.__elements[segm] = nst
+				st = nst
 		st.__content = item
 
 	def __repr__(self):
 		s = []
-		s.append(repr(self.__content)+": (")
-		c = False
-		for k, v in self.__elements.iteritems():
-			if c:
-				s.append(", ")
-				c = True
-			s.append(repr(k)+": "+repr(v))
-		s.append(")")
+		if self.__content:
+			s.append(str(self.__content))
+		else:
+			s.append("(")
+			c = False
+			for k, v in self.__elements.iteritems():
+				if c:
+					s.append(", ")
+				else:
+					c = True
+				s.append(k+" : "+str(v))
+			s.append(")")
 		return "".join(s)
 		
 

@@ -1266,10 +1266,9 @@ def run():
 	l.save("test/qya.lct", True)
 	print "done!"
 	print "now reading"
-	print l.read(u"malan")
-	print l.read(u"melin fion ringa")
-	print l.read(u"cor vanya mele i lauca alda")
-	print l.read(u"ilya ambar sinte lambe er ar yuhtane quetie er.")
+	show(u"malan")
+	show(u"melin fion ringa")
+	show(u"cor vanya mele i lauca alda")
 
 
 if __name__ == "__main__":
