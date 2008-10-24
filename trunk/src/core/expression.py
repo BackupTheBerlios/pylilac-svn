@@ -100,6 +100,9 @@ class ParseTree:
 		if recognition:
 			self.add_recognition(recognition)
 
+	def is_leaf(self):
+		return (self.__content is not None)
+
 	def add_recognition(self, recognition):
 		for item, path in recognition:
 			self.add(item, path)
@@ -122,6 +125,22 @@ class ParseTree:
 		st.__content = item
 
 	def __repr__(self):
+		s = []
+		if self.__content:
+			s.append(repr(self.__content))
+		else:
+			s.append(u"(")
+			c = False
+			for k, v in self.__elements.iteritems():
+				if c:
+					s.append(u", ")
+				else:
+					c = True
+				s.append(k+u" : "+repr(v))
+			s.append(u")")
+		return u"".join(s)
+
+	def __unicode__(self):
 		s = []
 		if self.__content:
 			s.append(unicode(self.__content))
