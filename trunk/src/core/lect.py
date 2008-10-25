@@ -87,7 +87,7 @@ class Lect:
 	
 	def compile(self, force = False):
 		self.lexicon.compile(self.properties, force)
-		self.grammar.compile(force, False)
+		self.grammar.compile(force)
 			
 
 

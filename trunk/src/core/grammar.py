@@ -54,6 +54,7 @@ class Grammar:
 		self.starting = None
 		self.__symbols = []
 		self.__rules = {}
+		self.ignore_loops = False
 		self.__compiled = None
 		self.__valid = False
 
@@ -104,7 +105,7 @@ class Grammar:
 
 		
 
-	def _browse(self, ignore_recursion = False):
+	def _browse(self):
 		"""
 		Check for anomalies in the grammar.
 		
@@ -113,7 +114,6 @@ class Grammar:
 			- No starting symbol defined
 			- Unresolved references
 			- Cyclic references (if C{ignore_recursion} is off)
-		@param ignore_recursion: ignore cyclic references, when encountered stop walking the grammar.
 		@returns: returns the maximum depths with no recursion
 		
 		"""
@@ -125,7 +125,7 @@ class Grammar:
 			for dep in rhs.dependencies():
 				d = 0
 				if dep in ancestors:
-					if not ignore_recursion:
+					if not self.ignore_loops:
 						raise CyclicReferenceError(lhs, dep)
 					else:
 						d = 1# don't descend to avoid endless loop
@@ -139,7 +139,7 @@ class Grammar:
 			raise GrammarError("No starting symbol defined")
 		return descend(self.starting)
 
-	def compile(self, force = False, ignore_loops = False):
+	def compile(self, force = False):
 		"""
 		Compile the set of rules into a Finite State Automaton (FSA).
 
@@ -155,8 +155,8 @@ class Grammar:
 		if force or not self.__valid and self.__compiled is None:
 			self.__valid = False
 			
-			depth = self._browse(ignore_loops)
-			if ignore_loops:
+			depth = self._browse()
+			if self.ignore_loops:
 				max_levels = int(depth * 1.8 + 4) #pretty deep, but it should takes seconds
 			else:
 				max_levels = 100 #very very deep, endless, a technological limit

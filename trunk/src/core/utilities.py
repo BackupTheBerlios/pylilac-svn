@@ -10,6 +10,8 @@ Common utilities functions.
 
 __docformat__ = "epytext en"
 
+import unicodedata, sys
+
 class Utilities:
     
     @staticmethod
@@ -43,15 +45,19 @@ class SortedDict(dict):
 		for key in self.__sort:
 			yield (key, self[key])
 	def __repr__(self):
-		s = ""
+		return unicode(self).encode("UTF-8", "replace")
+	def __unicode__(self):
+		s = []
 		for key in self.__sort:
-			if s == "":
-				s = "{["
+			if s:
+				s.append(u", ")
 			else:
-				s += ", "
-			s += `key` + " : " + `self[key]`
-		s += "]}"
-		return s
+				s.append(u"{[")
+			s.append(unicode(key) + u" : " + unicode(self[key]))
+		s.append(u"]}")
+		return u"".join(s)
+
+
 
 def __test():
 	a = None

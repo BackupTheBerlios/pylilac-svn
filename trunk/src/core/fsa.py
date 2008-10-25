@@ -629,13 +629,14 @@ def __test():
 	add_token(f, "do")
 	add_token(f, "vi do")
 
-	p = Parser(f)
+	r = f.reduced()
+	p = Parser(r)
 
 	d = {"vi":["vi1", "vi2"], "do":["do1","do2","do3"], "vi do": ["vi do"]}
 
 	print tokenize(p, d, "vi do")
 	
-	k = f.copy()
+	k = r.copy()
 
 
 if __name__ == "__main__":

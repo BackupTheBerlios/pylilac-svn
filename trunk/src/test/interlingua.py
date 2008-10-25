@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-A module to create Dada language file.
+A module to create Latejami language file.
 """
 
 from core.interlingua import Interlingua, Concept

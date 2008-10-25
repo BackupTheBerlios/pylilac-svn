@@ -9,7 +9,7 @@ A module for the generation of flexed forms.
 """
 
 import re
-from lexicon import Word, Lemma, Lexicon, CategoryFilter, DEFECTIVE
+from lexicon import Word, Lexicon, CategoryFilter, DEFECTIVE
 from exceptions import Exception
 from utilities import SortedDict
 
@@ -96,7 +96,7 @@ class Flexion:
 				s = chain(lemma, words)
 				if s is not None:
 					return s
-			raise TransformError("Transform cannot apply %s to lemma '%s'" % (`self.categories`, lemma.entry_form))
+			raise TransformError("Transform cannot apply %s to lemma '%s'" % (`self.categories`, lemma.entry_form()))
 			
 	def __init__(self):
 		self.__transforms = SortedDict()
@@ -144,15 +144,17 @@ class Flexions():
 			return None
 
 def __test():
-	from lexicon import Lexicon
+	from lexicon import Root
+
+
 	
 	qya = Lexicon()
-	telcu = Lemma("telcu", 1, "n", ("0",), "jicesi")
-	qya.add_word(Word("telco", telcu, ("s","N")))
-	maama = Lemma("roccie", 1, "n", None, "zunbe")
-	qya.add_word(Word("roccie", maama, ("s","N")))
-	nis = Lemma("niss", 1, "n", None, "dona")
-	qya.add_word(Word("nís", nis, ("s","N")))
+	telcu = Root(u"telcu", 1, "n", ("0",), "jicesi")
+	qya.add_word(Word(u"telco", telcu, ("s","N")))
+	maama = Root(u"roccie", 1, "n", (), "zunbe")
+	qya.add_word(Word(u"roccie", maama, ("s","N")))
+	nis = Root(u"niss", 1, "n", (), "dona")
+	qya.add_word(Word(u"nís", nis, ("s","N")))
 	z = Flexions()
 	f = z.create_flexion("n", ("0",))
 	
@@ -162,35 +164,35 @@ def __test():
 
 	tr_o = f.create_transform(("s","G")) 
 	c = tr_o.create_chain()
-	c.append_step("ie$", "ié", True)
-	c.append_step("cu$", "qu", True)
-	c.append_step("[ao]?$", "o") 
+	c.append_step(u"ie$", u"ié")
+	c.append_step(u"cu$", u"qu")
+	c.append_step(u"[ao]?$", u"o") 
 	
 	
 	tr = f.create_transform(("s","D")) 
-	c = tr.create_chain(("s","N"), "[^aeiouáéíóú]$")
-	c.append_step("$", "en")
-	c = tr.create_chain(("s","N"), "[aeiouáéíóú]$")
-	c.append_step("$", "n")
+	c = tr.create_chain(("s","N"), u"[^aeiouáéíóú]$")
+	c.append_step(u"$", u"en")
+	c = tr.create_chain(("s","N"), u"[aeiouáéíóú]$")
+	c.append_step(u"$", u"n")
 	
 		
 	tr = f.create_transform(("s","P")) 
-	c = tr.create_chain(BASED_ON_LEMMA, "[iu]$")
-	c.append_step("$", "va")
-	c = tr.create_chain(BASED_ON_LEMMA, "ss$")
-	c.append_step("$", "eva")
-	c = tr.create_chain(BASED_ON_LEMMA, "c$")
-	c.append_step("$", "qua")
-	c = tr.create_chain(BASED_ON_LEMMA, "[^aeiouáéíóú]$")
-	c.append_step("$", "wa")
-	c = tr.create_chain(BASED_ON_LEMMA, "[aeiouáéíóú]$")
-	c.append_step("$", "va")
+	c = tr.create_chain(BASED_ON_LEMMA, u"[iu]$")
+	c.append_step(u"$", u"va")
+	c = tr.create_chain(BASED_ON_LEMMA, u"ss$")
+	c.append_step(u"$", u"eva")
+	c = tr.create_chain(BASED_ON_LEMMA, u"c$")
+	c.append_step(u"$", u"qua")
+	c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiouáéíóú]$")
+	c.append_step(u"$", u"wa")
+	c = tr.create_chain(BASED_ON_LEMMA, u"[aeiouáéíóú]$")
+	c.append_step(u"$", u"va")
 	
 
 
 	tr = f.create_transform(("s","I")) 
 	c = tr.create_chain(("s","D"))
-	c.append_step("$", "en")
+	c.append_step(u"$", u"en")
 	
 	print f(telcu, qya.retrieve_words(telcu.key()))
 	print f(maama, qya.retrieve_words(maama.key()))

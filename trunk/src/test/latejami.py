@@ -32,7 +32,7 @@ def run():
 	l.grammar = build_grammar(w)
 	l.properties["capitalization"] = 2 #Only lexical
 	print l.grammar
-	l.save("test/ltq.lct")
+	l.save("test/ltq.lct", True)
 
 
 	show("kokwacala kokwabegi")
@@ -40,7 +40,7 @@ def run():
 
 def build_word(w0):
 	if (w0[2] == "V" or w0[2] == "D") and w0[4] == "0-n":
-		return Word(w0[0], Particle(w0[0], w0[1],  w0[2]), ())
+		return Word(w0[0], Particle(w0[0], w0[1],  w0[2], (w0[4],)), ())
 	else:		
 		return Word(w0[0], Root(w0[0], w0[1], w0[2], (w0[4],), w0[3]))
 
@@ -114,7 +114,8 @@ def build_grammar(w):
 	g["reference-switching-particle"] = WordFilter(build_word(w["zunjopa"]))
 	g["valency-terminator"] = WordFilter(build_word(w["jojope"]))
 
-	g.compile(True, True)
+	g.ignore_loops = True
+	g.compile(True)
 
 	return g
 

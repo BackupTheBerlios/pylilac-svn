@@ -440,7 +440,7 @@ class _Epsilon(Literal):
 			return False
 
 	def __repr__(self):
-		return u"ε"
+		return u"ε".encode("UTF-8")
 
 	def build(self, grammar, fsa, initial, final, tag, max_levels):
 		fsa.add_transition(initial, EPSILON_SYMBOL, final, tag)
@@ -493,7 +493,7 @@ def __test():
 	#x = Literal("kk") | Reference("s") + s
 	#x = s | Literal("null")
 	#print x
-
+	
 if __name__ == "__main__":
 	__test()
 

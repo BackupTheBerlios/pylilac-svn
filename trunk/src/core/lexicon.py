@@ -63,7 +63,7 @@ class Lemma:
 		return hash(self.__entry_form) ^ (self.__id - 1)
 
 	def __repr__(self):
-		return "%s.%d" % (self.__entry_form, self.__id)
+		return (u"%s.%d" % (self.__entry_form, self.__id)).encode("UTF-8", "replace")
 
 	def __str__(self):
 		"""

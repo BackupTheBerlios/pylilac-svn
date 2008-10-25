@@ -7,7 +7,7 @@ A module to create Tokipona lect file.
 from core.lect import Lect
 from core.grammar import Grammar
 from core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from core.lexicon import Lexicon, Particle, Word, Lemma, WordCategoryFilter, WordFilter, CategoryFilter
+from core.lexicon import Lexicon, Particle, Word, Root, WordCategoryFilter, WordFilter, CategoryFilter
 
 def run():
 	def show(s):
@@ -71,7 +71,7 @@ def build_word(w0):
 		if pos == "vi":
 			pos = "v"
 			cat = ("intr",)
-		return Word(w0[0], Lemma(w0[0], w0[1], pos, cat, w0[3]))
+		return Word(w0[0], Root(w0[0], w0[1], pos, cat, w0[3]))
 
 def build_words():
 	w = {}

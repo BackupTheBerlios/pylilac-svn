@@ -206,12 +206,7 @@ class Taxonomy:
 		return repr(self.__tree)
 		
 def _test():
-	interlingua = Interlingua("IL")
-	t = interlingua.taxonomy
-	t.set(Concept("to", "A", "0-n", "TO"))
-	t.set(Concept("tomo", "A", "P-s", "TO", "to", "D"))
-	interlingua.save()
-	interlingua.load()
+	pass
 	
 	
 
