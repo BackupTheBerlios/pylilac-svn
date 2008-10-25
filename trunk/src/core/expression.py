@@ -125,26 +125,17 @@ class ParseTree:
 		st.__content = item
 
 	def __repr__(self):
-		s = []
-		if self.__content:
-			s.append(repr(self.__content))
-		else:
-			s.append(u"(")
-			c = False
-			for k, v in self.__elements.iteritems():
-				if c:
-					s.append(u", ")
-				else:
-					c = True
-				s.append(k+u" : "+repr(v))
-			s.append(u")")
-		return u"".join(s)
+		return unicode(self).encode("UTF-8", "replace")
 
 	def __unicode__(self):
 		s = []
+		m = False
 		if self.__content:
 			s.append(unicode(self.__content))
-		else:
+			m = True
+		if self.__elements:
+			if m:
+				s.append(u", ")
 			s.append(u"(")
 			c = False
 			for k, v in self.__elements.iteritems():
