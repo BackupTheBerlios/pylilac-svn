@@ -123,8 +123,10 @@ class LAFrame(wx.Frame):
 		self.spacer_panel = wx.Panel(self.lemma_pane, -1, style=wx.NO_BORDER)
 		self.gloss_ctrl = wx.TextCtrl(self.lemma_pane, -1, "", style=wx.NO_BORDER)
 		self.word_grid = wx.grid.Grid(self.lemma_pane, -1, size=(1, 1))
-		self.undo_button = wx.Button(self.la_lexicon_pane, wx.ID_UNDO, "")
-		self.apply_button = wx.Button(self.la_lexicon_pane, wx.ID_APPLY, "")
+		self.word_category = CategoryPanelComboCtrl(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN)
+		self.form_ctrl = wx.TextCtrl(self.lemma_pane, -1, "")
+		self.new_word_button = StockBitmapButton(self.lemma_pane, -1, "wxART_NEW")
+		self.delete_word_button = StockBitmapButton(self.lemma_pane, -1, "wxART_DELETE")
 		self.la_flexion_pane = wx.Panel(self.la_notebook, -1)
 		self.la_grammar_pane = wx.Panel(self.la_notebook, -1)
 		self.la_translation_pane = wx.Panel(self.la_notebook, -1)
@@ -169,6 +171,7 @@ class LAFrame(wx.Frame):
 
 		self.__load_tabs()
 
+		self.word_grid.SetColSize(1, 300)
 		self.search_lemma.Bind(wx.EVT_SEARCHCTRL_SEARCH_BTN, self.OnDoSearch, self.search_lemma)
 
 		self.__cb_frame = None
@@ -198,13 +201,13 @@ class LAFrame(wx.Frame):
 	def __set_properties(self):
 		# begin wxGlade: LAFrame.__set_properties
 		self.SetTitle("Lilac - Language Architect")
-		self.SetSize((938, 588))
+		self.SetSize((966, 674))
 		self.SetToolTipString("Lilac Language Architect")
 		self.separator_ctrl.SetSelection(-1)
 		self.capitalization_ctrl.SetSelection(0)
 		self.search_lemma.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
-		self.new_button.SetMinSize((30, 30))
-		self.delete_button.SetMinSize((30, 30))
+		self.new_button.SetMinSize((23, 23))
+		self.delete_button.SetMinSize((23, 23))
 		self.lemma_ctrl.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
 		self.entry_form_ctrl.SetMinSize((200, -1))
 		self.entry_form_ctrl.SetForegroundColour(wx.Colour(255, 0, 0))
@@ -216,15 +219,22 @@ class LAFrame(wx.Frame):
 		self.spacer_panel.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self.gloss_ctrl.SetMinSize((-1,-1))
 		self.gloss_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
-		self.word_grid.CreateGrid(1, 2)
+		self.word_grid.CreateGrid(0, 2)
 		self.word_grid.SetRowLabelSize(0)
 		self.word_grid.SetColLabelSize(0)
 		self.word_grid.EnableEditing(0)
 		self.word_grid.EnableDragRowSize(0)
+		self.word_grid.EnableDragGridSize(0)
 		self.word_grid.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 		self.word_grid.SetColLabelValue(0, "Categories")
 		self.word_grid.SetColLabelValue(1, "Form")
 		self.word_grid.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
+		self.word_category.SetMinSize((100, -1))
+		self.word_category.SetFont(wx.Font(9, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, ""))
+		self.form_ctrl.SetForegroundColour(wx.Colour(255, 0, 0))
+		self.form_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.BOLD, 0, ""))
+		self.new_word_button.SetMinSize((23, 23))
+		self.delete_word_button.SetMinSize((23, 23))
 		self.lemma_pane.SetScrollRate(10, 10)
 		# end wxGlade
 		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
@@ -234,9 +244,8 @@ class LAFrame(wx.Frame):
 		# begin wxGlade: LAFrame.__do_layout
 		la_frame_sizer = wx.BoxSizer(wx.VERTICAL)
 		lexicon_sizer_1 = wx.BoxSizer(wx.VERTICAL)
-		lexicon_sizer_2 = wx.FlexGridSizer(2, 1, 0, 0)
-		lexicon_buttons = wx.GridSizer(1, 2, 0, 0)
-		lemma_sizer_1 = wx.FlexGridSizer(3, 1, 0, 0)
+		lemma_sizer_1 = wx.FlexGridSizer(4, 1, 0, 0)
+		lemma_tool_sizer = wx.BoxSizer(wx.HORIZONTAL)
 		lemma_sizer_2 = wx.FlexGridSizer(1, 4, 0, 0)
 		hw_sizer = wx.FlexGridSizer(2, 1, 0, 0)
 		lexicon_tool_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -311,17 +320,16 @@ class LAFrame(wx.Frame):
 		lemma_sizer_1.Add(lemma_sizer_2, 1, wx.EXPAND, 0)
 		lemma_sizer_1.Add(self.gloss_ctrl, 0, wx.EXPAND, 0)
 		lemma_sizer_1.Add(self.word_grid, 1, wx.TOP|wx.EXPAND, 5)
+		lemma_tool_sizer.Add(self.word_category, 0, 0, 0)
+		lemma_tool_sizer.Add(self.form_ctrl, 1, wx.EXPAND, 0)
+		lemma_tool_sizer.Add(self.new_word_button, 0, wx.ALIGN_RIGHT, 0)
+		lemma_tool_sizer.Add(self.delete_word_button, 0, 0, 0)
+		lemma_sizer_1.Add(lemma_tool_sizer, 1, wx.EXPAND, 0)
 		self.lemma_pane.SetSizer(lemma_sizer_1)
 		lemma_sizer_1.AddGrowableRow(2)
 		lemma_sizer_1.AddGrowableCol(0)
 		self.lexicon_splitter.SplitVertically(self.hw_pane, self.lemma_pane)
-		lexicon_sizer_2.Add(self.lexicon_splitter, 1, wx.EXPAND, 0)
-		lexicon_buttons.Add(self.undo_button, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
-		lexicon_buttons.Add(self.apply_button, 0, wx.ALIGN_BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 20)
-		lexicon_sizer_2.Add(lexicon_buttons, 1, wx.ALL|wx.EXPAND, 20)
-		lexicon_sizer_2.AddGrowableRow(0)
-		lexicon_sizer_2.AddGrowableCol(0)
-		lexicon_sizer_1.Add(lexicon_sizer_2, 1, wx.ALL|wx.EXPAND, 0)
+		lexicon_sizer_1.Add(self.lexicon_splitter, 1, wx.EXPAND, 0)
 		self.la_lexicon_pane.SetSizer(lexicon_sizer_1)
 		self.la_notebook.AddPage(self.la_language_pane, "Language")
 		self.la_notebook.AddPage(self.la_lexicon_pane, "Lexicon")
@@ -485,6 +493,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 			rows = grid.GetNumberRows()
 			if new_rows>rows:
 				grid.AppendRows(new_rows - rows)
+				for i in range(rows, new_rows):
+					self.word_grid.SetRowSize(i, 25)
+					ROMAN = wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, "")
+					self.word_grid.SetCellFont(i, 0, ROMAN)
+					self.word_grid.SetCellFont(i, 1, ROMAN)
 			if new_rows<rows:
 				grid.DeleteRows(new_rows, rows - new_rows)
 		hw_key = event.GetClientData()
@@ -501,15 +514,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		words = self.data.lexicon.retrieve_words(None, hw_key)
 		redim(self.word_grid, len(words))
 		for i, w in enumerate(words):
-			self.word_grid.SetCellValue(i, 0, w.form())
-			self.word_grid.SetCellValue(i, 1, " ".join(w.categories))
-			ROMAN = wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, "")
-			self.word_grid.SetCellFont(i, 0, ROMAN)
-			self.word_grid.SetCellFont(i, 1, ROMAN)
+			self.word_grid.SetCellValue(i, 0, " ".join(w.categories))
+			self.word_grid.SetCellValue(i, 1, w.form())
 
 	def OnDoSearch(self, event): # wxGlade: LAFrame.<event_handler>
 		entry_form = self.search_lemma.GetValue()
-		print entry_form
+		c = self.lemma_ctrl
+		for i in range(c.GetCount()):
+			s = c.GetString(i)
+			if s.upper().startswith(entry_form.upper()):
+				c.SetSelection(i)
+				break
+			
 
 
 # end of class LAFrame

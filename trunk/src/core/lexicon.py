@@ -37,7 +37,7 @@ class Lemma:
 		if type(categories) is not tuple:
 			raise TypeError(categories)
 		self.categories = categories
-		self.gloss = None
+		self.gloss = gloss
 
 	def entry_form(self):
 		return self.__entry_form
@@ -88,7 +88,7 @@ class Particle(Lemma):
 	"""
 	A language specific particle.
 	
-	Practically, a L{Lemma} with no precise meaning, gloss or trasnlation.
+	Practically, a L{Lemma} with no precise meaning, gloss or translation.
 
 	For example, I{li} in Toki Pona.
 	"""
@@ -153,7 +153,7 @@ class Word:
 		Create a word with its form, its L{lemma<Lemma>} and its categories.
 
 		Example::
-			Word(u"heart", Lemma("eng", u"heart", 1, "noun", None, "kawcesi"))
+			Word(u"heart", Root("eng", u"heart", 1, "noun", None, "kawcesi"))
 			Word(u"hearts", lemmas["eng", u"heart", 1], ("pl"))
 			Word(u"h??ts", hw, ("pl"))
 			Word(u"moku", "tko", moku)
