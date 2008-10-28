@@ -187,14 +187,14 @@ class Word:
 		Compares two words: form, lemma and categories.
 		"""
 		if isinstance(other, Word):
-			return self.form == other.form and self.lemma == other.lemma and self.categories == other.categories
+			return self.__form == other.__form and self.__lemma == other.__lemma and self.categories == other.categories
 		else:
 			return False
 	def __ne__(self, other):
 		return not self.__eq__(other)
 
 	def __hash__(self):
-		return hash(self.form) ^ hash(self.lemma)
+		return hash(self.__form) ^ hash(self.__lemma)
 
 	def __repr__(self):
 		"""
@@ -272,8 +272,8 @@ class Lexicon:
 	def remove_word(self, word):
 		if not isinstance(word, Word):
 			raise TypeError(word)
-		self.__indexed_words[word.lemma.key()].remove(word)
-		self.__words[word.form].remove(word)
+		self.__indexed_words[word.lemma().key()].remove(word)
+		self.__words[word.form()].remove(word)
 		self.__valid = False
 
 	def retrieve_words(self, form = None, lemma_key = None, categories = None):

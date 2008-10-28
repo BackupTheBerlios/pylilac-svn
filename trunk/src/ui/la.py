@@ -123,7 +123,7 @@ class LAFrame(wx.Frame):
 		self.spacer_panel = wx.Panel(self.lemma_pane, -1, style=wx.NO_BORDER)
 		self.gloss_ctrl = wx.TextCtrl(self.lemma_pane, -1, "", style=wx.NO_BORDER)
 		self.word_grid = wx.grid.Grid(self.lemma_pane, -1, size=(1, 1))
-		self.word_category = CategoryPanelComboCtrl(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN)
+		self.word_category_ctrl = CategoryPanelComboCtrl(self.lemma_pane, -1, choices=[], style=wx.CB_DROPDOWN)
 		self.form_ctrl = wx.TextCtrl(self.lemma_pane, -1, "")
 		self.new_word_button = StockBitmapButton(self.lemma_pane, -1, "wxART_NEW")
 		self.delete_word_button = StockBitmapButton(self.lemma_pane, -1, "wxART_DELETE")
@@ -153,6 +153,9 @@ class LAFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnAbout, self.about_menu)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnDoSearch, self.search_lemma)
 		self.Bind(wx.EVT_LISTBOX, self.OnLemmaSelect, self.lemma_ctrl)
+		self.Bind(wx.grid.EVT_GRID_CMD_SELECT_CELL, self.OnWordSelect, self.word_grid)
+		self.Bind(wx.EVT_BUTTON, self.OnDoNewWord, self.new_word_button)
+		self.Bind(wx.EVT_BUTTON, self.OnDoDeleteWord, self.delete_word_button)
 		# end wxGlade
 
 		# members
@@ -229,10 +232,9 @@ class LAFrame(wx.Frame):
 		self.word_grid.SetColLabelValue(0, "Categories")
 		self.word_grid.SetColLabelValue(1, "Form")
 		self.word_grid.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
-		self.word_category.SetMinSize((100, -1))
-		self.word_category.SetFont(wx.Font(9, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, ""))
-		self.form_ctrl.SetForegroundColour(wx.Colour(255, 0, 0))
-		self.form_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.BOLD, 0, ""))
+		self.word_category_ctrl.SetMinSize((100, -1))
+		self.word_category_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, ""))
+		self.form_ctrl.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, ""))
 		self.new_word_button.SetMinSize((23, 23))
 		self.delete_word_button.SetMinSize((23, 23))
 		self.lemma_pane.SetScrollRate(10, 10)
@@ -320,7 +322,7 @@ class LAFrame(wx.Frame):
 		lemma_sizer_1.Add(lemma_sizer_2, 1, wx.EXPAND, 0)
 		lemma_sizer_1.Add(self.gloss_ctrl, 0, wx.EXPAND, 0)
 		lemma_sizer_1.Add(self.word_grid, 1, wx.TOP|wx.EXPAND, 5)
-		lemma_tool_sizer.Add(self.word_category, 0, 0, 0)
+		lemma_tool_sizer.Add(self.word_category_ctrl, 0, 0, 0)
 		lemma_tool_sizer.Add(self.form_ctrl, 1, wx.EXPAND, 0)
 		lemma_tool_sizer.Add(self.new_word_button, 0, wx.ALIGN_RIGHT, 0)
 		lemma_tool_sizer.Add(self.delete_word_button, 0, 0, 0)
@@ -351,6 +353,28 @@ class LAFrame(wx.Frame):
 		self.lemma_ctrl.Clear()
 		for hw in lang.lexicon.iter_lemmas():
 			self.lemma_ctrl.Append("%s.%d" % hw.key(), hw.key())
+
+
+	def __load_word_grid(self, hw_key):
+		def redim(grid, new_rows):
+			grid.ClearGrid()
+			rows = grid.GetNumberRows()
+			if new_rows>rows:
+				grid.AppendRows(new_rows - rows)
+				for i in range(rows, new_rows):
+					self.word_grid.SetRowSize(i, 25)
+					ROMAN_ITALIC = wx.Font(10, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, "")
+					ROMAN = wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, "")
+					self.word_grid.SetCellFont(i, 0, ROMAN_ITALIC)
+					self.word_grid.SetCellFont(i, 1, ROMAN)
+			if new_rows<rows:
+				grid.DeleteRows(new_rows, rows - new_rows)
+
+		words = self.data.lexicon.retrieve_words(None, hw_key)
+		redim(self.word_grid, len(words))
+		for i, w in enumerate(words):
+			self.word_grid.SetCellValue(i, 0, " ".join(w.categories))
+			self.word_grid.SetCellValue(i, 1, w.form())
 
 	def __set_dirty(self, value = True):
 		self.save_menu.Enable(value)
@@ -486,20 +510,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		wx.AboutBox(info)
 
 
-
 	def OnLemmaSelect(self, event): # wxGlade: LAFrame.<event_handler>
-		def redim(grid, new_rows):
-			grid.ClearGrid()
-			rows = grid.GetNumberRows()
-			if new_rows>rows:
-				grid.AppendRows(new_rows - rows)
-				for i in range(rows, new_rows):
-					self.word_grid.SetRowSize(i, 25)
-					ROMAN = wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, "")
-					self.word_grid.SetCellFont(i, 0, ROMAN)
-					self.word_grid.SetCellFont(i, 1, ROMAN)
-			if new_rows<rows:
-				grid.DeleteRows(new_rows, rows - new_rows)
 		hw_key = event.GetClientData()
 		hw = self.data.lexicon.get_lemma_by_key(hw_key)
 		self.entry_form_ctrl.SetValue(hw.entry_form())
@@ -510,12 +521,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 			self.gloss_ctrl.SetValue(hw.gloss)
 		else:
 			self.gloss_ctrl.SetValue("-")
-	#categories
-		words = self.data.lexicon.retrieve_words(None, hw_key)
-		redim(self.word_grid, len(words))
-		for i, w in enumerate(words):
-			self.word_grid.SetCellValue(i, 0, " ".join(w.categories))
-			self.word_grid.SetCellValue(i, 1, w.form())
+		self.word_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[1])
+		self.__load_word_grid(hw_key)
 
 	def OnDoSearch(self, event): # wxGlade: LAFrame.<event_handler>
 		entry_form = self.search_lemma.GetValue()
@@ -527,6 +534,29 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 				break
 			
 
+	def OnDoNewWord(self, event): # wxGlade: LAFrame.<event_handler>
+		print "Event handler `OnDoNewWord' not implemented"
+		event.Skip()
+
+	def OnDoDeleteWord(self, event): # wxGlade: LAFrame.<event_handler>
+		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
+		words = self.data.lexicon.retrieve_words(None, hw_key)
+		sel_t = self.word_grid.GetSelectionBlockTopLeft()
+		sel_b = self.word_grid.GetSelectionBlockBottomRight()
+		sel_cnt = len(sel_t)
+		for sel_no in range(sel_cnt):
+			for row in range(sel_t[sel_no][0], sel_b[sel_no][0] + 1):
+				w = words[row]
+				self.data.lexicon.remove_word(w)
+		self.__load_word_grid(hw_key)
+
+	def OnWordSelect(self, event): # wxGlade: LAFrame.<event_handler>
+		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
+		words = self.data.lexicon.retrieve_words(None, hw_key)
+		row = event.GetRow()
+		w = words[row]
+		self.word_category_ctrl.SetCategoryValues(w.categories)
+		self.form_ctrl.SetValue(w.form())
 
 # end of class LAFrame
 
