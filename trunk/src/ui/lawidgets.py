@@ -45,9 +45,11 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 		def GetControl(self):
 			return self.panel
 
-
 		def GetStringValue(self):
-			return self.value
+			if self.value:
+				return self.value
+			else:
+				return " ".join(self.__get_popup_values())
 
 		def SetStringValue(self, value):
 			self.value = value
@@ -58,7 +60,7 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 				w, h = minWidth, min(55, maxHeight)
 			else:
 				max_len = reduce(max, map(len, self.__labels))
-				w, h = max(max_len*9+50, minWidth), min(self.__rows*30+25, maxHeight)
+				w, h = max(max_len*9+55, minWidth), min(self.__rows*30+25, maxHeight)
 			return wx.Size(w, h)
 
 
@@ -132,10 +134,11 @@ class CategoryPanelComboCtrl(wx.combo.ComboCtrl):
 		self.__panel = self.PanelComboPopup(labels)
 		self.SetPopupControl(self.__panel)
 	def SetCategoryValues(self, values):
-		self.SetValue(" ".join(values))
+		value = " ".join(values)
+		self.SetValue(value)
 	def GetCategoryValues(self):
-		self.GetValue().split(" ")
-
+		value = self.GetValue()
+		return tuple(value.split(" "))
 
 
 class TestFrame(wx.Frame):

@@ -1,4 +1,4 @@
-﻿#!/bin/python
+#!/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -591,6 +591,10 @@ def run():
 			c.append_step(u"$", u"ne")
 			c = tr.create_chain(BASED_ON_LEMMA, u"([tc]$)|(qu$)")
 			c.append_step(u"([tc]$)|(qu$)", u"n\\1e")
+			c = tr.create_chain(BASED_ON_LEMMA, u"tt[au]$")
+			c.append_step(u"tt[au]$", u"nne")
+			c = tr.create_chain(BASED_ON_LEMMA, u"pp[au]?$")
+			c.append_step(u"pp[au]?$", u"mme")
 			c = tr.create_chain(BASED_ON_LEMMA, u"t[au]$")
 			c.append_step(u"t[au]$", u"nte")
 			c = tr.create_chain(BASED_ON_LEMMA, u"p[au]?$")

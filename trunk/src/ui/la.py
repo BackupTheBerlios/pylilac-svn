@@ -11,7 +11,7 @@ from optparse import OptionParser
 from core.interlingua import Interlingua, Concept
 from core.utilities import Utilities
 from core.lect import Lect
-from core.lexicon import Lemma
+from core.lexicon import Lemma, Word
 from ui.lawidgets import StockBitmapButton, CategoryPanelComboCtrl
 
 
@@ -152,6 +152,8 @@ class LAFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnRunBilingualInterpreter, self.bilingual_interpreter_menu)
 		self.Bind(wx.EVT_MENU, self.OnAbout, self.about_menu)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnDoSearch, self.search_lemma)
+		self.Bind(wx.EVT_BUTTON, self.OnDoNewLemma, self.new_button)
+		self.Bind(wx.EVT_BUTTON, self.OnDoDeleteLemma, self.delete_button)
 		self.Bind(wx.EVT_LISTBOX, self.OnLemmaSelect, self.lemma_ctrl)
 		self.Bind(wx.grid.EVT_GRID_CMD_SELECT_CELL, self.OnWordSelect, self.word_grid)
 		self.Bind(wx.EVT_BUTTON, self.OnDoNewWord, self.new_word_button)
@@ -523,6 +525,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 			self.gloss_ctrl.SetValue("-")
 		self.word_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[1])
 		self.__load_word_grid(hw_key)
+		self.word_grid.SetSelection(blabla)
 
 	def OnDoSearch(self, event): # wxGlade: LAFrame.<event_handler>
 		entry_form = self.search_lemma.GetValue()
@@ -532,11 +535,30 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 			if s.upper().startswith(entry_form.upper()):
 				c.SetSelection(i)
 				break
-			
+
+	def OnDoNewLemma(self, event): # wxGlade: LAFrame.<event_handler>
+		print "Event handler `OnDoNewLemma' not implemented"
+		event.Skip()
+
+	def OnDoDeleteLemma(self, event): # wxGlade: LAFrame.<event_handler>
+		print "Event handler `OnDoDeleteLemma' not implemented"
+		event.Skip()
+
+	def OnWordSelect(self, event): # wxGlade: LAFrame.<event_handler>
+		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
+		words = self.data.lexicon.retrieve_words(None, hw_key)
+		row = event.GetRow()
+		w = words[row]
+		self.word_category_ctrl.SetCategoryValues(w.categories)
+		self.form_ctrl.SetValue(w.form())
 
 	def OnDoNewWord(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnDoNewWord' not implemented"
-		event.Skip()
+		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
+		lemma = self.data.lexicon.get_lemma_by_key(hw_key)
+		word = Word(self.form_ctrl.GetValue(), lemma ,self.word_category_ctrl.GetCategoryValues())
+		self.data.lexicon.add_word(word)
+		self.__load_word_grid(hw_key)
+		self.word_grid.SetSelection(blabla)
 
 	def OnDoDeleteWord(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
@@ -549,14 +571,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 				w = words[row]
 				self.data.lexicon.remove_word(w)
 		self.__load_word_grid(hw_key)
+		self.word_grid.SetSelection(blabla)
 
-	def OnWordSelect(self, event): # wxGlade: LAFrame.<event_handler>
-		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
-		words = self.data.lexicon.retrieve_words(None, hw_key)
-		row = event.GetRow()
-		w = words[row]
-		self.word_category_ctrl.SetCategoryValues(w.categories)
-		self.form_ctrl.SetValue(w.form())
+		
+
 
 # end of class LAFrame
 
