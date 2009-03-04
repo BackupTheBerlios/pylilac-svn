@@ -181,6 +181,7 @@ class LAFrame(wx.Frame):
 
 		self.__cb_frame = None
 		self.__set_dirty(False)
+		self.__selected_word_row = None
 		
 	def __parse_args(self):
 		parser = OptionParser("usage: %prog [options] [language_file]")
@@ -371,12 +372,22 @@ class LAFrame(wx.Frame):
 					self.word_grid.SetCellFont(i, 1, ROMAN)
 			if new_rows<rows:
 				grid.DeleteRows(new_rows, rows - new_rows)
+			if new_rows<self.__selected_word_row:
+				self.__selected_word_row = None
 
 		words = self.data.lexicon.retrieve_words(None, hw_key)
 		redim(self.word_grid, len(words))
 		for i, w in enumerate(words):
 			self.word_grid.SetCellValue(i, 0, " ".join(w.categories))
 			self.word_grid.SetCellValue(i, 1, w.form())
+		if self.__selected_word_row is not None:
+			self.word_grid.SelectRow(self.__selected_word_row)
+			w = words[self.__selected_word_row]
+			self.word_category_ctrl.SetCategoryValues(w.categories)
+			self.form_ctrl.SetValue(w.form())
+		else:
+			self.word_category_ctrl.SetCategoryValues([])
+			self.form_ctrl.SetValue("")
 
 	def __set_dirty(self, value = True):
 		self.save_menu.Enable(value)
@@ -525,7 +536,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 			self.gloss_ctrl.SetValue("-")
 		self.word_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[1])
 		self.__load_word_grid(hw_key)
-		self.word_grid.SetSelection(blabla)
+		
+		
 
 	def OnDoSearch(self, event): # wxGlade: LAFrame.<event_handler>
 		entry_form = self.search_lemma.GetValue()
@@ -548,6 +560,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
 		words = self.data.lexicon.retrieve_words(None, hw_key)
 		row = event.GetRow()
+		self.__selected_word_row = row
 		w = words[row]
 		self.word_category_ctrl.SetCategoryValues(w.categories)
 		self.form_ctrl.SetValue(w.form())
@@ -558,7 +571,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		word = Word(self.form_ctrl.GetValue(), lemma ,self.word_category_ctrl.GetCategoryValues())
 		self.data.lexicon.add_word(word)
 		self.__load_word_grid(hw_key)
-		self.word_grid.SetSelection(blabla)
 
 	def OnDoDeleteWord(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
@@ -571,7 +583,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 				w = words[row]
 				self.data.lexicon.remove_word(w)
 		self.__load_word_grid(hw_key)
-		self.word_grid.SetSelection(blabla)
 
 		
 

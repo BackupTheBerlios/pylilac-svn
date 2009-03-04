@@ -152,13 +152,18 @@ def run():
 		c = tr.create_chain(BASED_ON_LEMMA, u"[^q]ui[^aeiouáéíóú][aeiou]$")
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"$", u"va")
-		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiouáéíóú]?[aeiou](?:[^aeiouáéíóú]y?|qu)[aeiou]$")
+		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiouáéíóú]?[aeoiu](?:[^aeiouáéíóú]y?|qu)[aeiou]$")
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"a$", u"áva")
 		c.append_step(u"e$", u"éva")
 		c.append_step(u"i$", u"íva")
 		c.append_step(u"o$", u"óva")
 		c.append_step(u"u$", u"úva")
+		c = tr.create_chain(BASED_ON_LEMMA, u"(?:[aeiouáéíóú])[aeo]$")
+		c.append_step(u"[^aeiou]?°", u"")
+		c.append_step(u"a$", u"áva")
+		c.append_step(u"e$", u"éva")
+		c.append_step(u"o$", u"óva")
 		c = tr.create_chain(BASED_ON_LEMMA, u"ss$")
 		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"$", u"eva")
@@ -227,6 +232,7 @@ def run():
 		c.append_step(u"$", u"nen")
 		c = tr.create_chain(BASED_ON_LEMMA)
 		c.append_step(u"[^aeiou]?°", u"")
+		c.append_step(u"(?<=i)e$", u"é")
 		c.append_step(u"(?<=[^aeiouáéíóú])$", u"e")
 		c.append_step(u"$", u"nen")
 
@@ -589,6 +595,10 @@ def run():
 
 			c = tr.create_chain(BASED_ON_LEMMA, u"[rnm]$")
 			c.append_step(u"$", u"ne")
+			c = tr.create_chain(BASED_ON_LEMMA, u"[ptc]{2}[au]$")
+			c.append_step(u"$", u"ne")
+			c = tr.create_chain(BASED_ON_LEMMA, u"p[au]?$")
+			c.append_step(u"p[au]?$", u"mpe")
 			c = tr.create_chain(BASED_ON_LEMMA, u"([tc]$)|(qu$)")
 			c.append_step(u"([tc]$)|(qu$)", u"n\\1e")
 			c = tr.create_chain(BASED_ON_LEMMA, u"tt[au]$")
@@ -596,7 +606,7 @@ def run():
 			c = tr.create_chain(BASED_ON_LEMMA, u"pp[au]?$")
 			c.append_step(u"pp[au]?$", u"mme")
 			c = tr.create_chain(BASED_ON_LEMMA, u"t[au]$")
-			c.append_step(u"t[au]$", u"nte")
+			c.append_step(u"n?t[au]$", u"nte")
 			c = tr.create_chain(BASED_ON_LEMMA, u"p[au]?$")
 			c.append_step(u"p[au]?$", u"mpe")
 			c = tr.create_chain(BASED_ON_LEMMA, u"l[au]?$")
@@ -715,11 +725,11 @@ def run():
 				for k,v in SUBJ.iteritems():
 					tr = f.create_transform((t, k, "0"))
 					c = tr.create_chain((t, u"s", "0"))
+					if t==u"aor":
+						c.append_step(u"e$", u"i")
 					if len(v)==1:
 						c.append_step(u"$", v[0])
 					else:
-						if t==u"aor":
-							c.append_step(u"e$", u"i")
 						c.append_step(u"$", v[1])
 					if transitive:
 						for k1, v1 in OBJ.iteritems():
@@ -1127,7 +1137,7 @@ def run():
 		d.append(  (u"palallon", u"palallon", u"tebisi") ) #telphone
 		d.append(  (u"lómi", u"lóme", u"kunfemi") ) #night
 		d.append(  (u"miriand", u"mirian", u"cayjafimi") ) #coin
-		d.append(  (u"toro°n", u"toron", u"zutasaw") ) #brother
+		d.append(  (u"toro°n", u"toron", u"zutasaw", [(u"tornu", ("d","Nom","0"))])) #brother
 		d.append(  (u"alda", u"alda", u"jigi") ) #tree
 		d.append(  (u"amill°", u"amil", u"ditasaw") ) #mother
 		d.append(  (u"elen", u"elen", u"kitisi") ) #star
@@ -1141,7 +1151,7 @@ def run():
 		d.append(  (u"ráv", u"rá", u"xozovi") ) #lion
 		d.append(  (u"raine", u"raine", u"baxasoni") ) #peace
 		d.append(  (u"cos", u"cor", u"bizozugi") ) #war
-		d.append(  (u"coa", u"coa", u"kigi", [(u"coavo", ("s","Gen","0")),(u"coava", ("s","Poss","0"))] ) )#house
+		d.append(  (u"coa", u"coa", u"kigi", [(u"có", ("s","Gen","0")),(u"coava", ("s","Poss","0"))] ) )#house
 		d.append(  (u"mas", u"mar", u"kwicalaymi",[], 2) ) #home
 		d.append(  (u"nelc", u"nelet", u"futevi", [(u"neletse", ("s","Loc","0"))] ) ) #tooth
 		d.append(  (u"hend", u"hen", u"kicesi") ) #eye
@@ -1165,7 +1175,7 @@ def run():
 		d.append(  (u"Canata", u"Canata", u"Lakadugi") ) #Canada
 		d.append(  (u"Mornerdor", u"Mornerdor", u"Lajidugi") ) #Nigeria
 		d.append(  (u"Endor", u"Endor", u"Lacundugi") ) #China
-		d.append(  (u"Peicing", u"Peicin", u"Lacunxodugi") ) #Peking
+		d.append(  (u"Formenherosto", u"Formenherosto", u"Lacunxodugi") ) #Peking
 		d.append(  (u"Mexicosto", u"Mexicosto", u"Laxixodugi") ) #Mexico City
 		d.append(  (u"Mumba", u"Mumbai", u"Labunxodugi", [(u"Mumbai", ("pl","Nom","0"))]) ) #Bombay
 		d.append(  (u"Sampaulo", u"Sampaulo", u"Lapawxodugi") ) #São Paulo
@@ -1206,7 +1216,7 @@ def run():
 		d.append(  (u"canta", u"Acc", u"joykavapa") ) #fix
 		d.append(  (u"rac", u"Acc", u"joyjuvapa") ) #break
 		d.append(  (u"nyar", u"Acc+Dat", u"tega") ) #tell
-		d.append(  (u"quet", "Dat", u"tegapa") ) #speak to 
+		d.append(  (u"quet", "Dat", u"tegapa", [(u"equétie", ("perf","s","0"))]) ) #speak to 
 		d.append(  (u"mala", "0", u"xonkepa") ) #suffer
 		d.append(  (u"lor", "0", u"kunkepa") ) #sleep
 		d.append(  (u"mer", u"Acc", u"cakopa") ) #want
@@ -1270,7 +1280,6 @@ def run():
 	l.save("test/qya.lct", True)
 	print "done!"
 	print "now reading"
-	show(u"malan")
 	show(u"melin fion ringa")
 	show(u"cor vanya mele i lauca alda")
 
