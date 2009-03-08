@@ -19,10 +19,10 @@ import pickle
 class Lect:
 	def __init__(self, code = "zxx"):
 		"""
-                Create a language object.
+		Create a language object.
 		It encapsulate serialization and high-leven functionality.
 
-                @type code: str
+		@type code: str
 		@param code:
 		    A language code according to U{ISO<http://www.iso.org>} standard.
 
@@ -64,21 +64,21 @@ class Lect:
 		self.code, self.name, self.english_name, self.__p_o_s, self.__lemma_categories, self.__categories, self.grammar, self.lexicon, self.properties = tuple
 		f.close()
 
- 	def append_p_o_s(self, name, lemma_categories = (), categories = ()):
- 		if name in self.__p_o_s:
- 			raise KeyError("P.o.s. %s already exists" % name)
- 		self.__p_o_s += (name,)
- 		self.__lemma_categories[name] = tuple(lemma_categories)
- 		self.__categories[name] = tuple(categories)
+	def append_p_o_s(self, name, lemma_categories = (), categories = ()):
+		if name in self.__p_o_s:
+			raise KeyError("P.o.s. %s already exists" % name)
+		self.__p_o_s += (name,)
+		self.__lemma_categories[name] = tuple(lemma_categories)
+		self.__categories[name] = tuple(categories)
 
 	def get_p_o_s_names(self):
- 		return self.__p_o_s
- 		
+		return self.__p_o_s
+
 	def get_categories(self, name):
- 		if name not in self.__p_o_s:
- 			raise KeyError(name)
- 		return (self.__lemma_categories[name], self.__categories[name])
- 		
+		if name not in self.__p_o_s:
+			raise KeyError(name)
+		return (self.__lemma_categories[name], self.__categories[name])
+
 	def read(self, expression):
 		tokenizer = self.lexicon.compile(self.properties)
 		parser = self.grammar.compile()

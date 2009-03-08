@@ -13,18 +13,18 @@ __docformat__ = "epytext en"
 import unicodedata, sys
 
 class Utilities:
-    
-    @staticmethod
-    def nvl(obj, default):
-	"""
-	Resolve I{null} values.
 
-	@return: the given C{obj} parameter if it is not C{None}, otherwise it returns C{default}.
-	"""
-	if obj is not None:
-		return obj
-	else:
-		return default
+	@staticmethod
+	def nvl(obj, default):
+		"""
+		Resolve I{null} values.
+		
+		@return: the given C{obj} parameter if it is not C{None}, otherwise it returns C{default}.
+		"""
+		if obj is not None:
+			return obj
+		else:
+			return default
 
 
 class SortedDict(dict):

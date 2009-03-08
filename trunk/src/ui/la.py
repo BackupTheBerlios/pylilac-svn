@@ -7,11 +7,7 @@ import wx.gizmos
 import graphics
 import os
 import sys
-from optparse import OptionParser
-from core.interlingua import Interlingua, Concept
-from core.utilities import Utilities
-from core.lect import Lect
-from core.lexicon import Lemma, Word
+from ui.lacodebehind import LACodeBehind, CBCodeBehind
 from ui.lawidgets import StockBitmapButton, CategoryPanelComboCtrl
 
 
@@ -161,48 +157,10 @@ class LAFrame(wx.Frame):
 		# end wxGlade
 
 		# members
-		language_file, interlingua, admin = self.__parse_args()
-		if language_file:
-			self.__filename = os.path.basename(language_file)
-			self.__dirname = os.path.dirname(language_file)
-			self.data = Lect()
-			self.data.load(language_file)
-		else:
-			self.__filename = ""
-			self.__dirname = ""
-			self.data = Lect()
-			
-		self.admin = admin
-
-		self.__load_tabs()
-
-		self.word_grid.SetColSize(1, 300)
-		self.search_lemma.Bind(wx.EVT_SEARCHCTRL_SEARCH_BTN, self.OnDoSearch, self.search_lemma)
-
-		self.__cb_frame = None
-		self.__set_dirty(False)
-		self.__selected_word_row = None
+		self.code_behind = LACodeBehind(self)
 		
-	def __parse_args(self):
-		parser = OptionParser("usage: %prog [options] [language_file]")
-
-		parser.add_option("-i", "--interlingua", dest="interlingua",
-			default = "data/Latejami.ilt", help="Interlingua file to use.", type="string")
-		parser.add_option("-a", "--admin", action="store_true", dest="admin",
-			default = False, help="Allow administrative tasks.")
-			
-		options, args = parser.parse_args()
-
-		if len(args)>1:
-			parser.print_help()
-			sys.exit(0)	
-
-		language_file = None
-		if len(args)>0:
-			language_file = args[0]
-		interlingua = options.interlingua
-		admin = options.admin
-		return (language_file, interlingua, admin)		
+		self.word_grid.SetColSize(1, 300)
+		self.search_lemma.Bind(wx.EVT_SEARCHCTRL_SEARCH_BTN, self.OnDoSearch, self.search_lemma)		
 
 	def __set_properties(self):
 		# begin wxGlade: LAFrame.__set_properties
@@ -242,8 +200,6 @@ class LAFrame(wx.Frame):
 		self.delete_word_button.SetMinSize((23, 23))
 		self.lemma_pane.SetScrollRate(10, 10)
 		# end wxGlade
-		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
-		self.SetIcon(icon)
 
 	def __do_layout(self):
 		# begin wxGlade: LAFrame.__do_layout
@@ -346,139 +302,45 @@ class LAFrame(wx.Frame):
 		self.Layout()
 		# end wxGlade
 
-	def __load_tabs(self):
-		lang = self.data
-		self.code_ctrl.SetValue(lang.code)
-		self.name_ctrl.SetValue(lang.name)
-		self.english_ctrl.SetValue(lang.english_name)
-		self.pos_ctrl.Clear()
-		self.pos_ctrl.AppendItems(lang.get_p_o_s_names())
-		self.lemma_ctrl.Clear()
-		for hw in lang.lexicon.iter_lemmas():
-			self.lemma_ctrl.Append("%s.%d" % hw.key(), hw.key())
-
-
-	def __load_word_grid(self, hw_key):
-		def redim(grid, new_rows):
-			grid.ClearGrid()
-			rows = grid.GetNumberRows()
-			if new_rows>rows:
-				grid.AppendRows(new_rows - rows)
-				for i in range(rows, new_rows):
-					self.word_grid.SetRowSize(i, 25)
-					ROMAN_ITALIC = wx.Font(10, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, "")
-					ROMAN = wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, "")
-					self.word_grid.SetCellFont(i, 0, ROMAN_ITALIC)
-					self.word_grid.SetCellFont(i, 1, ROMAN)
-			if new_rows<rows:
-				grid.DeleteRows(new_rows, rows - new_rows)
-			if new_rows<self.__selected_word_row:
-				self.__selected_word_row = None
-
-		words = self.data.lexicon.retrieve_words(None, hw_key)
-		redim(self.word_grid, len(words))
-		for i, w in enumerate(words):
-			self.word_grid.SetCellValue(i, 0, " ".join(w.categories))
-			self.word_grid.SetCellValue(i, 1, w.form())
-		if self.__selected_word_row is not None:
-			self.word_grid.SelectRow(self.__selected_word_row)
-			w = words[self.__selected_word_row]
-			self.word_category_ctrl.SetCategoryValues(w.categories)
-			self.form_ctrl.SetValue(w.form())
-		else:
-			self.word_category_ctrl.SetCategoryValues([])
-			self.form_ctrl.SetValue("")
-
-	def __set_dirty(self, value = True):
-		self.save_menu.Enable(value)
-		self.saveas_menu.Enable(value)
-
-	def __get_dirty(self):
-		return self.save_menu.IsEnabled()		
 
 	def OnOpen(self, event): # wxGlade: LAFrame.<event_handler>
-		fileType = "Lilac language files (.lct)|*.lct"
-		dlg = wx.FileDialog(self, "Open a language file...", self.__dirname, "", fileType, wx.OPEN)
-
-		if dlg.ShowModal() == wx.ID_OK:
-			self.__filename = dlg.GetFilename()
-			self.__dirname = dlg.GetDirectory()
-			full_path =  os.path.join(self.__dirname, self.__filename)
-			wx.BeginBusyCursor()
-			try:
-				self.data.load(full_path)
-				self.__load_tabs()
-				self.__set_dirty(False)
-			finally:
-				wx.EndBusyCursor()
-
-		dlg.Destroy()
+		self.code_behind.OnOpen(event)
 
 	def OnSave(self, event): # wxGlade: LAFrame.<event_handler>
-		full_path =  os.path.join(self.__dirname, self.__filename)
-		wx.BeginBusyCursor()
-		try:
-			self.data.save(full_path)
-			self.__set_dirty(False)
-		finally:
-			wx.EndBusyCursor()
+		self.code_behind.OnSave(event)
 
 	def OnSaveAs(self, event): # wxGlade: LAFrame.<event_handler>
-		fileType = "Lilac language files (.lct)|*.lct"
-		dlg = wx.FileDialog(self, "Save the language as...", self.__dirname, self.__filename, fileType, wx.SAVE | wx.OVERWRITE_PROMPT)
-
-		if dlg.ShowModal() == wx.ID_OK:
-			self.__filename = dlg.GetFilename()
-			self.__dirname = dlg.GetDirectory()
-			full_path =  os.path.join(self.__dirname, self.__filename)
-			wx.BeginBusyCursor()
-			try:
-				self.data.save(full_path)
-				self.__set_dirty(False)
-			finally:
-				wx.EndBusyCursor()
-
-		dlg.Destroy()
+		self.code_behind.OnSaveAs(event)
 
 	def OnExit(self, event): # wxGlade: LAFrame.<event_handler>
-		self.Close(True)
+		self.code_behind.OnExit(event)
 
 	def OnUndo(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnUndo' not implemented!"
-		event.Skip()
+		self.code_behindOnUndo(event)
 
 	def OnRedo(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnRedo' not implemented!"
-		event.Skip()
+		self.code_behind.OnRedo(event)
 
 	def OnSelectAll(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnSelectAll' not implemented!"
-		event.Skip()
+		self.code_behind.OnSelectAll(event)
 
 	def OnCut(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnCut' not implemented!"
-		event.Skip()
+		self.code_behind.OnCut(event)
 
 	def OnCopy(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnCopy' not implemented!"
-		event.Skip()
+		self.code_behind.OnCopy(event)
 
 	def OnPaste(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnPaste' not implemented!"
-		event.Skip()
+		self.code_behind.OnPaste(event)
 
 	def OnClear(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnClear' not implemented!"
-		event.Skip()
+		self.code_behind.OnClear(event)
 
 	def OnOverview(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnOverview' not implemented!"
-		event.Skip()
+		self.code_behind.OnOverview(event)
 
 	def OnRunConceptBrowser(self, event): # wxGlade: LAFrame.<event_handler>
-		if not self.__cb_frame:
-			self.__cb_frame = CBFrame(self, -1, "")
-		self.__cb_frame.Show()
+		self.code_behind.show_child(CBFrame)
 
 	def OnRunFilterEditor(self, event): # wxGlade: LAFrame.<event_handler>
 		print "Event handler `OnRunFilterEditor' not implemented!"
@@ -493,96 +355,28 @@ class LAFrame(wx.Frame):
 		event.Skip()
 
 	def OnAbout(self, event): # wxGlade: LAFrame.<event_handler>
-		description = """pyLilac Linguistic Laboratory is a graphic interface 
-to pyLilac libraries to explore, classify and study languages."""
-
-		licence = """pyLilac Linguistic Laboratory is free software: you can redistribute
-it and/or modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation, either version 3 of the
-License, or any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>."""
-
-
-		info = wx.AboutDialogInfo()
-
-		info.SetIcon(wx.Icon('ui/graphics/lilac.png', wx.BITMAP_TYPE_PNG))
-		info.SetName('pyLilac Linguistic Laboratory')
-		info.SetVersion('0.3.0')
-		info.SetDescription(description)
-		info.SetCopyright('(C) 2007 Paolo Olmino')
-		info.SetWebSite('http://pylilac.berlios.de')
-		info.SetLicence(licence)
-
-		wx.AboutBox(info)
-
+		self.code_behind.OnAbout(event)
 
 	def OnLemmaSelect(self, event): # wxGlade: LAFrame.<event_handler>
-		hw_key = event.GetClientData()
-		hw = self.data.lexicon.get_lemma_by_key(hw_key)
-		self.entry_form_ctrl.SetValue(hw.entry_form())
-		self.pos_ctrl.SetValue(hw.p_o_s)
-		self.lemma_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[0])
-		self.lemma_category_ctrl.SetCategoryValues(hw.categories)
-		if hw.gloss:
-			self.gloss_ctrl.SetValue(hw.gloss)
-		else:
-			self.gloss_ctrl.SetValue("-")
-		self.word_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[1])
-		self.__load_word_grid(hw_key)
-		
-		
+		self.code_behind.OnLemmaSelect(event)
 
 	def OnDoSearch(self, event): # wxGlade: LAFrame.<event_handler>
-		entry_form = self.search_lemma.GetValue()
-		c = self.lemma_ctrl
-		for i in range(c.GetCount()):
-			s = c.GetString(i)
-			if s.upper().startswith(entry_form.upper()):
-				c.SetSelection(i)
-				break
+		self.code_behind.OnDoSearch(event)
 
 	def OnDoNewLemma(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnDoNewLemma' not implemented"
-		event.Skip()
+		self.code_behind.OnDoNewLemma(event)
 
 	def OnDoDeleteLemma(self, event): # wxGlade: LAFrame.<event_handler>
-		print "Event handler `OnDoDeleteLemma' not implemented"
-		event.Skip()
+		self.code_behind.OnDoDeleteLemma(event)
 
 	def OnWordSelect(self, event): # wxGlade: LAFrame.<event_handler>
-		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
-		words = self.data.lexicon.retrieve_words(None, hw_key)
-		row = event.GetRow()
-		self.__selected_word_row = row
-		w = words[row]
-		self.word_category_ctrl.SetCategoryValues(w.categories)
-		self.form_ctrl.SetValue(w.form())
+		self.code_behind.OnWordSelect(event)
 
 	def OnDoNewWord(self, event): # wxGlade: LAFrame.<event_handler>
-		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
-		lemma = self.data.lexicon.get_lemma_by_key(hw_key)
-		word = Word(self.form_ctrl.GetValue(), lemma ,self.word_category_ctrl.GetCategoryValues())
-		self.data.lexicon.add_word(word)
-		self.__load_word_grid(hw_key)
+		self.code_behind.OnDoNewWord(event)
 
 	def OnDoDeleteWord(self, event): # wxGlade: LAFrame.<event_handler>
-		hw_key = self.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
-		words = self.data.lexicon.retrieve_words(None, hw_key)
-		sel_t = self.word_grid.GetSelectionBlockTopLeft()
-		sel_b = self.word_grid.GetSelectionBlockBottomRight()
-		sel_cnt = len(sel_t)
-		for sel_no in range(sel_cnt):
-			for row in range(sel_t[sel_no][0], sel_b[sel_no][0] + 1):
-				w = words[row]
-				self.data.lexicon.remove_word(w)
-		self.__load_word_grid(hw_key)
+		self.code_behind.OnDoDeleteWord(event)
 
 		
 
@@ -590,7 +384,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 # end of class LAFrame
 
 class CBFrame(wx.Frame):
-	FILENAME = "data/Latejami.ilt"
 
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: CBFrame.__init__
@@ -670,16 +463,7 @@ class CBFrame(wx.Frame):
 		self.Bind(wx.EVT_BUTTON, self.OnApply, self.ok_button)
 		# end wxGlade
 
-		self.data = Interlingua("Latejami")
-		self.data.load(self.FILENAME)
-		self.__do_tree()
 		self.concept_tree_ctrl.GetMainWindow().Bind(wx.EVT_RIGHT_UP, self.OnRightUp)
-
-		self.pos_ctrl.AppendItems(self.data.p_o_s)
-		self.arg_struct_combo.AppendItems(self.data.arg_struct)
-
-		self.__set_dirty(False)
-		self.current = None
 
 
 	def __set_properties(self):
@@ -691,6 +475,7 @@ class CBFrame(wx.Frame):
 		self.ok_button.SetDefault()
 		self.panel_1.SetMinSize((300,400))
 		# end wxGlade
+		self.code_behind = CBCodeBehind(self)
 
 	def __do_layout(self):
 		# begin wxGlade: CBFrame.__do_layout
@@ -736,252 +521,51 @@ class CBFrame(wx.Frame):
 		self.Layout()
 		# end wxGlade
 
-	def __do_tree(self):
-		"""Prepare the tree metadata"""
-		tree = self.concept_tree_ctrl
-
-		isz = (16, 16)
-		il = wx.ImageList(*isz)
-		#wx.ArtProvider_GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, isz)
-		self.__tree_icons = {
-			"N": il.Add(graphics.ArtProvider.get_bitmap("idea", wx.ART_OTHER, isz)),
-			"V": il.Add(graphics.ArtProvider.get_bitmap("action", wx.ART_OTHER, isz)),
-			"A": il.Add(graphics.ArtProvider.get_bitmap("label", wx.ART_OTHER, isz)),
-			"D": il.Add(graphics.ArtProvider.get_bitmap("brackets", wx.ART_OTHER, isz)),
-			"C": il.Add(graphics.ArtProvider.get_bitmap("link", wx.ART_OTHER, isz))
-		}
-
-		self.tree_image_list = il
-		tree.SetImageList(il)
-
-		# create columns
-		tree.AddColumn("Interlingua")
-		tree.AddColumn("A.S.")
-		tree.AddColumn("Derivation")
-		tree.AddColumn("Meaning")
-		tree.SetMainColumn(0) # the one with the tree in it...
-		tree.SetColumnWidth(0, 170)
-		tree.SetColumnWidth(1, 50)
-		tree.SetColumnWidth(2, 80)
-		tree.SetColumnWidth(3, 200)
-
-		root = tree.AddRoot("[Root]")
-		tree.SetItemText(root, "0-n", 1)
-		tree.SetItemText(root, "Root", 2)
-		tree.SetItemText(root, "", 3)
-
-		self.__load_tree()
-
-	def __load_tree(self):
-		def add_tree_children(node, baseconcept):
-			for s in self.data.taxonomy.subconcepts(baseconcept):
-				child = tree.AppendItem(node, s.interlingua)
-				tree.SetItemText(child, s.arg_struct, 1)
-				if s.derivation:
-					tree.SetItemText(child, s.derivation, 2)
-				tree.SetItemText(child, s.meaning, 3)
-				tree.SetItemImage(child, self.__tree_icons.get(s.p_o_s))
-				add_tree_children(child, s.interlingua)
-
-		tree = self.concept_tree_ctrl
-		root = tree.GetRootItem()
-
-		add_tree_children(root, None)
-
-		tree.Expand(root)
-
-	def __fill_controls(self):
-		old_dirty = self.__get_dirty()
-
-		if self.current == "[Root]":
-			concept = Concept("", "", "0-n", "")
-		else:
-			concept = self.data.taxonomy.get(self.current)
-		self.baseconcept_text.SetValue(Utilities.nvl(concept.baseconcept, ""))
-		self.derivation_text.SetValue(Utilities.nvl(concept.derivation, ""))
-		self.interlingua_text.SetValue(concept.interlingua)
-		self.pos_ctrl.SetValue(concept.p_o_s)
-		self.arg_struct_combo.SetValue(concept.arg_struct)
-		self.meaning_text.SetValue(concept.meaning)
-		self.notes_text.SetValue(concept.notes)
-		self.reference_text.SetValue(Utilities.nvl(concept.reference, ""))
-
-		self.__set_dirty(old_dirty)
-		self.ok_button.Enable(False)
-
-	def __find_tree_item(self, parent, value, column = 0, test = 0):
-		if test == 1:
-			test = lambda x, y: (x.lower() == y.lower())
-		elif test == 2:
-			test = lambda x, y: (x.lower().find(y.lower())>-1)
-		elif test == 0:
-			test = lambda x, y: (x == y)
-
-		tree = self.concept_tree_ctrl
-		item, cookie = tree.GetFirstChild(parent)
-		while item:
-			if test(tree.GetItemText(item, column), value):
-				tree.EnsureVisible(item)
-				tree.SelectItem(item)
-				return True
-			if tree.ItemHasChildren(item):
-				st = self.__find_tree_item(item, value, column, test)
-				if st:
-					return True
-			item, cookie = tree.GetNextChild(parent, cookie)
-		return False
-
-
-	def __reload_tree(self):
-		tree = self.concept_tree_ctrl
-		root = tree.GetRootItem()
-		tree.DeleteChildren(root)
-		self.__load_tree()
-		self.__find_tree_item(root, self.current)
-
-	def __set_dirty(self, value = True):
-		self.reload_menu.Enable(value)
-		self.save_menu.Enable(value)
-
-	def __get_dirty(self):
-		return self.save_menu.IsEnabled()
-
-
 	#Tree events
 	def OnRightUp(self, event): # wxGlade: CBFrame.<event_handler>
-		pos = event.GetPosition()
-		item, flags, col = self.concept_tree_ctrl.HitTest(pos)
-		self.concept_tree_ctrl.SelectItem(item)
-		self.PopupMenu(self.edit_menu)
+		self.code_behind.OnRightUp(event)
 
 	def OnSelChanged(self, event): # wxGlade: CBFrame.<event_handler>
-		item = event.GetItem()
-		if item:
-			key = self.concept_tree_ctrl.GetItemText(item)
-			self.current = key
-			self.__fill_controls()
+		self.code_behind.OnSelChanged(event)
 
 	#Control events
 	def OnChange(self, event): # wxGlade: CBFrame.<event_handler>
-		self.ok_button.Enable(True)
+		self.code_behind.OnChange(event)
 
 
 	#Menu events
 	def OnReload(self, event): # wxGlade: CBFrame.<event_handler>
-		self.data.load(self.FILENAME)
-		self.__reload_tree()
-		self.__set_dirty(False)
+		self.code_behind.OnReload(event)
 
 	def OnSave(self, event): # wxGlade: CBFrame.<event_handler>
-		self.data.save(self.FILENAME)
-		dlg = wx.MessageDialog(self, "Data have been saved", "Save data", wx.ICON_INFORMATION|wx.OK)
-		dlg.ShowModal()
-		dlg.Destroy()
-		self.__set_dirty(False)
+		self.code_behind.OnSave(event)
 
 
 	def OnExport(self, event): # wxGlade: CBFrame.<event_handler>
-		def csv_format(x):
-			if x is None:
-				return ""
-			else:
-				return "\"" + str(x).replace("\"", "\"\"") + "\""
-		#dlg = wx.FileDialog(self, message="Save file as ...", defaultDir=os.getcwd(), defaultFile="", wildcard=wildcard, style=wx.SAVE)
-		dlg = wx.FileDialog(self, "Export taxonomy as...", wildcard = "CSV files (*.csv)|*.csv|All files|*.*"
-, style = wx.SAVE)
-
-		if dlg.ShowModal() == wx.ID_OK:
-			path = dlg.GetPath()
-			try:
-				out = open(path, "w")
-				for c in self.data.taxonomy:
-					out.write("%s,%s,%s,%s,%s,%s,%s,%s\n" %
-						  (csv_format(c.interlingua), csv_format(c.p_o_s), csv_format(c.arg_struct), csv_format(c.meaning), csv_format(c.baseconcept), csv_format(c.derivation), csv_format(c.notes), csv_format(c.reference))
-						  )
-				out.flush()
-			finally:
-				out.close()
-		dlg.Destroy()
+		self.code_behind.OnExport(event)
 
 
 	def OnExit(self, event): # wxGlade: CBFrame.<event_handler>
-		confirm = True
-		if self.__get_dirty():
-			d= wx.MessageDialog( self, "Are you sure you want to lose all changes?", "Close", wx.ICON_EXCLAMATION|wx.OK|wx.CANCEL)
-			# Create a message dialog box
-			answer = (d.ShowModal() == wx.ID_OK)
-			d.Destroy() # finally destroy it when finished.
-		if confirm:
-			self.Close(True)
+		self.code_behind.OnExit(event)
 
 	def OnFind(self, event): # wxGlade: CBFrame.<event_handler>
-		#dlg = wx.TextEntryDialog(self, "Interlingua key to find:", "Find", self.current)
-		#if dlg.ShowModal() == wx.ID_OK:
-			#self.__find_tree_item(self.concept_tree_ctrl.GetRootItem(), dlg.GetValue(), 0, 1)
-		#dlg.Destroy()
-		dlg = FindDialog(self, -1)
-		dlg.CenterOnScreen()
-		if dlg.ShowModal() == wx.ID_OK:
-			value, column, exact = dlg.GetValue()
-			self.__find_tree_item(self.concept_tree_ctrl.GetRootItem(), value, column, exact)
-		dlg.Destroy()
+		self.code_behind.OnFind(event)
 
 	def OnUndo(self, event): # wxGlade: CBFrame.<event_handler>
-		self.__fill_controls()
-		self.ok_button.Enable(False)
+		self.code_behind.OnUndo(event)
 
 	def OnApply(self, event): # wxGlade: CBFrame.<event_handler>
-		new_concept = Concept(
-			self.interlingua_text.GetValue(),
-			self.pos_ctrl.GetValue(),
-			self.arg_struct_combo.GetValue(),
-			self.meaning_text.GetValue(),
-			self.baseconcept_text.GetValue(),
-			self.derivation_text.GetValue())
-		if len(self.notes_text.GetValue())>0:
-			new_concept.notes = self.notes_text.GetValue()
-		if len(self.reference_text.GetValue())>0:
-			new_concept.reference = self.reference_text.GetValue()
-		if self.current is None: #new subconcept
-			self.current = self.interlingua_text.GetValue()
-		if self.current:
-			self.data.taxonomy.set(new_concept)
-
-			#self.__refresh_tree()
-			self.__set_dirty(True)
-
-		self.ok_button.Enable(False)
-		self.__reload_tree()
+		self.code_behind.OnOpen(event)
 
 
 	def OnNew(self, event): # wxGlade: CBFrame.<event_handler>
-		old_dirty = self.__get_dirty()
-
-		baseconcept = self.data.taxonomy.get(self.current)
-		self.current = None
-
-		self.baseconcept_text.SetValue(baseconcept.interlingua)
-		self.derivation_text.SetValue("DERIVATION")
-		self.interlingua_text.SetValue("")
-		self.pos_ctrl.SetValue(baseconcept.p_o_s)
-		self.arg_struct_combo.SetValue(baseconcept.arg_struct)
-		self.meaning_text.SetValue("")
-		self.notes_text.SetValue("")
-		self.reference_text.SetValue("")
-
-		self.__set_dirty(old_dirty)
-		self.ok_button.Enable(False)
+		self.code_behind.OnNew(event)
 
 
 	def OnDelete(self, event): # wxGlade: CBFrame.<event_handler>
-		baseconcept = self.data.taxonomy.get(self.current).baseconcept
-		self.data.taxonomy.remove(self.current)
-		self.current = baseconcept
-		self.__set_dirty(True)
-		self.__reload_tree()
-
-
-
+		self.code_behind.OnDelete(event)
+		
+		
 # end of class CBFrame
 
 class FindDialog(wx.Dialog):
