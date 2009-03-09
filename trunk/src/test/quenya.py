@@ -81,8 +81,8 @@ def run():
 				lemma = Root(u"ná", 1, lemma.p_o_s, lemma.categories, lemma.gloss)
 				for k in ft.iterkeys():
 					ft[k] = ft[k].copy(lemma)
-				ft[("aor", "s", "0")]=Word(u"ná", lemma, (u"aor", "s", "0"))
-				ft[(u"past", "s", "0")]=Word(u"né", lemma, (u"past", "s", "0"))
+				ft[("aor", "s", "0")]=Word(u"ná", lemma, ("aor", "s", "0"))
+				ft[("past", "s", "0")]=Word(u"né", lemma, ("past", "s", "0"))
 
 			correct_table(ft)			
 			l.add_lemma(lemma)
@@ -532,9 +532,9 @@ def run():
 
 		#verbs
 		def add_verb_flexion(args, transitive):
-			f = fl.create_flexion(u"v", (args,))
+			f = fl.create_flexion("v", (args,))
 
-			tr = f.create_transform((u"aor", "s", "0")) 
+			tr = f.create_transform(("aor", "s", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA, "a$")
 			c = tr.create_chain(BASED_ON_LEMMA, "u$")
 			c.append_step(u"u$", u"o")
@@ -546,7 +546,7 @@ def run():
 			c = tr.create_chain(BASED_ON_LEMMA)
 			c.append_step(u"$", u"ir")
 
-			tr = f.create_transform((u"pres", "s", "0")) 
+			tr = f.create_transform(("pres", "s", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA)
 			c.append_step(u"a(?=[^aeiouáíéóú][yw]?[au]?$)", u"á")
 			c.append_step(u"a(?=qu[au]?$)", u"á")
@@ -560,12 +560,12 @@ def run():
 			c.append_step(u"([^aeiouáíéóú])u(qu[au]?)$", u"\\1ú\\2")
 			c.append_step(u"a$", u"e")
 			c.append_step(u"$", u"a")
-			tr = f.create_transform((u"pres", "pl", "0")) 
-			c = tr.create_chain((u"pres", "s", "0"))
+			tr = f.create_transform(("pres", "pl", "0")) 
+			c = tr.create_chain(("pres", "s", "0"))
 			c.append_step(u"$", u"r")
 
 
-			tr = f.create_transform((u"past", "s", "0")) 
+			tr = f.create_transform(("past", "s", "0")) 
 			c = tr.create_chain(BASED_ON_LEMMA, u"ha$")
 			c.append_step(u"$", u"ne")
 			c = tr.create_chain(BASED_ON_LEMMA, u"wa$")
@@ -718,9 +718,9 @@ def run():
 			c.append_step(u"(?<=[^rmn])$", u"i")
 			c.append_step(u"$", u"na")	
 
-			TENSE = [u"aor",u"pres",u"past","perf","fut"]
-			SUBJ = {u"1s":[u"nye",u"n"], u"2":[u"lye",u"l"], u"3s":["rye","s"], u"1+2+3": [u"lve"], u"1+3": [u"lme"], u"1d": [u"mme"], u"3pl":[u"nte"]}
-			OBJ = {u"1s":u"n", u"2":u"l", u"3s":"s", u"3pl":u"t"}
+			TENSE = ["aor","pres","past","perf","fut"]
+			SUBJ = {"1s":[u"nye",u"n"], "2":[u"lye",u"l"], "3s":["rye","s"], "1+2+3": [u"lve"], "1+3": [u"lme"], "1d": [u"mme"], "3pl":[u"nte"]}
+			OBJ = {"1s":"n", "2":u"l", "3s":"s", "3pl":u"t"}
 			for t in TENSE:
 				for k,v in SUBJ.iteritems():
 					tr = f.create_transform((t, k, "0"))
@@ -739,13 +739,13 @@ def run():
 
 			if transitive:
 				for k1, v1 in OBJ.iteritems():
-					tr = f.create_transform((u"inf", "0", k1))
+					tr = f.create_transform(("inf", "0", k1))
 					c = tr.create_chain(BASED_ON_LEMMA)
 					c.append_step(u"(?<=[^au])$", u"i")
 					c.append_step(u"$", u"ta"+v1)
 
-		add_verb_flexion( CategoryFilter("in", (u"Acc", u"Acc+Dat")), True)
-		add_verb_flexion( CategoryFilter("ni", (u"Acc", u"Acc+Dat")), False)
+		add_verb_flexion( CategoryFilter("in", ("Acc", "Acc+Dat")), True)
+		add_verb_flexion( CategoryFilter("ni", ("Acc", "Acc+Dat")), False)
 		
 		f = fl.create_flexion(u"adj",())
 
@@ -967,7 +967,7 @@ def run():
 			c = tr.create_chain(("s", "Nom", g))
 			c.append_step(u"$", u"tes")		
 
-		tr = f.create_transform(("s", "Nom", u"rel"))
+		tr = f.create_transform(("s", "Nom", "rel"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"a$")
 		c.append_step(u"a$", u"alda")
 		c = tr.create_chain(BASED_ON_LEMMA, u"e$")
@@ -977,7 +977,7 @@ def run():
 
 		add_grd(u"rel")
 
-		tr = f.create_transform(("s", "Nom", u"abs"))
+		tr = f.create_transform(("s", "Nom", "abs"))
 		c = tr.create_chain(BASED_ON_LEMMA, u"^[lmrs]")
 		c.append_step(u"^([lmrs])", u"a\\1\\1")
 		c = tr.create_chain(BASED_ON_LEMMA, u"^p")

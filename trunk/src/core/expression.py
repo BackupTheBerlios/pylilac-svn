@@ -122,7 +122,10 @@ class ParseTree:
 				nst = ParseTree()
 				st.__elements[segm] = nst
 				st = nst
-		st.__content = item
+		if st.__content is None:
+			st.__content = [item]
+		else:
+			st.__content.append(item)
 
 	def __repr__(self):
 		return unicode(self).encode("UTF-8", "replace")
