@@ -21,21 +21,23 @@ For an example of machine interlingua, see U{The Lexical Semantics of a Machine 
 __docformat__ = "epytext en"
 
 import pickle
+import csv
 
 class Interlingua:
 	"""
 	A representation for a machine interlingua.
 
 	"""
-	def __init__(self, name):
+	def __init__(self, filename, name = None):
 		"""
 		Create an interlingua object.
 		It encapsulates serialization and high-leven functionality.
 
-		@type name: str
-		@param name: The interlingua name.
+		@type filename: str
+		@param filename: The interlingua file name.
 		"""
 		self.name = name
+		self.__filename = filename
 		self.p_o_s = []
 		self.arg_struct = []
 		self.taxonomy = Taxonomy()
@@ -44,7 +46,7 @@ class Interlingua:
 	def __tuple(self):
 		return (self.name, self.p_o_s, self.arg_struct, self.taxonomy)
 
-	def save(self, filename):
+	def save(self, filename = None):
 		"""
 		Save the interlingua object to a file, using the L{pickle} module.
 
@@ -52,13 +54,15 @@ class Interlingua:
 		@type filename: str
 		"""
 		if filename is None:
-			filename = "%s.ilt" % self.name
+			filename = self.__filename
+		else:
+			self.__filename = filename
 		f = open(filename, "wb")
 		pickle.dump(self.__tuple(), f, 2)
 		f.flush()
 		f.close()
 
-	def load(self, filename):
+	def load(self):
 		"""
 		Load the interlingua object from a file, using the L{pickle} module.
 		The internal status of the onject is changed to the loaded values.
@@ -66,13 +70,33 @@ class Interlingua:
 		@param filename: The file name to use; if not specified the name of the language with the C{ilt} extension will be used..
 		@type filename: str
 		"""
-		if filename is None:
-			filename = "%s.ilt" % self.name
-		f = open(filename, "rb")
+		f = open(self.__filename, "rb")
 		tuple = pickle.load(f)
 		self.name, self.p_o_s, self.arg_struct, self.taxonomy = tuple
 		f.close()
 
+	def import_csv(self, filename):
+		reader = csv.reader(open(filename, "rb"))
+		name = reader.next()[0]
+		p_o_s = list(reader.next())
+		arg_struct = list(reader.next())
+		taxonomy = Taxonomy()
+		for (i, p, a, m, b, d, n, r) in reader:
+			if b == "":
+				b = None
+			c = Concept(i, p, a, m, b, d)
+			c.notes = n
+			c.reference = r
+			taxonomy.set(c)
+		self.name, self.p_o_s, self.arg_struct, self.taxonomy = name, p_o_s,  arg_struct, taxonomy
+		
+	def export_csv(self, filename):
+		writer = csv.writer(open(filename, "wb"))
+		writer.writerow((self.name, ))
+		writer.writerow(self.p_o_s)
+		writer.writerow(self.arg_struct)
+		for c in self.taxonomy:
+			writer.writerow((c.interlingua, c.p_o_s, c.arg_struct, c.meaning, c.baseconcept, c.derivation, c.notes, c.reference))
 
 class Concept:
 	"""

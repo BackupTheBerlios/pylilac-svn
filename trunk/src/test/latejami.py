@@ -46,8 +46,8 @@ def build_word(w0):
 
 def build_words():
 	w = {}
-	ltj = Interlingua("Latejami")
-	ltj.load("data/Latejami.ilt")
+	ltj = Interlingua("data/Latejami.ilt")
+	ltj.load()
 
 	for t in ltj.taxonomy:
 		w[t.interlingua] = (t.interlingua, 1, t.p_o_s, t.interlingua, t.arg_struct)

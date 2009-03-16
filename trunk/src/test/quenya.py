@@ -135,103 +135,95 @@ def run():
 
 		tr = f.create_transform(("s", "Nom", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"°", u"") 
 
-		tr = f.create_transform(("s", "Gen", "0")) #no V°
-		c = tr.create_chain(BASED_ON_LEMMA, u"ie$") 
-		c.append_step(u"[aeiou]?°", u"") 
-		c.append_step(u"e$", u"éo")
-		c = tr.create_chain(BASED_ON_LEMMA, u"cu$") 
-		c.append_step(u"[aeiou]?°", u"")
+		tr = f.create_transform(("s", "Gen", "0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"[cgh]u$")
 		c.append_step(u"cu$", u"quo")
+		c.append_step(u"gu$", u"gwo")
+		c.append_step(u"hu$", u"hwo")
+		c = tr.create_chain(BASED_ON_LEMMA, u"w$") 
+		c.append_step(u"w$", u"vo")
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[aeiou]?°", u"")
+		c.append_step(u"(?<=i)e$", u"é")
 		c.append_step(u"[ao]?$", u"o")
 
-		tr = f.create_transform(("s", "Poss", "0")) #no C°
-		c = tr.create_chain(BASED_ON_LEMMA, u"[^q]ui[^aeiouáéíóú][aeiou]$")
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"$", u"va")
-		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiouáéíóú]?[aeoiu](?:[^aeiouáéíóú]y?|qu)[aeiou]$")
-		c.append_step(u"[^aeiou]?°", u"")
+		tr = f.create_transform(("s", "Poss", "0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeioáéíóú][aeiou][^aeiouáéíóú][aeiou]$")
 		c.append_step(u"a$", u"áva")
 		c.append_step(u"e$", u"éva")
 		c.append_step(u"i$", u"íva")
 		c.append_step(u"o$", u"óva")
 		c.append_step(u"u$", u"úva")
-		c = tr.create_chain(BASED_ON_LEMMA, u"(?:[aeiouáéíóú])[aeo]$")
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"a$", u"áva")
+		c = tr.create_chain(BASED_ON_LEMMA, u"ie$")
 		c.append_step(u"e$", u"éva")
-		c.append_step(u"o$", u"óva")
-		c = tr.create_chain(BASED_ON_LEMMA, u"ss$")
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"$", u"eva")
 		c = tr.create_chain(BASED_ON_LEMMA, u"c$")
-		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"c$", u"qua")
-		c = tr.create_chain(BASED_ON_LEMMA, u"(v$)|(v°$)")
-		c.append_step(u"[^aeiouv]?°", u"")
+		c = tr.create_chain(BASED_ON_LEMMA, u"v$")
 		c.append_step(u"$", u"a")
-		c = tr.create_chain(BASED_ON_LEMMA, u"[nlrm][dtpb]$")
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"[dtpb]$", u"wa")
+		c = tr.create_chain(BASED_ON_LEMMA, u"[nlrm][^aeiouáéíóú]$")
+		c.append_step(u"[^aeiouáéíóú]$", u"wa")
+		c = tr.create_chain(BASED_ON_LEMMA, u"ts$")
+		c.append_step(u"s$", u"wa")
+		c = tr.create_chain(BASED_ON_LEMMA, u"w$")
+		c.append_step(u"w$", u"va")
+		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiouáéíóú][^aeiouáéíóú]$")
+		c.append_step(u"$", u"eva")
 		c = tr.create_chain(BASED_ON_LEMMA, u"[aeiouáéíóú]$")
-		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"$", u"va")
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"$", u"wa")
 
-		tr = f.create_transform(("s", "Dat", "0"))  #no V°
-		c = tr.create_chain(BASED_ON_LEMMA) 
-		c.append_step(u"[aeiou]?°", u"") 
-		c.append_step(u"(?<=[^aeiouáéíóú])$", u"e")
+		tr = f.create_transform(("s", "Dat", "0")) 
+		c = tr.create_chain(BASED_ON_LEMMA,  u"[aeiouáéíóú]$")
 		c.append_step(u"$", u"n")
+		c = tr.create_chain(("s", "Gen", "0"))
+		c.append_step(u"o$", u"en")
 
-		tr = f.create_transform(("s", "Abl", "0")) #no C°
+		tr = f.create_transform(("s", "Abl", "0")) 
+		c = tr.create_chain(BASED_ON_LEMMA,  u"ll?$")
+		c.append_step(u"ll?$", u"llo") 
+		c = tr.create_chain(BASED_ON_LEMMA,  u"rr?$")
+		c.append_step(u"rr?$", u"llo") 
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"(?<=[aeiouáéíóú])[lnrs]$", u"")
 		c.append_step(u"(?<=[^aeiouáéíóú])$", u"e")
 		c.append_step(u"$", u"llo")
 
 		tr = f.create_transform(("s", "All", "0")) 
-		c = tr.create_chain(BASED_ON_LEMMA, u"(?:[aeiou]l$)|(?:ll°$)")
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"$", u"da")
+		c = tr.create_chain(BASED_ON_LEMMA,  u"ll?$")
+		c.append_step(u"ll?$", u"lda") 
+		c = tr.create_chain(BASED_ON_LEMMA,  u"nn?$")
+		c.append_step(u"nn?$", u"nna") 
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"(?<=[aeiouáéíóú])n$", u"")
 		c.append_step(u"(?<=[^aeiouáéíóú])$", u"e")
 		c.append_step(u"$", u"nna")
 
 		tr = f.create_transform(("s", "Loc", "0")) 
-		c = tr.create_chain(BASED_ON_LEMMA, u"(?:[aeiou][ln]$)|(?:ll°$)|(?:nn°$)")
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"$", u"de")
-		c = tr.create_chain(BASED_ON_LEMMA, u"(?:[aeiou]t$)|(?:ts$)")
-		c.append_step(u"[^aeiou]?°", u"")
+		c = tr.create_chain(BASED_ON_LEMMA, u"ll?$")
+		c.append_step(u"ll?$", u"lde") 
+		c = tr.create_chain(BASED_ON_LEMMA, u"nn?$")
+		c.append_step(u"nn?$", u"nde") 
+		c = tr.create_chain(BASED_ON_LEMMA, u"ss?$")
+		c.append_step(u"ss?$", u"sse") 
+		c = tr.create_chain(BASED_ON_LEMMA, u"[aeiou]ts?$")
 		c.append_step(u"s?$", u"se")
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"(?<=[aeiouáéíóú])s$", u"")
 		c.append_step(u"(?<=[^aeiouáéíóú])$", u"e")
 		c.append_step(u"$", u"sse")
 
 		tr = f.create_transform(("s", "Instr", "0"))
-		c = tr.create_chain(BASED_ON_LEMMA, u"[aeiou][pct]$")
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"([pct])$", u"n\\1en")
-
-		c = tr.create_chain(BASED_ON_LEMMA, u"(?:[aeiou]l$)|(?:ll°$)")
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"$", u"den")
-		c = tr.create_chain(BASED_ON_LEMMA, u"(?:[aeiou][mrn]$)|(?:rr°$)|(?:nn°$)")
-		c.append_step(u"[^aeiou]?°", u"")
+		c = tr.create_chain(BASED_ON_LEMMA, u"[aeiou][ct]$")
+		c.append_step(u"([ct])$", u"n\\1en")
+		c = tr.create_chain(BASED_ON_LEMMA, u"[aeiou]p$")
+		c.append_step(u"p$", u"mpen")
+		c = tr.create_chain(BASED_ON_LEMMA, u"ll?$")
+		c.append_step(u"ll?$", u"lden")
+		c = tr.create_chain(BASED_ON_LEMMA, u"nn?$")
+		c.append_step(u"nn?$", u"nnen")
+		c = tr.create_chain(BASED_ON_LEMMA, u"rr?$")
+		c.append_step(u"rr?$", u"rnen")
+		c = tr.create_chain(BASED_ON_LEMMA, u"m$")
 		c.append_step(u"$", u"nen")
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"(?<=i)e$", u"é")
 		c.append_step(u"(?<=[^aeiouáéíóú])$", u"e")
 		c.append_step(u"$", u"nen")
@@ -243,47 +235,20 @@ def run():
 
 
 
+		#plural
 
-
-		#Nominative non singular
-
-		tr = f.create_transform(("pl", "Nom", "0")) #no V°
-		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiouáéíóú][cgh]u$") 
-		c.append_step(u"[aeiou]?°", u"")
+		tr = f.create_transform(("pl", "Nom", "0")) 
+		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeiouáéíóú][cgh]u$")
 		c.append_step(u"cu$", u"qui")
 		c.append_step(u"gu$", u"gwi")
 		c.append_step(u"hu$", u"hwi")
 		c = tr.create_chain(BASED_ON_LEMMA, u"[aiouáéíóú]$|ie$") 
-		c.append_step(u"[aeiou]?°", u"") 
 		c.append_step(u"$", u"r")
-		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[aeiou]?°", u"")
-		c.append_step(u"e?$", u"i")
+		c = tr.create_chain(BASED_ON_LEMMA, u"e$") 
+		c.append_step(u"e$", u"i")
+		c = tr.create_chain(("s", "Gen", "0"))
+		c.append_step(u"e?o$", u"i")
 
-		tr = f.create_transform(("d", "Nom", "0"))
-		c = tr.create_chain(BASED_ON_LEMMA, u"u$|ie$")
-		c.append_step(u"[aeiou]?°", u"")
-		c.append_step(u"$", u"t")
-		c = tr.create_chain(BASED_ON_LEMMA, u"[dt].{0,4}$")
-		c.append_step(u"[aeiou]?°", u"")
-		c.append_step(u"[aou]?$", u"u")
-		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[aeiou]?°", u"")
-		c.append_step(u"([^aeiouáéíóú])$", u"\\1e")
-		c.append_step(u"$", u"t")
-
-		tr = f.create_transform(("part", "Nom", "0"))
-		c = tr.create_chain(BASED_ON_LEMMA, u"[cgh]u$")
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"cu$", u"quili")
-		c.append_step(u"gu$", u"gwili")
-		c.append_step(u"hu$", u"hwili")
-		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"([aeiouáéíóú])[nrs]$", u"\\1l")
-		c.append_step(u"ll$", u"l")
-		c.append_step(u"([^aeiouáéíóúl])$", u"\\1e")
-		c.append_step(u"$", u"li")
 
 		#Indirect plural
 
@@ -297,42 +262,51 @@ def run():
 		tr.append_step(u"n$", u"va")
 
 		tr = f.create_transform(("pl","Dat", "0")) 
+		c = tr.create_chain(BASED_ON_LEMMA, u"[cgh]u$")
+		c.append_step(u"cu$", u"quín")
+		c.append_step(u"gu$", u"gwín")
+		c.append_step(u"hu$", u"hwín")
 		c = tr.create_chain(BASED_ON_LEMMA, u"i$|e$|(ie)$")
-		c.append_step(u"[aeiou]?°", u"")
 		c.append_step(u"i$|e$|(ie)$", u"ín") 
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[aeiou]?°", u"")
-		c.append_step(u"cu$", u"qu")
 		c.append_step(u"$", u"in")
 
-		tr = f.create_transform(("pl","Abl", "0")) 
+		tr = f.create_transform(("pl","Abl", "0"))  
+		c = tr.create_chain(BASED_ON_LEMMA, u"[cgh]u$")
+		c.append_step(u"cu$", u"quillon")
+		c.append_step(u"gu$", u"gwillon")
+		c.append_step(u"hu$", u"hwillon")
+		c = tr.create_chain(BASED_ON_LEMMA, u"ll?$")
+		c.append_step(u"ll?$", u"llon")
+		c = tr.create_chain(BASED_ON_LEMMA, u"rr?$")
+		c.append_step(u"rr?$", u"llon")
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"cu$", u"qui")
-		c.append_step(u"([aeiouáéíóú])l$", u"\\1")
 		c.append_step(u"([^aeiouáéíóú])$", u"\\1i")
 		c.append_step(u"$", u"llon")
 
 		tr = f.create_transform(("pl","All", "0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"[cgh]u$")
+		c.append_step(u"cu$", u"quinnar")
+		c.append_step(u"gu$", u"gwinnar")
+		c.append_step(u"hu$", u"hwinnar")
+		c = tr.create_chain(BASED_ON_LEMMA,  u"nn?$")
+		c.append_step(u"nn?$", u"nnar")
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"cu$", u"qui")
-		c.append_step(u"([aeiouáéíóú])n$", u"\\1")
 		c.append_step(u"([^aeiouáéíóú])$", u"\\1i")
 		c.append_step(u"$", u"nnar")
 
 		tr = f.create_transform(("pl","Loc", "0"))
 		c = tr.create_chain(BASED_ON_LEMMA, "ts$")
-		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"$", u"en")
 		c = tr.create_chain(BASED_ON_LEMMA, "c$")
-		c.append_step(u"[^aeiou]?°", u"")
 		c.append_step(u"c$", u"xen")
+		c = tr.create_chain(BASED_ON_LEMMA, u"[cgh]u$")
+		c.append_step(u"cu$", u"quissen")
+		c.append_step(u"gu$", u"gwissen")
+		c.append_step(u"hu$", u"hwissen")
+		c = tr.create_chain(BASED_ON_LEMMA,  u"ss?$")
+		c.append_step(u"ss?$", u"ssen")
 		c = tr.create_chain(BASED_ON_LEMMA)
-		c.append_step(u"[^aeiou]?°", u"")
-		c.append_step(u"cu$", u"qui")
-		c.append_step(u"s$", u"")
-		c.append_step(u"([aeiouáéíóú])s$", u"\\1")
 		c.append_step(u"([^aeiouáéíóú])$", u"\\1i")
 		c.append_step(u"$", u"ssen")
 
@@ -350,6 +324,16 @@ def run():
 
 
 		#Indirect dual
+
+		tr = f.create_transform(("d", "Nom", "0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"u$|ie$")
+		c.append_step(u"$", u"t")
+		c = tr.create_chain(("s", "Gen", "0"), u"[dt].{0,4}o$")
+		c.append_step(u"o$", u"u")
+		c = tr.create_chain(BASED_ON_LEMMA, u"[aeioáéíóú]$")
+		c.append_step(u"$", u"t")
+		c = tr.create_chain(("s", "Gen", "0"))
+		c.append_step(u"o$", u"et")
 
 		tr = f.create_transform(("d", "Gen", "0"))
 		c = tr.create_chain(("d", "Nom", "0"))
@@ -395,13 +379,26 @@ def run():
 
 
 		#Indirect partitive
+		tr = f.create_transform(("part", "Nom", "0"))
+		c = tr.create_chain(BASED_ON_LEMMA, u"[cgh]u$")
+		c.append_step(u"cu$", u"quili")
+		c.append_step(u"gu$", u"gwili")
+		c.append_step(u"hu$", u"hwili")
+		c = tr.create_chain(BASED_ON_LEMMA,  u"ll?$")
+		c.append_step(u"ll?$", u"lli")
+		c = tr.create_chain(BASED_ON_LEMMA,  u"rr?$")
+		c.append_step(u"rr?$", u"lli")
+		c = tr.create_chain(BASED_ON_LEMMA)
+		c.append_step(u"([^aeiouáéíóú])$", u"\\1e")
+		c.append_step(u"$", u"li")
+		
 		tr = f.create_transform(("part", "Gen", "0"))
 		c = tr.create_chain(("part", "Nom", "0"))
 		tr.append_step(u"$", u"on")
 
 		tr = f.create_transform(("part", "Poss", "0"))
 		c = tr.create_chain(("part", "Nom", "0"))
-		tr.append_step(u"([^l])li$", u"\\1lí")
+		tr.append_step(u"([aeiou])li$", u"\\1lí")
 		tr.append_step(u"$", u"va")
 
 		tr = f.create_transform(("part", "Dat", "0"))
@@ -422,7 +419,7 @@ def run():
 
 		tr = f.create_transform(("part", "Instr", "0"))
 		c = tr.create_chain(("part", "Nom", "0"))
-		tr.append_step(u"([^l])li$", u"\\1lí")
+		tr.append_step(u"([aeiou])li$", u"\\1lí")
 		tr.append_step(u"$", u"nen")
 
 		tr = f.create_transform(("part", "Resp", "0"))
@@ -724,7 +721,7 @@ def run():
 			for t in TENSE:
 				for k,v in SUBJ.iteritems():
 					tr = f.create_transform((t, k, "0"))
-					c = tr.create_chain((t, u"s", "0"))
+					c = tr.create_chain((t, "s", "0"))
 					if t==u"aor":
 						c.append_step(u"e$", u"i")
 					if len(v)==1:
@@ -734,7 +731,7 @@ def run():
 					if transitive:
 						for k1, v1 in OBJ.iteritems():
 							tr = f.create_transform((t, k, k1))
-							c = tr.create_chain((t, u"s", "0"))
+							c = tr.create_chain((t, "s", "0"))
 							c.append_step(u"$", v[0]+v1)
 
 			if transitive:
@@ -1083,190 +1080,191 @@ def run():
 	
 	def nouns():
 		d = []
-		d.append(  (u"cas", u"cár", u"cesi") ) #head
-		d.append(  (u"cumbo", u"cumbo", u"fucesi") ) #belly
-		d.append(  (u"hon", u"hón", u"kawcesi") ) #heart
-		d.append(  (u"esse", u"esse", u"tedapemi", [(u"essi", ("pl","Nom","0"))] ) ) #name
-		d.append(  (u"sambe", u"sambe", u"depi") ) #room
-		d.append(  (u"card", u"car", u"byekigi") ) #building
-		d.append(  (u"telme", u"telme", u"bidetavi") ) #blanket
-		d.append(  (u"limpe", u"limpe", u"zoyfupi") ) #spirits
-		d.append(  (u"síra", "0", u"bape-tovay") ) #today
-		d.append(  (u"sovasamb", u"sovasan", u"bodepi") ) #restroom
-		d.append(  (u"lindale", u"lindale", u"dinjami") ) #music
-		d.append(  (u"colla", u"colla", u"byetavi") ) #garment
-		d.append(  (u"tecil", u"tecil", u"bofifusi") ) #pen
-		d.append(  (u"hríve", u"hríve", u"cayfemi") ) #winter
-		d.append(  (u"laire", u"laire", u"fefemi") ) #summer
-		d.append(  (u"henets", u"henet", u"kifigi", [(u"henetwa", ("s","Poss","0"))] ) ) #window
-		d.append(  (u"rancu", u"ranco", u"twecesi") ) #arm
-		d.append(  (u"nonwa", u"nonwa", u"kobisi") ) #computer
-		d.append(  (u"palancen", u"palancen", u"kifabisi") ) #television
-		d.append(  (u"asta", u"asta", u"ketovi") ) #month
-		d.append(  (u"nolyasse", u"nolyasse", u"kokigi") ) #school
-		d.append(  (u"ner", u"nér", u"loybegi") ) #man
-		d.append(  (u"niss", u"nís", u"lawbegi") ) #woman
-		d.append(  (u"híni", u"hína", u"fobegi", [(u"híni", ("pl","Nom","0"))] ) )#child
-		d.append(  (u"huo", u"huo", u"zovi") ) #dog
-		d.append(  (u"yaule", u"yaule", u"kwizovi") ) #cat
-		d.append(  (u"aiwe", u"aiwe", u"byedami") ) #bird
-		d.append(  (u"lingwi", u"lingwe", u"byebomi") ) #fish
-		d.append(  (u"mas", u"mar", u"kigi") ) #house
-		d.append(  (u"yaxe", u"yaxe", u"lawfutigi") ) #cow
-		d.append(  (u"ilim", u"ilin", u"bazopi") ) #milk
-		d.append(  (u"massa", u"massa", u"josi") ) #bread
-		d.append(  (u"norolle", u"norolle", u"timi") ) #car
-		d.append(  (u"ori", u"ore", u"cindonfupi") ) #rice-grain
-		d.append(  (u"vinya", u"vinya", u"dawkemo") ) #new
-		d.append(  (u"orva", u"orva", u"zobemi") ) #apple
-		d.append(  (u"apsa", u"apsa", u"fayzopi") ) #meat
-		d.append(  (u"celva", u"celva", u"byefasi") ) #animal
-		d.append(  (u"quen", u"quén", u"begi") ) #person
-		d.append(  (u"hanta", u"hanta", u"xentegemu") ) #thank you
-		d.append(  (u"nen", u"nén", u"bocivi") ) #water
-		d.append(  (u"telcu", u"telco", u"jicesi") ) #leg
-		d.append(  (u"polca", u"polca", u"jotigi") ) #pig
-		d.append(  (u"meldo", u"meldo", u"zoyzevi") ) #friend
-		d.append(  (u"aure", u"aure", u"tovi") ) #day
-		d.append(  (u"ear", u"ear", u"kebivi") ) #sea
-		d.append(  (u"malle", u"malle", u"zegi", [(u"maller", ("pl","Nom","0"))]))#road
-		d.append(  (u"caima", u"caima", u"kunjisi") ) #bed
-		d.append(  (u"telpe", u"telpe", u"jafimi") ) #money
-		d.append(  (u"ando", u"ando", u"tifigi") ) #door
-		d.append(  (u"tyurd", u"tyur", u"caybafupi") ) #cheese
-		d.append(  (u"palallon", u"palallon", u"tebisi") ) #telphone
-		d.append(  (u"lómi", u"lóme", u"kunfemi") ) #night
-		d.append(  (u"miriand", u"mirian", u"cayjafimi") ) #coin
-		d.append(  (u"toro°n", u"toron", u"zutasaw", [(u"tornu", ("d","Nom","0"))])) #brother
-		d.append(  (u"alda", u"alda", u"jigi") ) #tree
-		d.append(  (u"amill°", u"amil", u"ditasaw") ) #mother
-		d.append(  (u"elen", u"elen", u"kitisi") ) #star
-		d.append(  (u"filic", u"filit", u"byedami") ) #bird (little)
-		d.append(  (u"sell", u"seler", u"zitasaw", [(u"selerwa", ("s","Poss","0")), (u"selernen", ("s","Instr","0"))] ) )
-		d.append(  (u"atar", u"atar", u"dutasaw") ) #father
-		d.append(  (u"tie", u"tie", u"zuzegi") ) #path
-		d.append(  (u"máqua", u"máqua", u"zicesi") ) #hand
-		d.append(  (u"tal", u"tál", u"cucesi", [(u"talan", ("s","Dat","0")) , (u"talain", ("pl","Dat","0"))] ))#foot
-		d.append(  (u"toll°", u"tol", u"ketisi", [(u"tollon", ("s","Dat","0")), (u"tolloin", ("pl","Dat","0"))] ) )#island
-		d.append(  (u"ráv", u"rá", u"xozovi") ) #lion
-		d.append(  (u"raine", u"raine", u"baxasoni") ) #peace
-		d.append(  (u"cos", u"cor", u"bizozugi") ) #war
-		d.append(  (u"coa", u"coa", u"kigi", [(u"có", ("s","Gen","0")),(u"coava", ("s","Poss","0"))] ) )#house
-		d.append(  (u"mas", u"mar", u"kwicalaymi",[], 2) ) #home
-		d.append(  (u"nelc", u"nelet", u"futevi", [(u"neletse", ("s","Loc","0"))] ) ) #tooth
-		d.append(  (u"hend", u"hen", u"kicesi") ) #eye
-		d.append(  (u"pé", u"pé", u"teduncesi", [(u"péu", ("d","Nom","0")), (u"pein", ("pl","Dat","0"))]) ) #lip
-		d.append(  (u"lar", u"lár", u"foycesi", [(u"laru", ("d","Nom","0"))]) ) #ear
-		d.append(  (u"fiond", u"fion", u"bedami") ) #hawk
-		d.append(  (u"ré", u"ré", u"tovi", [(u"rein", ("pl","Dat","0"))]) ) #24hours
-		d.append(  (u"pí", u"pí", u"byekagi", [(u"pín", ("pl","Dat","0"))]) ) #insect
-		d.append(  (u"oxi", u"ohte", u"docesi")) #egg
+		d.append(  (u"cas", u"cár", "cesi") ) #head
+		d.append(  (u"cumbo", u"cumbo", "fucesi") ) #belly
+		d.append(  (u"hon", u"hón", "kawcesi") ) #heart
+		d.append(  (u"esse", u"esse", "tedapemi", [(u"essi", ("pl","Nom","0"))] ) ) #name
+		d.append(  (u"sambe", u"sambe", "depi") ) #room
+		d.append(  (u"card", u"car", "byekigi") ) #building
+		d.append(  (u"telme", u"telme", "bidetavi") ) #blanket
+		d.append(  (u"limpe", u"limpe", "zoyfupi") ) #spirits
+		d.append(  (u"síra", "0", "bape-tovay") ) #today
+		d.append(  (u"sovasamb", u"sovasan", "bodepi") ) #restroom
+		d.append(  (u"lindale", u"lindale", "dinjami") ) #music
+		d.append(  (u"colla", u"colla", "byetavi") ) #garment
+		d.append(  (u"tecil", u"tecil", "bofifusi") ) #pen
+		d.append(  (u"hríve", u"hríve", "cayfemi") ) #winter
+		d.append(  (u"laire", u"laire", "fefemi") ) #summer
+		d.append(  (u"henets", u"henet", "kifigi", [(u"henetwa", ("s","Poss","0"))] ) ) #window
+		d.append(  (u"rancu", u"ranco", "twecesi") ) #arm
+		d.append(  (u"nonwa", u"nonwa", "kobisi") ) #computer
+		d.append(  (u"palancen", u"palancen", "kifabisi") ) #television
+		d.append(  (u"asta", u"asta", "ketovi") ) #month
+		d.append(  (u"nolyasse", u"nolyasse", "kokigi") ) #school
+		d.append(  (u"ner", u"nér", "loybegi") ) #man
+		d.append(  (u"niss", u"nís", "lawbegi") ) #woman
+		d.append(  (u"híni", u"hína", "fobegi", [(u"híni", ("pl","Nom","0"))] ) )#child
+		d.append(  (u"huo", u"huo", "zovi") ) #dog
+		d.append(  (u"yaule", u"yaule", "kwizovi") ) #cat
+		d.append(  (u"aiwe", u"aiwe", "byedami") ) #bird
+		d.append(  (u"lingwi", u"lingwe", "byebomi") ) #fish
+		d.append(  (u"mas", u"mar", "kigi") ) #house
+		d.append(  (u"yaxe", u"yaxe", "lawfutigi") ) #cow
+		d.append(  (u"ilim", u"ilin", "bazopi") ) #milk
+		d.append(  (u"massa", u"massa", "josi") ) #bread
+		d.append(  (u"norolle", u"norolle", "timi") ) #car
+		d.append(  (u"ori", u"ore", "cindonfupi") ) #rice-grain
+		d.append(  (u"vinya", u"vinya", "dawkemo") ) #new
+		d.append(  (u"orva", u"orva", "zobemi") ) #apple
+		d.append(  (u"apsa", u"apsa", "fayzopi") ) #meat
+		d.append(  (u"celva", u"celva", "byefasi") ) #animal
+		d.append(  (u"quen", u"quén", "begi") ) #person
+		d.append(  (u"hanta", u"hanta", "xentegemu") ) #thank you
+		d.append(  (u"nen", u"nén", "bocivi") ) #water
+		d.append(  (u"telco", u"telco", "jicesi", [(u"telqui", ("pl","Nom","0"))]) ) #leg
+		d.append(  (u"polca", u"polca","jotigi") ) #pig
+		d.append(  (u"meldo", u"meldo", "zoyzevi") ) #friend
+		d.append(  (u"aure", u"aure", "tovi") ) #day
+		d.append(  (u"ear", u"ear", "kebivi") ) #sea
+		d.append(  (u"malle", u"malle", "zegi", [(u"maller", ("pl","Nom","0"))]))#road
+		d.append(  (u"caima", u"caima", "kunjisi") ) #bed
+		d.append(  (u"telpe", u"telpe", "jafimi") ) #money
+		d.append(  (u"ando", u"ando", "tifigi") ) #door
+		d.append(  (u"tyurd", u"tyur", "caybafupi") ) #cheese
+		d.append(  (u"palallon", u"palallon", "tebisi") ) #telphone
+		d.append(  (u"lómi", u"lóme", "kunfemi") ) #night
+		d.append(  (u"miriand", u"mirian", "cayjafimi") ) #coin
+		d.append(  (u"toron", u"toron", "zutasaw", [(u"torno", ("s","Gen","0"))])) #brother
+		d.append(  (u"alda", u"alda", "jigi") ) #tree
+		d.append(  (u"amill", u"amil", "ditasaw") ) #mother
+		d.append(  (u"elen", u"elen", "kitisi") ) #star
+		d.append(  (u"filic", u"filit", "byedami") ) #bird (little)
+		d.append(  (u"sell", u"seler", "zitasaw", [(u"selerwa", ("s","Poss","0")), (u"selernen", ("s","Instr","0"))] ) )
+		d.append(  (u"atar", u"atar", "dutasaw") ) #father
+		d.append(  (u"tie", u"tie", "zuzegi") ) #path
+		d.append(  (u"máqua", u"máqua", "zicesi") ) #hand
+		d.append(  (u"tal", u"tál", "cucesi", [(u"talan", ("s","Dat","0")) , (u"talain", ("pl","Dat","0"))] ))#foot
+		d.append(  (u"toll", u"tol", "ketisi", [(u"tollon", ("s","Dat","0")), (u"tolloin", ("pl","Dat","0"))] ) )#island
+		d.append(  (u"ráv", u"rá", "xozovi") ) #lion
+		d.append(  (u"raine", u"raine", "baxasoni") ) #peace
+		d.append(  (u"cos", u"cor", "bizozugi") ) #war
+		d.append(  (u"coa", u"coa", "kigi", [(u"có", ("s","Gen","0")),(u"coava", ("s","Poss","0"))] ) )#house
+		d.append(  (u"mas", u"mar", "kwicalaymi",[], 2) ) #home
+		d.append(  (u"nelc", u"nelet", "futevi", [(u"neletse", ("s","Loc","0"))] ) ) #tooth
+		d.append(  (u"hend", u"hen", "kicesi") ) #eye
+		d.append(  (u"pé", u"pé", "teduncesi", [(u"péu", ("d","Nom","0")), (u"pein", ("pl","Dat","0"))]) ) #lip
+		d.append(  (u"lar", u"lár", "foycesi", [(u"laru", ("d","Nom","0"))]) ) #ear
+		d.append(  (u"fiond", u"fion", "bedami") ) #hawk
+		d.append(  (u"ré", u"ré", "tovi", [(u"rein", ("pl","Dat","0"))]) ) #24hours
+		d.append(  (u"pí", u"pí", "byekagi", [(u"pín", ("pl","Dat","0"))]) ) #insect
+		d.append(  (u"oxi", u"ohte", "docesi")) #egg
 		
-		d.append(  (u"ambar", u"ambar", u"jotisi")) #planet, world
-		d.append(  (u"istar", u"istar", u"joybegi", [(u"istari", ("pl","Nom","0"))])) #doctor, wizard
+		d.append(  (u"ambar", u"ambar", "jotisi")) #planet, world
+		d.append(  (u"istar", u"istar", "joybegi", [(u"istari", ("pl","Nom","0"))])) #doctor, wizard
 		
-		d.append(  (u"Cemen", u"Cemen", u"Ladijotisi")) #earth
-		d.append(  (u"Anar", u"Anar", u"Lakitisi") ) #sun
-		#d.append(  Periphrase(g["noun"], u"i Ertaini Nóri") ) #United States
-		d.append(  (u"Vintamurta", u"Vintamurta", u"Laryoxodugi") ) #New York City
-		d.append(  (u"Colindor", u"Colindor", u"Ladyadugi") ) #India
-		d.append(  (u"Marasildor", u"Marasildor", u"Lazidugi") ) #Brazil
-		d.append(  (u"Rusindor", u"Rusindor", u"Larudugi") ) #Russia
-		d.append(  (u"Canata", u"Canata", u"Lakadugi") ) #Canada
-		d.append(  (u"Mornerdor", u"Mornerdor", u"Lajidugi") ) #Nigeria
-		d.append(  (u"Endor", u"Endor", u"Lacundugi") ) #China
-		d.append(  (u"Formenherosto", u"Formenherosto", u"Lacunxodugi") ) #Peking
-		d.append(  (u"Mexicosto", u"Mexicosto", u"Laxixodugi") ) #Mexico City
-		d.append(  (u"Mumba", u"Mumbai", u"Labunxodugi", [(u"Mumbai", ("pl","Nom","0"))]) ) #Bombay
-		d.append(  (u"Sampaulo", u"Sampaulo", u"Lapawxodugi") ) #São Paulo
-		d.append(  (u"Sanga", u"Sangai", u"Lazanxodugi", [(u"Sangai", ("pl","Nom","0"))]) ) #Shanghai
-		d.append(  (u"Masiqua", u"Masiqua", u"Laruxodugi") ) #Moscow
-		d.append(  (u"Isil", u"Isil", u"Labatisi") ) #moon
-		d.append( (u"kuiveyulda", u"kuiveyulda", u"cafefupi") ) #coffee
-		#d.append( (u"norolle liéva ", u"norolle liéva ", u"zetimi") ) #bus
-		d.append( (u"vilyacirya", u"vilyacirya", u"datimi") ) #airplane
-		d.append( (u"vilyahopasse", u"vilyahopasse", u"dakigi") ) #airport
-		d.append( (u"sarno", u"sarno", u"bujisi") ) #table
-		d.append( (u"yáve", u"yáve", u"babemi") ) #fruit (a -)
-		d.append( (u"olpe", u"olpe", u"finzipi") ) #bottle
-		d.append( (u"angatea", u"angatea", u"kuzegi") ) #railroad
-		#d.append( (u"norolle angaina", u"norolle angaina", u"kuzetimi") ) #train
-		d.append( (u"lambe", u"lambe", u"tejami") ) #language
-		d.append( (u"quetta", u"quetta", u"tekusi") ) #word
+		d.append(  (u"Cemen", u"Cemen", "Ladijotisi")) #earth
+		d.append(  (u"Anar", u"Anar", "Lakitisi") ) #sun
+		#d.append(  Periphrase(g["noun"], "i Ertaini Nóri") ) #United States
+		d.append(  (u"Vintamurta", u"Vintamurta", "Laryoxodugi") ) #New York City
+		d.append(  (u"Colindor", u"Colindor", "Ladyadugi") ) #India
+		d.append(  (u"Marasildor", u"Marasildor", "Lazidugi") ) #Brazil
+		d.append(  (u"Rusindor", u"Rusindor", "Larudugi") ) #Russia
+		d.append(  (u"Canata", u"Canata", "Lakadugi") ) #Canada
+		d.append(  (u"Mornerdor", u"Mornerdor", "Lajidugi") ) #Nigeria
+		d.append(  (u"Endor", u"Endor", "Lacundugi") ) #China
+		d.append(  (u"Formenherosto", u"Formenherosto", "Lacunxodugi") ) #Peking
+		d.append(  (u"Mexicosto", u"Mexicosto", "Laxixodugi") ) #Mexico City
+		d.append(  (u"Mumba", u"Mumbai", "Labunxodugi", [(u"Mumbai", ("pl","Nom","0"))]) ) #Bombay
+		d.append(  (u"Sampaulo", u"Sampaulo", "Lapawxodugi") ) #São Paulo
+		d.append(  (u"Sanga", u"Sangai", "Lazanxodugi", [(u"Sangai", ("pl","Nom","0"))]) ) #Shanghai
+		d.append(  (u"Masiqua", u"Masiqua", "Laruxodugi") ) #Moscow
+		d.append(  (u"Isil", u"Isil", "Labatisi") ) #moon
+		d.append( (u"kuiveyulda", u"kuiveyulda", "cafefupi") ) #coffee
+		#d.append( (u"norolle liéva ", u"norolle liéva ", "zetimi") ) #bus
+		d.append( (u"vilyacirya", u"vilyacirya", "datimi") ) #airplane
+		d.append( (u"vilyahopasse", u"vilyahopasse", "dakigi") ) #airport
+		d.append( (u"sarno", u"sarno", "bujisi") ) #table
+		d.append( (u"yáve", u"yáve", "babemi") ) #fruit (a -)
+		d.append( (u"olpe", u"olpe", "finzipi") ) #bottle
+		d.append( (u"angatea", u"angatea", "kuzegi") ) #railroad
+		#d.append( (u"norolle angaina", "norolle angaina", u"kuzetimi") ) #train
+		d.append( (u"lambe", u"lambe", "tejami") ) #language
+		d.append( (u"quetta", u"quetta", "tekusi") ) #word
+		d.append( (u"tów", u"tó", "twazopi") ) #wool
 		
 		return d
 
 
 	def verbs():
 		d = []
-		d.append(  (u"na", "Nom", u"dapa", [(u"ne", (u"past","s","0"))]) ) 
-		d.append(  (u"ea", "Loc", u"zoga", [(u"ea", (u"pres","s","0")), (u"engie", ("perf","s","0")), (u"enge", (u"past","s","0"))]) ) 
-		d.append(  (u"cen", u"Acc", u"kiva") ) 
-		d.append(  (u"mel", u"Acc", u"bakopa") )  #love
-		d.append(  (u"mat", "0", u"fucala") ) #eat
-		d.append(  (u"suc", "0", u"bofucala") ) #drink
-		d.append(  (u"ista", u"Acc", u"kopa", [(u"sinte", (u"past","s","0")), (u"isintie", ("perf","s","0")), (u"sinwa", ("pass-part","0","0"))]) ) 
-		d.append(  (u"lelya", "0", u"ticala", [(u"lende", (u"past","s","0"))]) )  
-		d.append(  (u"ulya", u"Acc", u"tibokavasa", [], 1) )  
-		d.append(  (u"ulya", "0", u"tibokava", [], 2) )  
-		d.append(  (u"mar", "0", u"kwicala", [(u"ambárie", ("perf","s","0"))]) )
- 		d.append(  (u"móta", "0", u"bucala") ) #work
-		#d.append(  (u"mára", u"Acc", u"zoykopa") ) #like
-		d.append(  (u"tyal", "0", u"dwecala" ) ) #play
-		d.append(  (u"canta", u"Acc", u"joykavapa") ) #fix
-		d.append(  (u"rac", u"Acc", u"joyjuvapa") ) #break
-		d.append(  (u"nyar", u"Acc+Dat", u"tega") ) #tell
-		d.append(  (u"quet", "Dat", u"tegapa", [(u"equétie", ("perf","s","0"))]) ) #speak to 
-		d.append(  (u"mala", "0", u"xonkepa") ) #suffer
-		d.append(  (u"lor", "0", u"kunkepa") ) #sleep
-		d.append(  (u"mer", u"Acc", u"cakopa") ) #want
-		d.append(  (u"appa", u"Acc", u"kenbusa") ) #touch
-		d.append(  (u"anta", u"Acc+Dat", u"ximamba", [(u"áne", (u"past","s","0"))]) )  #give
-		d.append(  (u"yuhta", u"Acc", u"busasa") ) #use, control
-		d.append(  (u"lanta", u"0", u"dafagupa") ) #fall
+		d.append(  (u"na", "Nom", "dapa", [(u"ne", ("past","s","0"))]) ) 
+		d.append(  (u"ea", "Loc", "zoga", [(u"ea", ("pres","s","0")), (u"engie", ("perf","s","0")), (u"enge", ("past","s","0"))]) ) 
+		d.append(  (u"cen", "Acc", "kiva") ) 
+		d.append(  (u"mel", "Acc", "bakopa") )  #love
+		d.append(  (u"mat", "0", "fucala") ) #eat
+		d.append(  (u"suc", "0", "bofucala") ) #drink
+		d.append(  (u"ista", "Acc", "kopa", [(u"sinte", ("past","s","0")), (u"isintie", ("perf","s","0")), (u"sinwa", ("pass-part","0","0"))]) ) 
+		d.append(  (u"lelya", "0", "ticala", [(u"lende", ("past","s","0"))]) )  
+		d.append(  (u"ulya", "Acc", "tibokavasa", [], 1) )  
+		d.append(  (u"ulya", "0", "tibokava", [], 2) )  
+		d.append(  (u"mar", "0", "kwicala", [(u"ambárie", ("perf","s","0"))]) )
+ 		d.append(  (u"móta", "0", "bucala") ) #work
+		#d.append(  (u"mára", "Acc", u"zoykopa") ) #like
+		d.append(  (u"tyal", "0", "dwecala" ) ) #play
+		d.append(  (u"canta", "Acc", "joykavapa") ) #fix
+		d.append(  (u"rac", "Acc", "joyjuvapa") ) #break
+		d.append(  (u"nyar", "Acc+Dat", "tega") ) #tell
+		d.append(  (u"quet", "Dat", "tegapa", [(u"equétie", ("perf","s","0"))]) ) #speak to 
+		d.append(  (u"mala", "0", "xonkepa") ) #suffer
+		d.append(  (u"lor", "0", "kunkepa") ) #sleep
+		d.append(  (u"mer", "Acc", "cakopa") ) #want
+		d.append(  (u"appa", "Acc", "kenbusa") ) #touch
+		d.append(  (u"anta", "Acc+Dat", "ximamba", [(u"áne", ("past","s","0"))]) )  #give
+		d.append(  (u"yuhta", "Acc", "busasa") ) #use, control
+		d.append(  (u"lanta", u"0", "dafagupa") ) #fall
 		return d
 
 
 	def adjs():
 		d = []
-		d.append(  (u"sina", u"baso") ) #this
-		d.append(  (u"tana", u"zaso") ) #that
-		d.append(  (u"alwa", u"joykepo") ) #healthy
-		d.append(  (u"mára", u"cakemo") ) #good
-		d.append(  (u"olca", u"cafomo") ) #bad, evil
-		d.append(  (u"pitya", u"fomo") ) #small
-		d.append(  (u"alta", u"kemo") ) #big
-		d.append(  (u"yára", u"zonculo") ) #old (vs.young)
-		d.append(  (u"silque", u"cinzigo") ) #white
-		d.append(  (u"more", u"kunzigo") ) #black
-		d.append(  (u"nessa", u"zondelo") ) #young
-		d.append(  (u"carne", u"zozigo") ) #red
-		d.append(  (u"yerna", u"dawfomo") ) #old (vs.new)
-		d.append(  (u"luin",  u"dazigo") ) #blue
-		d.append(  (u"malina",  u"fezigo") ) #yellow
-		d.append(  (u"hlaiwa", u"joykolo") ) #sick
-		d.append(  (u"lauca", u"feculo") ) #warm
-		d.append(  (u"ringa", u"fedelo") ) #cold		
-		d.append(  (u"vanya", u"kekaykemo", [(u"ambanya", ("s","Nom",u"abs"))]) )   #beautiful
-		d.append(  (u"vára", u"cinjuvo", [(u"anwára", ("s","Nom",u"abs"))]) )   #dirty
-		d.append(  (u"laurea", u"todapyu taykocivo")  ) #golden
-		d.append(  (u"ilya", u"bikavo")  ) #all, whole
+		d.append(  (u"sina", "baso") ) #this
+		d.append(  (u"tana", "zaso") ) #that
+		d.append(  (u"alwa", "joykepo") ) #healthy
+		d.append(  (u"mára", "cakemo") ) #good
+		d.append(  (u"olca", "cafomo") ) #bad, evil
+		d.append(  (u"pitya", "fomo") ) #small
+		d.append(  (u"alta", "kemo") ) #big
+		d.append(  (u"yára", "zonculo") ) #old (vs.young)
+		d.append(  (u"silque", "cinzigo") ) #white
+		d.append(  (u"more", "kunzigo") ) #black
+		d.append(  (u"nessa", "zondelo") ) #young
+		d.append(  (u"carne", "zozigo") ) #red
+		d.append(  (u"yerna", "dawfomo") ) #old (vs.new)
+		d.append(  (u"luin",  "dazigo") ) #blue
+		d.append(  (u"malina", "fezigo") ) #yellow
+		d.append(  (u"hlaiwa", "joykolo") ) #sick
+		d.append(  (u"lauca", "feculo") ) #warm
+		d.append(  (u"ringa", "fedelo") ) #cold		
+		d.append(  (u"vanya", "kekaykemo", [(u"ambanya", ("s","Nom","abs"))]) )   #beautiful
+		d.append(  (u"vára", "cinjuvo", [(u"anwára", ("s","Nom","abs"))]) )   #dirty
+		d.append(  (u"laurea", "todapyu taykocivo")  ) #golden
+		d.append(  (u"ilya", "bikavo")  ) #all, whole
 		
 		return d
 
 	def adv():
 		d = []
-		d.append((u"ehtala", u"dipe-tovay")) #tomorrow
+		d.append((u"ehtala", "dipe-tovay")) #tomorrow
 		return d
 
 	l = Lect(u"qya")
 	l.name = u"Quenya"
-	l.english_name = u"Neo-Quenya"
-	l.append_p_o_s(u"v", (u"arguments",), (u"tense", u"person", u"object person"))
-	l.append_p_o_s(u"n", (), (u"number", u"case", u"person"))
-	l.append_p_o_s(u"adj", (), (u"number", u"case", u"degree"))
-	l.append_p_o_s(u"adv", (), ())
-	l.append_p_o_s(u"prep", (u"argument",), (u"object person",))
+	l.english_name = "Neo-Quenya"
+	l.append_p_o_s("v", ("arguments",), ("tense", "person", "object person"))
+	l.append_p_o_s("n", (), ("number", "case", "person"))
+	l.append_p_o_s("adj", (), ("number", "case", "degree"))
+	l.append_p_o_s("adv", (), ())
+	l.append_p_o_s("prep", ("argument",), ("object person",))
 	build_flexions(l.flexions)
 	build_lexicon(l.lexicon, l.flexions)
 	print l.lexicon

@@ -11,10 +11,16 @@ from core.utilities import Utilities
 from core.lect import Lect
 from core.lexicon import Lemma, Word
 
+class AppData:
+	def __init_():
+		self.lect = None
+		self.interlingua = None
+
+data = AppData()
+
 class FrameCodeBehind:
 	def __init__(self, frame):
 		self.frame = frame
-		self.data = None
 		self.children = {}
 		
 		self.set_dirty(False)
@@ -45,9 +51,10 @@ class FrameCodeBehind:
 			d.Destroy() # finally destroy it when finished.
 		if confirm:
 			self.frame.Close(True)
-	
+
 	def icon(self):
-		pass
+		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
+		return(icon)
 	
 	
 class LACodeBehind(FrameCodeBehind):
@@ -55,16 +62,20 @@ class LACodeBehind(FrameCodeBehind):
 	
 		FrameCodeBehind.__init__(self, frame)
 		
-		language_file, interlingua, admin = self.__parse_args()
+		language_file, interlingua_file, admin = self.__parse_args()
+			
+		data.interlingua = Interlingua(interlingua_file)
+		data.interlingua.load()
+		
 		if language_file:
 			self.__filename = os.path.basename(language_file)
 			self.__dirname = os.path.dirname(language_file)
-			self.data = Lect()
-			self.data.load(language_file)
+			data.lect = Lect()
+			data.lect.load(language_file)
 		else:
 			self.__filename = ""
 			self.__dirname = ""
-			self.data = Lect()
+			data.lect = Lect()
 			
 		self.__admin = admin
 		self.__selected_word_row = None
@@ -89,17 +100,14 @@ class LACodeBehind(FrameCodeBehind):
 		language_file = None
 		if len(args)>0:
 			language_file = args[0]
-		interlingua = options.interlingua
+		interlingua_file = options.interlingua
 		admin = options.admin
-		return (language_file, interlingua, admin)		
+		return (language_file, interlingua_file, admin)		
 
-	def icon(self):
-		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
-		return(icon)
 
 
 	def __load_tabs(self):
-		lang = self.data
+		lang = data.lect
 		frame = self.frame
 		frame.code_ctrl.SetValue(lang.code)
 		frame.name_ctrl.SetValue(lang.name)
@@ -119,16 +127,12 @@ class LACodeBehind(FrameCodeBehind):
 				grid.AppendRows(new_rows - rows)
 				for i in range(rows, new_rows):
 					grid.SetRowSize(i, 25)
-					ROMAN_ITALIC = wx.Font(10, wx.ROMAN, wx.ITALIC, wx.NORMAL, 0, "")
-					ROMAN = wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL, 0, "")
-					grid.SetCellFont(i, 0, ROMAN_ITALIC)
-					grid.SetCellFont(i, 1, ROMAN)
 			if new_rows<rows:
 				grid.DeleteRows(new_rows, rows - new_rows)
 			if new_rows<self.__selected_word_row:
 				self.__selected_word_row = None
 
-		words = self.data.lexicon.retrieve_words(None, hw_key)
+		words = data.lect.lexicon.retrieve_words(None, hw_key)
 		grid = self.frame.word_grid
 		redim(grid, len(words))
 		for i, w in enumerate(words):
@@ -159,7 +163,7 @@ class LACodeBehind(FrameCodeBehind):
 			
 			wx.BeginBusyCursor()
 			try:
-				self.data.load(full_path)
+				data.lect.load(full_path)
 				self.__load_tabs()
 				self.set_dirty(False)
 			finally:
@@ -171,7 +175,7 @@ class LACodeBehind(FrameCodeBehind):
 		full_path =  os.path.join(self.__dirname, self.__filename)
 		wx.BeginBusyCursor()
 		try:
-			self.data.save(full_path)
+			data.lect.save(full_path)
 			self.set_dirty(False)
 		finally:
 			wx.EndBusyCursor()
@@ -192,7 +196,7 @@ class LACodeBehind(FrameCodeBehind):
 			self.frame.Update()
 			wx.BeginBusyCursor()
 			try:
-				self.data.save(full_path)
+				data.lect.save(full_path)
 				self.set_dirty(False)
 			finally:
 				wx.EndBusyCursor()
@@ -269,16 +273,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 
 	def OnLemmaSelect(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = event.GetClientData()
-		hw = self.data.lexicon.get_lemma_by_key(hw_key)
+		hw = data.lect.lexicon.get_lemma_by_key(hw_key)
 		self.frame.entry_form_ctrl.SetValue(hw.entry_form())
 		self.frame.pos_ctrl.SetValue(hw.p_o_s)
-		self.frame.lemma_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[0])
+		self.frame.lemma_category_ctrl.SetCategoryLabels(data.lect.get_categories(hw.p_o_s)[0])
 		self.frame.lemma_category_ctrl.SetCategoryValues(hw.categories)
 		if hw.gloss:
 			self.frame.gloss_ctrl.SetValue(hw.gloss)
+			c = data.interlingua.taxonomy.get(hw.gloss)
+			self.frame.gloss_ctrl.SetToolTipString(c.meaning)
 		else:
 			self.frame.gloss_ctrl.SetValue("-")
-		self.frame.word_category_ctrl.SetCategoryLabels(self.data.get_categories(hw.p_o_s)[1])
+		self.frame.word_category_ctrl.SetCategoryLabels(data.lect.get_categories(hw.p_o_s)[1])
 		self.__load_word_grid(hw_key)
 		
 		
@@ -302,7 +308,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 
 	def OnWordSelect(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = self.frame.lemma_ctrl.GetClientData(self.frame.lemma_ctrl.GetSelection())
-		words = self.data.lexicon.retrieve_words(None, hw_key)
+		words = data.lect.lexicon.retrieve_words(None, hw_key)
 		row = event.GetRow()
 		self.__selected_word_row = row
 		w = words[row]
@@ -311,39 +317,37 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 
 	def OnDoNewWord(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = self.frame.lemma_ctrl.GetClientData(self.frame.lemma_ctrl.GetSelection())
-		lemma = self.data.lexicon.get_lemma_by_key(hw_key)
+		lemma = data.lect.lexicon.get_lemma_by_key(hw_key)
 		word = Word(self.frame.form_ctrl.GetValue(), lemma ,self.frame.word_category_ctrl.GetCategoryValues())
-		self.data.lexicon.add_word(word)
+		data.lect.lexicon.add_word(word)
 		self.__load_word_grid(hw_key)
 
 	def OnDoDeleteWord(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = self.frame.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
-		words = self.data.lexicon.retrieve_words(None, hw_key)
+		words = data.lect.lexicon.retrieve_words(None, hw_key)
 		sel_t = self.frame.word_grid.GetSelectionBlockTopLeft()
 		sel_b = self.frame.word_grid.GetSelectionBlockBottomRight()
 		sel_cnt = len(sel_t)
 		for sel_no in range(sel_cnt):
 			for row in range(sel_t[sel_no][0], sel_b[sel_no][0] + 1):
 				w = words[row]
-				self.data.lexicon.remove_word(w)
+				data.lect.lexicon.remove_word(w)
 		self.__load_word_grid(hw_key)
 
 
 
-class CBCodeBehind(wx.Frame):
-	FILENAME = "data/Latejami.ilt"
+class CBCodeBehind(FrameCodeBehind):
 
 	def set_dirty(self, value = True):
 		self.frame.reload_menu.Enable(value)
 		self.frame.save_menu.Enable(value)
 
-	def __init__(self):
-		self.data = Interlingua("Latejami")
-		self.data.load(self.FILENAME)
+	def __init__(self, frame):
+		FrameCodeBehind.__init__(self, frame)
 		self.__do_tree()
 
-		self.frame.pos_ctrl.AppendItems(self.data.p_o_s)
-		self.frame.arg_struct_combo.AppendItems(self.data.arg_struct)
+		self.frame.pos_ctrl.AppendItems(data.interlingua.p_o_s)
+		self.frame.arg_struct_combo.AppendItems(data.interlingua.arg_struct)
 
 		self.set_dirty(False)
 		self.current = None
@@ -386,19 +390,19 @@ class CBCodeBehind(wx.Frame):
 
 	def __load_tree(self):
 		def add_tree_children(tree, node, baseconcept):
-			for s in self.data.taxonomy.subconcepts(baseconcept):
+			for s in data.interlingua.taxonomy.subconcepts(baseconcept):
 				child = tree.AppendItem(node, s.interlingua)
 				tree.SetItemText(child, s.arg_struct, 1)
 				if s.derivation:
 					tree.SetItemText(child, s.derivation, 2)
 				tree.SetItemText(child, s.meaning, 3)
 				tree.SetItemImage(child, self.__tree_icons.get(s.p_o_s))
-				add_tree_children(child, s.interlingua)
+				add_tree_children(tree, child, s.interlingua)
 
 		concept_tree = self.frame.concept_tree_ctrl
 		root = concept_tree.GetRootItem()
 		add_tree_children(concept_tree, root, None)
-		tree.Expand(root)
+		concept_tree.Expand(root)
 
 	def __fill_controls(self):
 		old_dirty = self.get_dirty()
@@ -406,7 +410,7 @@ class CBCodeBehind(wx.Frame):
 		if self.current == "[Root]":
 			concept = Concept("", "", "0-n", "")
 		else:
-			concept = self.data.taxonomy.get(self.current)
+			concept = data.interlingua.taxonomy.get(self.current)
 		self.frame.baseconcept_text.SetValue(Utilities.nvl(concept.baseconcept, ""))
 		self.frame.derivation_text.SetValue(Utilities.nvl(concept.derivation, ""))
 		self.frame.interlingua_text.SetValue(concept.interlingua)
@@ -467,19 +471,19 @@ class CBCodeBehind(wx.Frame):
 
 	#Control events
 	def OnChange(self, event): # wxGlade: CBFrame.<event_handler>
-		self.ok_button.Enable(True)
+		self.frame.ok_button.Enable(True)
 
 
 	#Menu events
 	def OnReload(self, event): # wxGlade: CBFrame.<event_handler>
-		self.data.load(self.FILENAME)
+		data.interlingua.load(self.FILENAME)
 		self.__reload_tree()
 		self.set_dirty(False)
 
 	def OnSave(self, event): # wxGlade: CBFrame.<event_handler>
 		wx.BeginBusyCursor()
 		try:
-			self.data.save(self.FILENAME)
+			data.interlingua.save()
 			self.set_dirty(False)
 		finally:
 			wx.EndBusyCursor()
@@ -489,12 +493,6 @@ class CBCodeBehind(wx.Frame):
 
 
 	def OnExport(self, event): # wxGlade: CBFrame.<event_handler>
-		def csv_format(x):
-			if x is None:
-				return ""
-			else:
-				return "\"" + str(x).replace("\"", "\"\"") + "\""
-		#dlg = wx.FileDialog(self, message="Save file as ...", defaultDir=os.getcwd(), defaultFile="", wildcard=wildcard, style=wx.SAVE)
 		dlg = wx.FileDialog(self.frame, "Export taxonomy as...",
 		         wildcard = "CSV files (*.csv)|*.csv|All files|*.*",
 		         style = wx.SAVE)
@@ -502,15 +500,7 @@ class CBCodeBehind(wx.Frame):
 		if dlg.ShowModal() == wx.ID_OK:
 			path = dlg.GetPath()
 			dlg.Destroy()
-			try:
-				out = open(path, "w")
-				for c in self.data.taxonomy:
-					out.write("%s,%s,%s,%s,%s,%s,%s,%s\n" %
-						  (csv_format(c.interlingua), csv_format(c.p_o_s), csv_format(c.arg_struct), csv_format(c.meaning), csv_format(c.baseconcept), csv_format(c.derivation), csv_format(c.notes), csv_format(c.reference))
-						  )
-				out.flush()
-			finally:
-				out.close()
+			data.interlingua.export_csv(path)
 		else:
 			dlg.Destroy()
 
@@ -546,7 +536,7 @@ class CBCodeBehind(wx.Frame):
 		if self.current is None: #new subconcept
 			self.current = self.frame.interlingua_text.GetValue()
 		if self.current:
-			self.data.taxonomy.set(new_concept)
+			data.interlingua.taxonomy.set(new_concept)
 
 			#self.__refresh_tree()
 			self.set_dirty(True)
@@ -558,7 +548,7 @@ class CBCodeBehind(wx.Frame):
 	def OnNew(self, event): # wxGlade: CBFrame.<event_handler>
 		old_dirty = self.get_dirty()
 
-		baseconcept = self.data.taxonomy.get(self.current)
+		baseconcept = data.interlingua.taxonomy.get(self.current)
 		self.current = None
 
 		self.frame.baseconcept_text.SetValue(baseconcept.interlingua)
@@ -575,8 +565,8 @@ class CBCodeBehind(wx.Frame):
 
 
 	def OnDelete(self, event): # wxGlade: CBFrame.<event_handler>
-		baseconcept = self.data.taxonomy.get(self.current).baseconcept
-		self.data.taxonomy.remove(self.current)
+		baseconcept = data.interlingua.taxonomy.get(self.current).baseconcept
+		data.interlingua.taxonomy.remove(self.current)
 		self.current = baseconcept
 		self.set_dirty(True)
 		self.__reload_tree()
