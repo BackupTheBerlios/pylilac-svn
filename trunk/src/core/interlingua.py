@@ -20,7 +20,7 @@ For an example of machine interlingua, see U{The Lexical Semantics of a Machine 
 
 __docformat__ = "epytext en"
 
-import pickle
+import os.path
 import csv
 
 class Interlingua:
@@ -28,55 +28,51 @@ class Interlingua:
 	A representation for a machine interlingua.
 
 	"""
-	def __init__(self, filename, name = None):
+	def __init__(self, filename):
 		"""
 		Create an interlingua object.
-		It encapsulates serialization and high-leven functionality.
+		It encapsulates serialization and high-level functionality.
 
 		@type filename: str
-		@param filename: The interlingua file name.
+		@param filename: The interlingua file name (csv).
 		"""
-		self.name = name
-		self.__filename = filename
+		self.name = None
+		self.__filename = None
+		self.__set_filename(filename)
 		self.p_o_s = []
 		self.arg_struct = []
 		self.taxonomy = Taxonomy()
 
-
-	def __tuple(self):
-		return (self.name, self.p_o_s, self.arg_struct, self.taxonomy)
+	def __set_filename(self, filename):
+		bn = os.path.basename(filename)
+		self.name = bn.split(".")[0]
+		self.__filename = filename
+		
 
 	def save(self, filename = None):
 		"""
-		Save the interlingua object to a file, using the L{pickle} module.
+		Save the interlingua object to a comma separated values file.
 
-		@param filename: The file name to use; if not specified the name of the language with the C{ilt} extension will be used..
+		@param filename: The file name to use; if not specified the name of the source file will be used.
 		@type filename: str
 		"""
 		if filename is None:
 			filename = self.__filename
 		else:
-			self.__filename = filename
-		f = open(filename, "wb")
-		pickle.dump(self.__tuple(), f, 2)
-		f.flush()
-		f.close()
+			self.__set_filename(filename)
+		writer = csv.writer(open(self.__filename, "wb"))
+		writer.writerow((self.name, ))
+		writer.writerow(self.p_o_s)
+		writer.writerow(self.arg_struct)
+		for c in self.taxonomy:
+			writer.writerow((c.interlingua, c.p_o_s, c.arg_struct, c.meaning, c.baseconcept, c.derivation, c.notes, c.reference))
 
 	def load(self):
 		"""
-		Load the interlingua object from a file, using the L{pickle} module.
-		The internal status of the onject is changed to the loaded values.
-
-		@param filename: The file name to use; if not specified the name of the language with the C{ilt} extension will be used..
-		@type filename: str
+		Load the interlingua object from a comma separated values file.
+		The internal status of the object is changed to the loaded values.
 		"""
-		f = open(self.__filename, "rb")
-		tuple = pickle.load(f)
-		self.name, self.p_o_s, self.arg_struct, self.taxonomy = tuple
-		f.close()
-
-	def import_csv(self, filename):
-		reader = csv.reader(open(filename, "rb"))
+		reader = csv.reader(open(self.__filename, "rb"))
 		name = reader.next()[0]
 		p_o_s = list(reader.next())
 		arg_struct = list(reader.next())
@@ -90,13 +86,6 @@ class Interlingua:
 			taxonomy.set(c)
 		self.name, self.p_o_s, self.arg_struct, self.taxonomy = name, p_o_s,  arg_struct, taxonomy
 		
-	def export_csv(self, filename):
-		writer = csv.writer(open(filename, "wb"))
-		writer.writerow((self.name, ))
-		writer.writerow(self.p_o_s)
-		writer.writerow(self.arg_struct)
-		for c in self.taxonomy:
-			writer.writerow((c.interlingua, c.p_o_s, c.arg_struct, c.meaning, c.baseconcept, c.derivation, c.notes, c.reference))
 
 class Concept:
 	"""
@@ -105,7 +94,7 @@ class Concept:
 	  - part of speech (PoS)
 	  - argument structure
 	  - English meaning
-	  - base concept it's derived from and type of derivation
+	  - base concept it's derived from, and type of derivation
 	  - notes
 
 	"""
@@ -141,6 +130,8 @@ class Concept:
 		self.reference = None
 
 	def __repr__(self):
+		return "%s (%s, %s): %s"%(self.interlingua, self.p_o_s, self.arg_struct, self.meaning)
+	def __str__(self):
 		return self.interlingua
 	
 
@@ -153,7 +144,7 @@ class Taxonomy:
 		self.__nodes = {}
 		self.__tree = {None: {}}
 	def get(self, key):
-		return self.__nodes[key]
+		return self.__nodes.get(key)
 	def set(self, concept):
 		"""
 		Add or updates a concept in the taxonomy.

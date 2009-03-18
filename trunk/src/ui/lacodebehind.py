@@ -87,7 +87,7 @@ class LACodeBehind(FrameCodeBehind):
 		parser = OptionParser("usage: %prog [options] [language_file]")
 
 		parser.add_option("-i", "--interlingua", dest="interlingua",
-			default = "data/Latejami.ilt", help="Interlingua file to use.", type="string")
+			default = "data/Latejami.csv", help="Interlingua file to use.", type="string")
 		parser.add_option("-a", "--admin", action="store_true", dest="admin",
 			default = False, help="Allow administrative tasks.")
 			
@@ -281,7 +281,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		if hw.gloss:
 			self.frame.gloss_ctrl.SetValue(hw.gloss)
 			c = data.interlingua.taxonomy.get(hw.gloss)
-			self.frame.gloss_ctrl.SetToolTipString(c.meaning)
+			self.frame.gloss_ctrl.SetToolTipString(`c`)
+				
 		else:
 			self.frame.gloss_ctrl.SetValue("-")
 		self.frame.word_category_ctrl.SetCategoryLabels(data.lect.get_categories(hw.p_o_s)[1])
@@ -492,15 +493,15 @@ class CBCodeBehind(FrameCodeBehind):
 		dlg.Destroy()
 
 
-	def OnExport(self, event): # wxGlade: CBFrame.<event_handler>
-		dlg = wx.FileDialog(self.frame, "Export taxonomy as...",
+	def OnSaveAs(self, event): # wxGlade: CBFrame.<event_handler>
+		dlg = wx.FileDialog(self.frame, "Save as...",
 		         wildcard = "CSV files (*.csv)|*.csv|All files|*.*",
 		         style = wx.SAVE)
 
 		if dlg.ShowModal() == wx.ID_OK:
 			path = dlg.GetPath()
 			dlg.Destroy()
-			data.interlingua.export_csv(path)
+			data.interlingua.save(path)
 		else:
 			dlg.Destroy()
 

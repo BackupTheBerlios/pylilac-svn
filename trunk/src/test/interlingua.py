@@ -14,14 +14,14 @@ def run():
 		c.notes = n
 		c.reference = r
 		return c
-	l = Interlingua("data/Latejami.ilt", "Latejami")
+	l = Interlingua("data/Latejami.csv")
 	#l.p_o_s = ["N", "V", "A", "D", "C"]
 	#l.arg_struct = ["0-n"]
 	#l.arg_struct += [(a + f + "-" + d) for a in ("P", "AP", "A/P") for f in ("", "/F") for d in ("s","d")]
 	#l.arg_struct += [(a + "-" + d) for a in ("F", "F/P") for d in ("s", "d")]
 	t = l.taxonomy
 	
-	filename = "data/Latejami.csv"
+	filename = "data/Latejami2.csv"
 	
 	reader = csv.reader(open(filename, "rb"))
 	try:
@@ -39,7 +39,7 @@ def run():
 	print "Now saving."
 	l.save()
 
-	writer = csv.writer(open("data/Latejami2.csv", "wb"))
+	writer = csv.writer(open("data/Latejami3.csv", "wb"))
 	writer.writerow((l.name, ))
 	writer.writerow(l.p_o_s)
 	writer.writerow(l.arg_struct)
