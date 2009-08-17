@@ -55,7 +55,7 @@ class Tokenizer(Parser):
 		fsa.set_initial("")
 		fsa.set_final("")
 		for k, v in dict.iteritems():
-			if type(v) is not list:
+			if not isinstance(v, list):
 				raise TypeError(v)
 			add_key(fsa, k)
 		return fsa

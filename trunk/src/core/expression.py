@@ -116,7 +116,7 @@ class ParseTree:
 	def add(self, item, path):
 		st = self
 		for segm in path:
-			if st.__elements.has_key(segm):
+			if segm in st.__elements:
 				st = st.__elements[segm]
 			else:
 				nst = ParseTree()

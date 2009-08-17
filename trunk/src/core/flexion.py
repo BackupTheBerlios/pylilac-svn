@@ -102,7 +102,7 @@ class Flexion:
 		self.__transforms = SortedDict()
 
 	def create_transform(self, categories):
-		if type(categories) is not tuple:
+		if not isinstance(categories, tuple):
 			raise TypeError(categories)
 		t =  self.__Transform(self, categories)
 		self.__transforms[categories] = t

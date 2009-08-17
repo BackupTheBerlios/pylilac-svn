@@ -36,6 +36,7 @@ def run():
 				correct_word(table, w[i]+u"lt",  v[i]+u"lt")
 				correct_word(table, w[i]+u"nt",  v[i]+u"nt")
 				correct_word(table, w[i]+u"ts",  v[i]+u"ts")
+				correct_word(table, w[i]+u"x",  v[i]+u"x")
 				correct_word(table, w[i]+u"([^lnhcgr])y",  v[i]+u"\\1y")
 				correct_word(table, w[i]+u"([^lnhgr])w",  v[i]+u"\\1w")		
 
@@ -148,7 +149,7 @@ def run():
 		c.append_step(u"[ao]?$", u"o")
 
 		tr = f.create_transform(("s", "Poss", "0"))
-		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeioáéíóú][aeiou][^aeiouáéíóú][aeiou]$")
+		c = tr.create_chain(BASED_ON_LEMMA, u"[^aeioáéíóú][aeiou][^aeiouáéíóúx][aeiou]$")
 		c.append_step(u"a$", u"áva")
 		c.append_step(u"e$", u"éva")
 		c.append_step(u"i$", u"íva")

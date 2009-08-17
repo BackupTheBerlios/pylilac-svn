@@ -32,7 +32,7 @@ class SortedDict(dict):
 		dict.__init__(self)
 		self.__sort = []
 	def __setitem__(self, key, value):
-		is_new = dict.has_key(self, key)
+		is_new = dict.__contains__(self, key)
 		dict.__setitem__(self, key, value)
 		if not is_new: self.__sort.append(key)
 	def iterkeys(self):

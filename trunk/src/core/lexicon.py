@@ -30,11 +30,11 @@ class Lemma:
 	Usually, lemmas or headwords are the I{entry words} in dictionaries.
 	"""
 	def __init__(self, entry_form, id, p_o_s, categories = (), gloss = None):
-		if self.__class__ is Lemma: raise NotImplementedError("Lemma is abstract and cannot be instantiated.")
+		if self.__class__ is Lemma: raise TypeError("Lemma is abstract and cannot be instantiated.")
 		self.__entry_form = unicode(entry_form)
 		self.__id = id
 		self.p_o_s = p_o_s
-		if type(categories) is not tuple:
+		if not isinstance(categories, tuple):
 			raise TypeError(categories)
 		self.categories = categories
 		self.gloss = gloss
@@ -171,7 +171,7 @@ class Word:
 		    Categories can indicate word declensions or modifications.
 	
 		"""
-		if type(categories) is not tuple:
+		if not isinstance(categories, tuple):
 			raise TypeError(categories)
 		self.__form = unicode(form)
 		self.__lemma = lemma
@@ -257,7 +257,7 @@ class Lexicon:
 		lemma = word.lemma()
 		if lemma:
 			key = lemma.key()
-			if self.__lemmas.has_key(key):
+			if key in self.__lemmas:
 				if lemma != self.__lemmas[key]:
 					raise ExistingLemmaError(lemma)
 				else:
@@ -352,16 +352,16 @@ class Lexicon:
 		for p in lect.get_p_o_s_names():
 			d[p] = lect.get_categories(p)
 		for hw in self.__lemmas.itervalues():
-			if not d.has_key(hw.p_o_s):
+			if hw.p_o_s not in d:
 				err.add(hw)
 				if corrective_p_o_s:
 					hw.p_o_s = corrective_p_o_s
-			if d.has_key(hw.p_o_s):
+			if hw.p_o_s in d:
 				check_length(hw, len(d[hw.p_o_s][0]), err, corrective_p_o_s)
 		for wz in self.__words.itervalues():
 			for w in wz:
 				p_o_s = w.lemma().p_o_s
-				if d.has_key(p_o_s):
+				if p_o_s in d:
 					check_length(w, len(d[p_o_s][1]), err, corrective_p_o_s)
 		self.__valid = False
 		return err
@@ -431,9 +431,9 @@ class WordCategoryFilter(WordFilter):
 	Regarded parameters: lemma.p_o_s, lemma.categories, word.categories
 	"""
 	def __init__(self, p_o_s = None, lemma_categories = None, categories = None):
-		if lemma_categories is not None and type(lemma_categories) is not tuple:
+		if lemma_categories is not None and not isinstance(lemma_categories, tuple):
 			raise TypeError(lemma_categories)
-		if categories is not None and type(categories) is not tuple:
+		if categories is not None and not isinstance(categories, tuple):
 			raise TypeError(categories)
 		Literal.__init__(self, (None, None, None, p_o_s, lemma_categories, categories))
 
@@ -489,7 +489,7 @@ class CategoryFilter:
 
 
 	def __init__(self, operator, parameter):
-		if not self.FUNCTIONS.has_key(operator):
+		if operator not in self.FUNCTIONS:
 			raise KeyError(operator)
 		self.operator = operator
 		self.parameter = tuple(parameter)

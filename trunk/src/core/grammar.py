@@ -168,9 +168,10 @@ class Grammar:
 			
 			s = self.__rules[self.starting]
 			s.build(self, nfa, initial, final, (), max_levels)
-			dfa = nfa.reduced().minimized()
-			nfa = None #saves memory
-			self.__compiled = _GrammarParser(dfa)
+			#rewriting to save memory
+			nfa = nfa.reduced()
+			nfa = nfa.minimized()
+			self.__compiled = _GrammarParser(nfa)
 			self.__valid = True
 		return self.__compiled
 

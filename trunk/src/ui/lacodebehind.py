@@ -35,7 +35,7 @@ class FrameCodeBehind:
 		
 	def show_child(self, child_class):
 		name = str(child_class)
-		if self.children.has_key(name):
+		if name in self.children:
 			child = self.children[name]
 		else:
 			child = child_class(self.frame, -1, "")

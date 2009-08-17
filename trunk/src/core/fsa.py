@@ -115,7 +115,7 @@ class FSA:
 	def _get_next_available_state(self):
 		if self.__states:
 			m = max(self.__states)
-			if type(m) is int:
+			if isinstance(m,  int):
 				return m + 1
 			else:
 				raise TypeError(m)
@@ -250,7 +250,7 @@ class FSA:
 		if not label:
 			tag = None
 		self.__transitions.setdefault(start, []).append((label, end, tag))
-		if not self.__transitions.has_key(end):
+		if end not in self.__transitions:
 			self.__transitions[end] = []
 
 	def remove_transitions(self, start, label, end):
@@ -321,9 +321,9 @@ class FSA:
 		@rtype: frozenset
 		@return: The I{S{epsilon}-closure} of the given set of states.
 		"""
-		if type(states) is list:
+		if isinstance(states, list):
 			v_s = states
-		elif type(states) is set:
+		elif isinstance(states, set):
 			v_s = [s for s in states]
 		else:
 			v_s = [states]

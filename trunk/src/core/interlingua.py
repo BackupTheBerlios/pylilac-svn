@@ -158,7 +158,7 @@ class Taxonomy:
 		old_concept = self.__nodes.get(concept.interlingua)
 		key = concept.interlingua
 		self.__nodes[key] = concept
-		if self.__tree.has_key(concept.baseconcept):
+		if concept.baseconcept in self.__tree:
 			siblings = self.__tree[concept.baseconcept]
 		else:
 			siblings = {}
@@ -178,7 +178,7 @@ class Taxonomy:
 		return mode
 	def remove(self, key):
 		if key is not None:
-			if self.__tree.has_key(key):
+			if key in self.__tree:
 				for k in self.__tree[key].keys():
 					self.remove(k)
 			parent_key = self.__nodes[key].baseconcept
@@ -200,16 +200,16 @@ class Taxonomy:
 		@rtype: list(Concept)
 		@raise ValueError: If no taxa having the given key exist.
 		"""
-		if key is not None and not self.__nodes.has_key(key):
+		if key is not None and key not in self.__nodes:
 			raise ValueError(key)
-		if self.__tree.has_key(key):
+		if key in self.__tree:
 			return self.__tree[key].values()
 		else:
 			return []
 	def __iter__(self):
 		def add_node(node):
 			sequencing.append(node)
-			if self.__tree.has_key(node.interlingua):
+			if node.interlingua in self.__tree:
 				for c in self.__tree[node.interlingua].values():
 					add_node(c)
 		sequencing = []

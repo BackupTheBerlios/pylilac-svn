@@ -11,7 +11,7 @@ Hierarchy
 The classes follow this hierarchy:
 
 
-G{classtree _Symbol}
+G{classtree NormalExpression}
 
 
 
@@ -47,7 +47,7 @@ M{S{Sigma}} has the following properties:
 Conversion to a Graph
 =====================
 
-A L{grammar<grammar.Grammar>} can be converted into a L{Finite State Automaton<fsa.FSA>} by the recursive use of L{build<_Symbol.build>} method, applied to its starting symbol.
+A L{grammar<grammar.Grammar>} can be converted into a L{Finite State Automaton<fsa.FSA>} by the recursive use of L{build<NormalExpression.build>} method, applied to its starting symbol.
 
 The technique is based on the representation in form of graph of the different symbols.
 
@@ -62,24 +62,27 @@ __docformat__ = "epytext en"
 
 from utilities import Utilities
 
-class _Symbol:
+class NormalExpression:
 	"""
 	A BNF symbol or expression.
 	"""
+	def __init__(self):
+		if self.__class__ is NormalExpression: raise TypeError("NormalExpression is abstract and cannot be instantiated.")
+		
 	def to_expression(self):
 		"""
 		Convert the symbol into an I{alternative} of I{concatenations}.
 		"""
-		return _Expression([[self]])
+		return _ParallelExpression([[self]])
 	def __add__(self, b):
 		"""
 		Concatenate with another expression.
 		M{A + (X|YZ) S{hArr} A + X | A + YZ S{equiv} AX | AYZ}
 		"""
 		if not b: #espilon or None
-			return _Expression([(self,)])
+			return _ParallelExpression([(self,)])
 		else:
-			return _Expression([(self,) + conc for conc in b.to_expression()])
+			return _ParallelExpression([(self,) + conc for conc in b.to_expression()])
 
 	def __or__(self, b):
 		"""
@@ -88,13 +91,13 @@ class _Symbol:
 		"""
 		c = [conc for conc in b.to_expression()]
 		c.append([self])
-		return _Expression(c)
+		return _ParallelExpression(c)
 
 	def __eq__(self, other):
 		"""
 		Compare two symbols.
 		"""
-		if isinstance(other, _Symbol):
+		if isinstance(other, NormalExpression):
 			return self.to_expression() == other.to_expression()	
 		else:
 			return False
@@ -130,7 +133,7 @@ class _Symbol:
 	def __mul__(self, closure):
 		raise TypeError("Symbol doesn't support closures")
 
-class Reference(_Symbol):
+class Reference(NormalExpression):
 	"""
 	A non-terminal symbol.
 
@@ -171,7 +174,7 @@ class Reference(_Symbol):
 		return _Closure(self, closure)
 
 
-class Literal(_Symbol):
+class Literal(NormalExpression):
 	"""
 	A terminal symbol.
 
@@ -210,7 +213,7 @@ class Literal(_Symbol):
 		fsa.add_transition(initial, self, final, tag)
 
 
-class _Expression(_Symbol):
+class _ParallelExpression(NormalExpression):
 	def __init__(self, double_iterable):
 		self.__fsot = frozenset([tuple(conc) for conc in double_iterable])
 
@@ -232,19 +235,19 @@ class _Expression(_Symbol):
 		M{(A|BC)+(X|YZ) S{hArr} A+X | BC+X | A+YZ | BC+YZ S{equiv} AX | BCX | AYZ | BCYZ}
 		"""
 		if not b: #epsilon or none
-			return _Expression(self.__fsot)
+			return _ParallelExpression(self.__fsot)
 		else:
-			return _Expression([x + y for x in self.__fsot for y in b.to_expression()])
+			return _ParallelExpression([x + y for x in self.__fsot for y in b.to_expression()])
 
 	def __or__(self, b):
 		"""
 		Alternate with another symbol.
 		M{(A|BC)|(X|YZ) S{hArr} A | BC | Y | YZ}
 		"""
-		return _Expression(self.__fsot | b.to_expression().__fsot)
+		return _ParallelExpression(self.__fsot | b.to_expression().__fsot)
 
 	def __eq__(self, other):
-		if isinstance(other, _Expression):
+		if isinstance(other, _ParallelExpression):
 			return self.__fsot == other.__fsot
 		else:
 			return False
