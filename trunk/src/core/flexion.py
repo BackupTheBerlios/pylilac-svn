@@ -38,12 +38,12 @@ class Flexion:
 					raise Exception("Cannot compile %s: %s" % (`condition`, e.message))
 				self.steps = []
 				
-			def append_step(self, regexp, repl, mandatory = False):
+			def append_step(self, regexp, substitution, mandatory = False):
 				try:
 					cre = re.compile(regexp, re.IGNORECASE)
 				except Exception, e:
-					raise Exception("Cannot compile %s for %s: %s" % (`repl`, `regexp`, e.message))
-				self.steps.append((regexp, cre, repl, mandatory))
+					raise Exception("Cannot compile %s for %s: %s" % (`substitution`, `regexp`, e.message))
+				self.steps.append((regexp, cre, substitution, mandatory))
 			
 			def __call__(self, lemma, words):
 				if not CategoryFilter.test(self.lemma_categories, lemma.categories):
@@ -65,12 +65,12 @@ class Flexion:
 					return DEFECTIVE #propagation
 				if not self.__cco.search(s):
 					return None
-				for r, cre, repl, mandatory in self.steps:
+				for r, cre, substitution, mandatory in self.steps:
 					if cre.search(s):
 						try:
-							s = cre.sub(repl, s)
+							s = cre.sub(substitution, s)
 						except:
-							raise Exception("Invalid transform %s for %s" % (`repl`, `r`))
+							raise Exception("Invalid transform %s for %s" % (`substitution`, `r`))
 					elif mandatory:
 						return None
 				return s
@@ -87,9 +87,9 @@ class Flexion:
 			return c
 		
 
-		def append_step(self, regexp, repl, mandatory = False):
+		def append_step(self, regexp, substitution, mandatory = False):
 			for c in self.chains:
-				c.append_step(regexp, repl, mandatory)
+				c.append_step(regexp, sub, mandatory)
 
 		def __call__(self, lemma, words):
 			for chain in self.chains:
