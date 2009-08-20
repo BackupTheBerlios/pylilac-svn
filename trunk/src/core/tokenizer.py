@@ -3,11 +3,13 @@
 
 """
 A specialized parser for expressions.
-
-@author: Paolo Olmino
-@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
 """
 
+# General info
+__version__ = "0.1"
+__author__ = "Paolo Olmino"
+__url__ = "http://pylilac.berlios.de/"
+__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 from fsa import FSA, Parser, ParseError

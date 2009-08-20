@@ -6,16 +6,22 @@ A module for lexicon management: Word and Lemma.
 
 G{classtree Particle, Word}
 
-@author: Paolo Olmino
-@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-"""
-#TODO: meaning must be extended to real translation
+@todo: meaning must be extended to real translation
 
+"""
+
+# General info
+__version__ = "0.1"
+__author__ = "Paolo Olmino"
+__url__ = "http://pylilac.berlios.de/"
+__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
+
 
 from sys import maxint
 from tokenizer import Tokenizer
 from bnf import Literal
+from utilities import Utilities
 
 
 DEFECTIVE = u"∄"
@@ -29,18 +35,28 @@ class Lemma:
 	
 	Usually, lemmas or headwords are the I{entry words} in dictionaries.
 	"""
-	def __init__(self, entry_form, id, p_o_s, categories = (), gloss = None):
+	def __init__(self, entry_form, id, p_o_s, categories = ()):
+		"""
+		It cannot be used publicly, since the class is abstract.
+    	"""
+
 		if self.__class__ is Lemma: raise TypeError("Lemma is abstract and cannot be instantiated.")
-		self.__entry_form = unicode(entry_form)
+		self.__entry_form = Utilities.unicode(entry_form)
 		self.__id = id
 		self.p_o_s = p_o_s
 		if not isinstance(categories, tuple):
 			raise TypeError(categories)
 		self.categories = categories
-		self.gloss = gloss
 
+
+	@property
 	def entry_form(self):
+		"""
+		Get the entry form of a lemma.
+		"""
 		return self.__entry_form
+
+	@property
 	def id(self):
 		return self.__id
 
@@ -51,10 +67,10 @@ class Lemma:
 		"""
 		Compares memberwise two particles.
 		"""
-		if self.__class__ is other.__class__:
+		if isinstance(other, Lemma):
 			return self.__entry_form == other.__entry_form and self.__id == other.__id and self.p_o_s == other.p_o_s and self.categories == other.categories
 		else:
-			return False
+			return NotImplemented
 			
 	def __ne__(self, other):
 		return not self.__eq__(other)
@@ -63,15 +79,7 @@ class Lemma:
 		return hash(self.__entry_form) ^ (self.__id - 1)
 
 	def __repr__(self):
-		return (u"%s.%d" % (self.__entry_form, self.__id)).encode("UTF-8", "replace")
-
-	def __str__(self):
-		"""
-		Give a concise representation for a word.
-
-		@return: The word's form.
-		"""
-		raise UnicodeError("__str__ method is deprecated")
+		return `self.__entry_form`+ "." + str(self.__id)
 
 	def __unicode__(self):
 		"""
@@ -79,7 +87,7 @@ class Lemma:
 
 		@return: The word's form.
 		"""
-		return self__entry_form
+		return self.__entry_form
 
 
 	
@@ -88,29 +96,32 @@ class Particle(Lemma):
 	"""
 	A language specific particle.
 	
-	Practically, a L{Lemma} with no precise meaning, gloss or translation.
+	Practically, a L{Lemma} with no precise meaning defined.
+	In a dictionary, it can only be described by its use in the lect.
 
-	For example, I{li} in Toki Pona.
+	For example, I{li} in Toki Pona, that indicates the verb in common sentences.
 	"""
 	def __init__(self, entry_form, id, p_o_s, categories = ()):
-		Lemma.__init__(self, entry_form, id, p_o_s, categories, None)
+		Lemma.__init__(self, entry_form, id, p_o_s, categories)
 
 
-class Root(Particle):
+class Stem(Lemma):
 	"""
-	A single unit of language, with no functional decoration.
+	A single unit of language, a basic form, with no functional decoration, but with a definable meaning.
 	
-	Usually, lemmas or headwords are the I{entry words} in dictionaries.
+	A stem is a L{Lemma} with a precise meaning.
+	In a dictionary, it can be also be explained by its translations.
+	
 	"""
 	def __init__(self, entry_form, id, p_o_s, categories = (), gloss = None):
 		"""
-		Create a lemma in a specific language for the I{entry word} specified.
+		Create a stem in a specific language for the I{entry form} specified.
 
 		Example::
-			Lemma(u"heart", 1, "noun", None, "kawcesi") #heart, the heart organ in English, with no classification.
-			Lemma(u"heart", 2, "noun", None, "kawcijumi") #heart, the heart shape in English.
-			Lemma(u"h??t", 1, "noun", None ,"kawcesi") #/h\u0251\u0279t/, /h??t/, the heart organ phonic representation in General American English
-			Lemma(u"moku", 1, "verb", {"transitive": "n"}, "fucala") #moku, "to eat" in Toki Pona
+			Stem(u"heart", 1, "noun", (), "kawcesi") #heart, the heart organ in English, with no classification.
+			Stem(u"heart", 2, "noun", (), "kawcijumi") #heart, the heart shape in English.
+			Stem(u"hɑɹt", 1, "noun", () ,"kawcesi") #/h\u0251\u0279t/, /hɑɹt/, the heart organ phonic representation in General American English
+			Stem(u"moku", 1, "verb", {"transitive": "n"}, "fucala") #moku, "to eat" in Toki Pona
 
 		@type entry_form: unicode
 		@param entry_form: 
@@ -120,28 +131,25 @@ class Root(Particle):
 
 		    For phonetic/phonical representations, the alphabet of the U{IPA<http://www.arts.gla.ac.uk/IPA>} (Internationa Phonetic Association) is the standard, though some kind of extension could be advisable; the representation should be a phonetic transcription.
 		@type id: number
-		@param id: 
-		    A unique id to distinguish different lemmas having identical representation in a given language.
+		@param id:  A unique id to distinguish different lemmas having identical representation in a given language.
 
 		    Major meanings in dictionaries are usually associated to different id's.
 		@type p_o_s: str
-		@param p_o_s:
-		    A string which indicates the I{part of speech} to which the lemma belongs to in the specific language.
+		@param p_o_s: A string which indicates the I{part of speech} to which the lemma belongs to in the specific language.
 
 		    The I{part of speech} is the general classification of the word: usually it distinguish nouns from verbs &c..
 		@type categories: tuple (srt)
-		@param categories:
-		    The categories of the lemma.
+		@param categories: The categories of the lemma.
 
 		    Categories can specify better the features of a particular I{part of speech}.
 		@type gloss: str
-		@param gloss:
-		    The meaning and the translation technique, referring to the I{interlingua}.
+		@param gloss: The meaning and the translation technique, referring to the I{interlingua}.
 
 		    For the interlingua to use, Latejami or its successors are recommended.
 
 		"""
-		Lemma.__init__(self, entry_form, id, p_o_s, categories, gloss)
+		Lemma.__init__(self, entry_form, id, p_o_s, categories)
+		self.gloss = gloss
 
 
 class Word:
@@ -153,9 +161,9 @@ class Word:
 		Create a word with its form, its L{lemma<Lemma>} and its categories.
 
 		Example::
-			Word(u"heart", Root("eng", u"heart", 1, "noun", None, "kawcesi"))
+			Word(u"heart", Stem("eng", u"heart", 1, "noun", None, "kawcesi"))
 			Word(u"hearts", lemmas["eng", u"heart", 1], ("pl"))
-			Word(u"h??ts", hw, ("pl"))
+			Word(u"hɑɹts", hw, ("pl"))
 			Word(u"moku", "tko", moku)
 	
 		@type form: unicode
@@ -173,12 +181,15 @@ class Word:
 		"""
 		if not isinstance(categories, tuple):
 			raise TypeError(categories)
-		self.__form = unicode(form)
+		self.__form = Utilities.unicode(form)
 		self.__lemma = lemma
 		self.categories = categories
 
+	@property
 	def form(self):
 		return self.__form
+	
+	@property
 	def lemma(self):
 		return self.__lemma
 
@@ -189,7 +200,8 @@ class Word:
 		if isinstance(other, Word):
 			return self.__form == other.__form and self.__lemma == other.__lemma and self.categories == other.categories
 		else:
-			return False
+			return NotImplemented
+
 	def __ne__(self, other):
 		return not self.__eq__(other)
 
@@ -198,20 +210,13 @@ class Word:
 
 	def __repr__(self):
 		"""
-		Give a verbose representation for a word in the format <form>(<lemma>)
+		Give a verbose representation for a word in the format <form>@<lemma><categories>, for example: 'men'@'man'.1('pl')"
 		"""
+		z =  `self.__form` + "@" + `self.__lemma`
 		if len(self.categories) == 0:
-			return "%s(%s)"%(self.__form, `self.__lemma`)
+			return z
 		else:
-			return "%s(%s, %s)"%(self.__form, `self.__lemma`, `self.categories`)
-
-	def __str__(self):
-		"""
-		Give a concise representation for a word.
-
-		@return: The word's form.
-		"""
-		raise UnicodeError("__str__ method is deprecated")
+			return z + `self.categories`
 
 	def __unicode__(self):
 		"""
@@ -254,7 +259,7 @@ class Lexicon:
 	def add_word(self, word):
 		if not isinstance(word, Word):
 			raise TypeError(word)
-		lemma = word.lemma()
+		lemma = word.lemma
 		if lemma:
 			key = lemma.key()
 			if key in self.__lemmas:
@@ -264,16 +269,16 @@ class Lexicon:
 					word = word.copy(self.__lemmas[key])
 			else:
 				word = word.copy(self.add_lemma(lemma))
-		self.__words.setdefault(word.form(), []).append(word)
-		self.__indexed_words.setdefault(word.lemma().key(), []).append(word)
+		self.__words.setdefault(word.form, []).append(word)
+		self.__indexed_words.setdefault(word.lemma.key(), []).append(word)
 		self.__valid = False
 		return word
 		
 	def remove_word(self, word):
 		if not isinstance(word, Word):
 			raise TypeError(word)
-		self.__indexed_words[word.lemma().key()].remove(word)
-		self.__words[word.form()].remove(word)
+		self.__indexed_words[word.lemma.key()].remove(word)
+		self.__words[word.form].remove(word)
 		self.__valid = False
 
 	def retrieve_words(self, form = None, lemma_key = None, categories = None):
@@ -292,7 +297,7 @@ class Lexicon:
 		return ws
 	
 	def add_lemma(self, lemma):
-		if not isinstance(lemma, Particle):
+		if not isinstance(lemma, Lemma):
 			raise TypeError(lemma)
 		k = lemma.key()
 		if k in self.__lemmas:
@@ -323,9 +328,9 @@ class Lexicon:
 	def retrieve_lemmas(self, entry_form, id = None, p_o_s = None, lemma_categories = None):
 		f = []
 		for i in self.__lemmas.itervalues():
-			if entry_form is not None and entry_form != i.entry_form():
+			if entry_form is not None and entry_form != i.entry_form:
 				continue
-			if id is not None and id != i.id():
+			if id is not None and id != i.id:
 				continue
 			if p_o_s is not None and p_o_s != i.p_o_s:
 				continue
@@ -360,7 +365,7 @@ class Lexicon:
 				check_length(hw, len(d[hw.p_o_s][0]), err, corrective_p_o_s)
 		for wz in self.__words.itervalues():
 			for w in wz:
-				p_o_s = w.lemma().p_o_s
+				p_o_s = w.lemma.p_o_s
 				if p_o_s in d:
 					check_length(w, len(d[p_o_s][1]), err, corrective_p_o_s)
 		self.__valid = False
@@ -373,7 +378,7 @@ class WordFilter(Literal):
 	def __init__(self, word):
 		if not isinstance(word, Word):
 			raise TypeError(word)
-		Literal.__init__(self, (word.form(), word.lemma().entry_form(), word.lemma().id(), None, None, word.categories))
+		Literal.__init__(self, (word.form, word.lemma.entry_form, word.lemma.id, None, None, word.categories))
 
 	def __hash__(self):
 		def dict_hash(x, i):
@@ -383,6 +388,17 @@ class WordFilter(Literal):
 				return len(x) << i & maxint
 		return hash(self.content[:-2]) ^ dict_hash(self.content[4], 2) ^ dict_hash(self.content[5], 4)
 
+	def __eq__(self, other):
+		"""
+		Compare a terminal to another.
+		Two terminals are equal if their contents are the same.
+		"""
+		if isinstance(other, WordFilter):
+			return self.content == other.content
+		elif other is None:
+			return False
+		else:
+		    raise TypeError(other.__class__)
 
 
 	def match(self, word):
@@ -390,15 +406,15 @@ class WordFilter(Literal):
 			if v is None: return True
 			else: return v == w
 
-		if not none_or_equal(self.content[0], word.form()):
+		if not none_or_equal(self.content[0], word.form):
 			return False
-		if not none_or_equal(self.content[1], word.lemma().entry_form()):
+		if not none_or_equal(self.content[1], word.lemma.entry_form):
 			return False
-		if not none_or_equal(self.content[2], word.lemma().id()):
+		if not none_or_equal(self.content[2], word.lemma.id):
 			return False
-		if not none_or_equal(self.content[3], word.lemma().p_o_s):
+		if not none_or_equal(self.content[3], word.lemma.p_o_s):
 			return False
-		if not CategoryFilter.test(self.content[4], word.lemma().categories):
+		if not CategoryFilter.test(self.content[4], word.lemma.categories):
 			return False
 		if not CategoryFilter.test(self.content[5], word.categories):
 			return False
@@ -500,21 +516,21 @@ class CategoryFilter:
 
 	def __repr__(self):
 		test, rpr = self.FUNCTIONS[self.operator]
-		return rpr % repr(self.parameter)	
+		return rpr % `self.parameter`
 		
 
 def __test():
 
 	lx = Lexicon()
-	r = Root(u"ken", 1, "verb", ("tr",), "kus")
-	lx.add_word(Word(u"mi", Root(u"mi", 1, "pronoun", (), "bavi")))
-	lx.add_word(Word(u"sina", Root(u"sina", 1, "pronoun", (), "zavi")))
-	lx.add_word(Word(u"suli", Root(u"suli", 1, "adjective", (), "kemo")))
-	lx.add_word(Word(u"suna", Root(u"suna", 1, "noun", (), "Lakitisi")))
-	lx.add_word(Word(u"telo", Root(u"telo", 1, "noun", (), "bocivi")))
-	lx.add_word(Word(u"moku", Root(u"moku", 1, "verb", ("intr",), "fucala")))
-	lx.add_word(Word(u"moku", Root(u"moku", 2, "verb", ("tr",), "fucalinza")))
-	lx.add_word(Word(u"jan", Root(u"jan", 1, "noun", (), "becami")))
+	r = Stem(u"ken", 1, "verb", ("tr",), "kus")
+	lx.add_word(Word(u"mi", Stem(u"mi", 1, "pronoun", (), "bavi")))
+	lx.add_word(Word(u"sina", Stem(u"sina", 1, "pronoun", (), "zavi")))
+	lx.add_word(Word(u"suli", Stem(u"suli", 1, "adjective", (), "kemo")))
+	lx.add_word(Word(u"suna", Stem(u"suna", 1, "noun", (), "Lakitisi")))
+	lx.add_word(Word(u"telo", Stem(u"telo", 1, "noun", (), "bocivi")))
+	lx.add_word(Word(u"moku", Stem(u"moku", 1, "verb", ("intr",), "fucala")))
+	lx.add_word(Word(u"moku", Stem(u"moku", 2, "verb", ("tr",), "fucalinza")))
+	lx.add_word(Word(u"jan", Stem(u"jan", 1, "noun", (), "becami")))
 	lx.add_word(Word(u"li", Particle(u"li", 1, "sep")))
 	print lx
 	tk = lx.compile({"separator": " "})
@@ -523,8 +539,8 @@ def __test():
 	lx = WordCategoryFilter("noun")
 	lx1 = WordCategoryFilter("noun", ("m", CategoryFilter("in", ["pl","s"])))
 	lx2 = WordCategoryFilter("noun", (CategoryFilter("ni", ["m"]), None))
-	lx3 = WordFilter(Word("man", Root("man", 1, "n", (), "None")))
-	w = Word("man", Root("man", 1, "noun", ("m",), "Uomo"))
+	lx3 = WordFilter(Word("man", Stem("man", 1, "n", (), "None")))
+	w = Word("man", Stem("man", 1, "noun", ("m",), "Uomo"))
 	print `lx1`
 	print `lx2`
 	print `lx3`

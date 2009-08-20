@@ -4,13 +4,31 @@
 """
 Common utilities functions.
 
-@author: Paolo Olmino
-@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+This module also encapsulates the (potentially) unsupported features in I{non pure-Python} environments.
+In that case, a pure-Python plugin for some classes and funcions must implemented and referenced.
+
 """
 
+# General info
+__version__ = "0.1"
+__author__ = "Paolo Olmino"
+__url__ = "http://pylilac.berlios.de/"
+__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
-import unicodedata, sys
+import sys
+
+try: 
+    from gzip import GzipFile
+except ImportError: 
+    raise ImportError("A plugin for module gzip is needed.")
+    #from purepython import GzipFile
+
+try: 
+    from csv import writer, reader
+except ImportError: 
+    raise ImportError("A plugin for module csv is needed.")
+    #from purepython import writer, reader
 
 class Utilities:
 
@@ -26,6 +44,18 @@ class Utilities:
 		else:
 			return default
 
+	@staticmethod
+	def unicode(str):
+		"""
+		Safely encodes a string into Unicode.
+		
+		@return: the given string encoded using Unicode
+		"""
+		if isinstance(str, unicode):
+			return str
+		else:
+			return unicode(str)
+			
 
 class SortedDict(dict):
 	def __init__(self):
@@ -45,7 +75,17 @@ class SortedDict(dict):
 		for key in self.__sort:
 			yield (key, self[key])
 	def __repr__(self):
-		return unicode(self).encode("UTF-8", "replace")
+		s = []
+		for key in self.__sort:
+			if s:
+				s.append(", ")
+			else:
+				s.append("{[")
+			s.append(`key` + " : ")
+			s.append(`self[key]`)
+		s.append("]}")
+		return "".join(s)
+
 	def __unicode__(self):
 		s = []
 		for key in self.__sort:
@@ -53,11 +93,22 @@ class SortedDict(dict):
 				s.append(u", ")
 			else:
 				s.append(u"{[")
-			s.append(unicode(key) + u" : " + unicode(self[key]))
+			s.append(unicode(key) + u" : ")
+			s.append(unicode(self[key]))
 		s.append(u"]}")
 		return u"".join(s)
 
-
+class ZipFile(GzipFile):
+	pass
+	    
+class Csv:
+	@staticmethod
+	def writer(file):
+	    return writer(file)
+	@staticmethod
+	def reader(file):
+	    return reader(file)
+ 
 
 def __test():
 	a = None

@@ -52,32 +52,45 @@ A L{grammar<grammar.Grammar>} can be converted into a L{Finite State Automaton<f
 The technique is based on the representation in form of graph of the different symbols.
 
 
-@author: Paolo Olmino
-@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
 @todo: an unordered concatenation operation M{&}
 
 """
 
+# General info
+__version__ = "0.1"
+__author__ = "Paolo Olmino"
+__url__ = "http://pylilac.berlios.de/"
+__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 from utilities import Utilities
 
 class NormalExpression:
 	"""
-	A BNF symbol or expression.
+	An abstract class to model a Backus-Naur form (BNF) expression.
+	It provides the basic construction element for more complex BNF expressions.
 	"""
 	def __init__(self):
+		"""
+		Prevent the class from being instantiated.
+		To build an expression, the subclasses must be combined using operators.
+		"""	
 		if self.__class__ is NormalExpression: raise TypeError("NormalExpression is abstract and cannot be instantiated.")
 		
 	def to_expression(self):
 		"""
-		Convert the symbol into an I{alternative} of I{concatenations}.
+		Internally simplify the expression into an I{alternative} of I{concatenations}.
+
+		@rtype: NormalExpression
 		"""
 		return _ParallelExpression([[self]])
 	def __add__(self, b):
 		"""
 		Concatenate with another expression.
+		The resulting expression is a sequence of the two operators.
 		M{A + (X|YZ) S{hArr} A + X | A + YZ S{equiv} AX | AYZ}
+
+		@rtype: NormalExpression		
 		"""
 		if not b: #espilon or None
 			return _ParallelExpression([(self,)])
@@ -87,7 +100,10 @@ class NormalExpression:
 	def __or__(self, b):
 		"""
 		Alternate with another symbol.
+		The resulting expression is a choice between the two operators.
 		M{A | (X|YZ) S{hArr} A | X | YZ S{equiv} X | YZ | A}
+
+		@rtype: NormalExpression
 		"""
 		c = [conc for conc in b.to_expression()]
 		c.append([self])
@@ -95,42 +111,90 @@ class NormalExpression:
 
 	def __eq__(self, other):
 		"""
-		Compare two symbols.
+		Compare two expressions.
+		Equivalence between normal expressions is not trivial, but defined by the properties on M{S{Sigma}}:
+                    - Both M{|} and M{+} are associative
+                    - M{|} is commutative
+                    - M{+} is distributive respect to M{|}
+                    - Idempotence respect to M{|}
+                    - M{S{epsilon}} is the identity respect to M{|} and M{+}
+
+		@rtype: bool
+		@return: True if two expressions are equivalent               
 		"""
 		if isinstance(other, NormalExpression):
 			return self.to_expression() == other.to_expression()	
 		else:
-			return False
+			return NotImplemented
 
 	def __ne__(self, other):
+		"""
+		Compare two expressions for inequality.
+
+		@rtype: bool
+		@return: True if two expressions are not equivalent
+		"""	
 		return not self.__eq__(other)
 
 
 	def __hash__(self):
+		"""
+		Generate a hash code.
+
+		@rtype: int
+		"""	
 		return hash(self.__class__)
 
 	def __repr__(self):
 		"""
 		Build up a verbose representation according to BNF.
+
+		@rtype: str
 		"""
 		return "<>"
 
 	def dependencies(self):
 		"""
 		Compute the I{non-terminals} the symbol depends on.
+
+		@rtype: frozenset
 		"""
 		return frozenset()
 
 	def build(self, grammar, fsa, initial, final, tag, max_levels):
 		"""
 		Inserts a sub-FSA in a L{FSA<fsa.FSA>} according to the rules in a L{grammar<grammar.Grammar>}.
+
+		@type grammar: Grammar
+		@param grammar: the grammar providing the rules and options to build the sub-FSA
+		@type fsa: FSA
+		@param fsa: the Finite-state Automaton in which the sub-graph must be inserted
+		@type initial: FSA node
+		@param initial: the state from which the sub-graph departs
+		@type final: FSA node
+		@param final: the state in which the sub-graph ends
+		@type tag: FSA tag
+		@param tag: the initial tag for the arcs
+		@type max_levels: int
+		@param max_levels: the maximum number of levels of recursion to accept
 		"""
 		return
 
 	def __nonzero__(self):
+		"""
+		Convert the expression into a boolean.
+
+		@rtype: bool
+		@return: False if S{epsilon}
+		"""	
 		return True
 
 	def __mul__(self, closure):
+		"""
+		Apply a closure to the expression.
+
+		@rtype: NormalExpression
+		"""	
 		raise TypeError("Symbol doesn't support closures")
 
 class Reference(NormalExpression):
@@ -154,7 +218,8 @@ class Reference(NormalExpression):
 		if isinstance(other, Reference):
 			return self.reference == other.reference
 		else:
-			return False
+			return NotImplemented
+    
 	def __hash__(self):
 		return hash(self.__class__) ^ hash(self.reference)
 
@@ -195,7 +260,7 @@ class Literal(NormalExpression):
 		if isinstance(other, Literal):
 			return self.content == other.content
 		else:
-			return False
+		    return NotImplemented
 
 	def __hash__(self):
 		return hash(self.__class__) ^ hash(self.content)
@@ -226,7 +291,7 @@ class _ParallelExpression(NormalExpression):
 	def __repr__(self):
 		r = []
 		for t in self.__fsot:
-			r.append(" ".join([repr(s) for s in t]))
+			r.append(" ".join([`s` for s in t]))
 		return " | ".join(r)
 
 	def __add__(self, b):
@@ -250,7 +315,7 @@ class _ParallelExpression(NormalExpression):
 		if isinstance(other, _ParallelExpression):
 			return self.__fsot == other.__fsot
 		else:
-			return False
+			return NotImplemented
 
 	def __hash__(self):
 		return hash(self.__class__) ^ hash(self.__fsot)
@@ -439,8 +504,10 @@ class _Epsilon(Literal):
 	def __eq__(self, b):
 		if b is None or isinstance(b, _Epsilon):
 			return True
+		elif isinstance(b, NormalExpression):
+		    return False
 		else:
-			return False
+			return NotImplemented
 
 	def __repr__(self):
 		return u"ε".encode("UTF-8")

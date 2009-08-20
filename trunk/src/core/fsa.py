@@ -6,10 +6,14 @@
 A module for compiling grammars and parsing, i.e. traversing and tagging a token sequence using a compiled grammar.
 The L{Finite State Automaton<FSA>} class is used to compile grammars and the L{Parser} class to parse streams.
 
-@author: Paolo Olmino
-@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+
 """
 
+# General info
+__version__ = "0.1"
+__author__ = "Paolo Olmino"
+__url__ = "http://pylilac.berlios.de/"
+__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 from optiontree import OptionTree
@@ -490,14 +494,14 @@ class ParseError(StandardError):
 
 	def __str__(self):
 		if len(self.tokens)>0:
-			return "[" + " ".join([repr(t) for t in self.tokens[:-1]]) + " ?" + repr(self.tokens[-1]) + "]@"+ str(self.state)
+			return "[" + " ".join([`t` for t in self.tokens[:-1]]) + " ?" + repr(self.tokens[-1]) + "]@"+ str(self.state)
 		else:
 			return "[]@%d" % self.state
 
 
 class ExpectedStopError(ParseError):
 	def __str__(self):
-		return "[" + " ".join([repr(t) for t in self.tokens]) + " ?]@"+ str(self.state)
+		return "[" + " ".join([`t` for t in self.tokens]) + " ?]@"+ str(self.state)
 
 
 class Parser:

@@ -7,8 +7,8 @@ A module for the OptionTree utility class.
 # General info
 __version__ = "2.0"
 __author__ = "Paolo Olmino"
-__url__ = "http://pylilac.sourceforge.net"
-__license__ = "GPL GNU Public Licence"
+__url__ = "http://pylilac.berlios.de/"
+__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 from utilities import Utilities
@@ -18,9 +18,12 @@ class OptionTree:
 	A container for the possible expansions of a sequence.
 	It can be populated recursively.
 	"""
-	def __init__(self, element = None, successors = None):
+	def __init__(self, element = None, successors = []):
 		self.element = element
-		self.__successors = Utilities.nvl(successors, [])
+		if not successors:
+		    self.__successors = []
+		else:
+		    self.__successors = successors
 
 	def append(self, successor):
 		if not isinstance(successor, OptionTree):
@@ -30,7 +33,7 @@ class OptionTree:
 
 	def __repr__(self):
 		if self.element:
-			e = repr(self.element)
+			e = `self.element`
 		else:
 			e = ""
 	
@@ -41,7 +44,7 @@ class OptionTree:
 			c = repr(self.__successors[0])
 		else:
 			if len(e) > 0: e += " "
-			c = repr(self.__successors)
+			c = `self.__successors`
 		return e + c
 
 	def __len__(self):

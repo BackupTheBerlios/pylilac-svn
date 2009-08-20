@@ -14,14 +14,18 @@ For an example of machine interlingua, see U{The Lexical Semantics of a Machine 
 
 @see: Literal
 
-@author: Paolo Olmino
-@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+
 """
 
+# General info
+__version__ = "0.1"
+__author__ = "Paolo Olmino"
+__url__ = "http://pylilac.berlios.de/"
+__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 import os.path
-import csv
+from utilities import Csv
 
 class Interlingua:
 	"""
@@ -60,7 +64,7 @@ class Interlingua:
 			filename = self.__filename
 		else:
 			self.__set_filename(filename)
-		writer = csv.writer(open(self.__filename, "wb"))
+		writer = Csv.writer(open(self.__filename, "wb"))
 		writer.writerow((self.name, ))
 		writer.writerow(self.p_o_s)
 		writer.writerow(self.arg_struct)
@@ -72,7 +76,7 @@ class Interlingua:
 		Load the interlingua object from a comma separated values file.
 		The internal status of the object is changed to the loaded values.
 		"""
-		reader = csv.reader(open(self.__filename, "rb"))
+		reader = Csv.reader(open(self.__filename, "rb"))
 		name = reader.next()[0]
 		p_o_s = list(reader.next())
 		arg_struct = list(reader.next())
@@ -218,7 +222,7 @@ class Taxonomy:
 		return iter(sequencing)
 
 	def __repr__(self):
-		return repr(self.__tree)
+		return `self.__tree`
 		
 def _test():
 	pass

@@ -3,6 +3,8 @@
 """
 Run WX interface.
 """
+import sys
+#sys.path.insert(0, "pylilac.pyz")
 
 from ui.la import LAApp
 

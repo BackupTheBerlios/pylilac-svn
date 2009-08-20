@@ -6,15 +6,17 @@ A module for expression management: reading (comprehension), translating, writin
 
 The module offers the high-level interfaces to internal structures.
 
-@author: Paolo Olmino
-@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-
 """
 
-__docformat__ = "epytext en" 
+# General info
+__version__ = "0.1"
+__author__ = "Paolo Olmino"
+__url__ = "http://pylilac.berlios.de/"
+__license__ = "GNU GPL v3"
+__docformat__ = "epytext en"
 
 from fsa import ParseError
-from utilities import SortedDict
+from utilities import SortedDict, Utilities
 
 
 class ExpressionParseError(StandardError):
@@ -86,7 +88,9 @@ class ExpressionReader:
 			try:
 				rot = self.__parser(expansion)
 				for recognition in rot.expand():
-					results.append(ParseTree(recognition))
+					pt = ParseTree()
+					pt.add_recognition(recognition)
+					results.append(pt)
 			except ParseError, pe:
 				errors.include(pe)
 		if len(results)==0 and len(errors)>0:
@@ -94,11 +98,9 @@ class ExpressionReader:
 		return results
 
 class ParseTree:
-	def __init__(self, recognition = None):
+	def __init__(self):
 		self.__content = None
 		self.__elements = SortedDict()
-		if recognition:
-			self.add_recognition(recognition)
 
 	def is_leaf(self):
 		return (self.__content is not None)
@@ -128,27 +130,31 @@ class ParseTree:
 			st.__content.append(item)
 
 	def __repr__(self):
-		return unicode(self).encode("UTF-8", "replace")
-
-	def __unicode__(self):
 		s = []
 		m = False
 		if self.__content:
-			s.append(unicode(self.__content))
+			c = False
+			for i in self.__content:
+				if c:
+					s.append("; ")
+				else:
+					c = True
+				s.append(`i`)
 			m = True
 		if self.__elements:
 			if m:
-				s.append(u", ")
-			s.append(u"(")
+				s.append(", ")
+			s.append("(")
 			c = False
 			for k, v in self.__elements.iteritems():
 				if c:
-					s.append(u", ")
+					s.append(", ")
 				else:
 					c = True
-				s.append(k+u" : "+unicode(v))
-			s.append(u")")
-		return u"".join(s)
+				s.append(k+": ")
+				s.append(`v`)
+			s.append(")")
+		return "".join(s)
 		
 
 def __test():

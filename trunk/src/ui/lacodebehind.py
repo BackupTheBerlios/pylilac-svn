@@ -137,12 +137,12 @@ class LACodeBehind(FrameCodeBehind):
 		redim(grid, len(words))
 		for i, w in enumerate(words):
 			grid.SetCellValue(i, 0, " ".join(w.categories))
-			grid.SetCellValue(i, 1, w.form())
+			grid.SetCellValue(i, 1, w.form)
 		if self.__selected_word_row is not None:
 			grid.SelectRow(self.__selected_word_row)
 			w = words[self.__selected_word_row]
 			self.frame.word_category_ctrl.SetCategoryValues(w.categories)
-			self.frame.form_ctrl.SetValue(w.form())
+			self.frame.form_ctrl.SetValue(w.form)
 		else:
 			self.frame.word_category_ctrl.SetCategoryValues([])
 			self.frame.form_ctrl.SetValue("")
@@ -262,9 +262,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 
 		info.SetIcon(wx.Icon('ui/graphics/lilac.png', wx.BITMAP_TYPE_PNG))
 		info.SetName('pyLilac Linguistic Laboratory')
-		info.SetVersion('0.3.0')
+		info.SetVersion('0.1.3')
 		info.SetDescription(description)
-		info.SetCopyright('(C) 2007 Paolo Olmino')
+		info.SetCopyright('(C) 2007-2009 Paolo Olmino')
 		info.SetWebSite('http://pylilac.berlios.de')
 		info.SetLicence(licence)
 
@@ -274,15 +274,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 	def OnLemmaSelect(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = event.GetClientData()
 		hw = data.lect.lexicon.get_lemma_by_key(hw_key)
-		self.frame.entry_form_ctrl.SetValue(hw.entry_form())
+		self.frame.entry_form_ctrl.SetValue(hw.entry_form)
 		self.frame.pos_ctrl.SetValue(hw.p_o_s)
 		self.frame.lemma_category_ctrl.SetCategoryLabels(data.lect.get_categories(hw.p_o_s)[0])
 		self.frame.lemma_category_ctrl.SetCategoryValues(hw.categories)
-		if hw.gloss:
+		if hasattr(hw, "gloss") and hw.gloss:
 			self.frame.gloss_ctrl.SetValue(hw.gloss)
 			c = data.interlingua.taxonomy.get(hw.gloss)
 			self.frame.gloss_ctrl.SetToolTipString(`c`)
-				
 		else:
 			self.frame.gloss_ctrl.SetValue("-")
 		self.frame.word_category_ctrl.SetCategoryLabels(data.lect.get_categories(hw.p_o_s)[1])
@@ -314,7 +313,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		self.__selected_word_row = row
 		w = words[row]
 		self.frame.word_category_ctrl.SetCategoryValues(w.categories)
-		self.frame.form_ctrl.SetValue(w.form())
+		self.frame.form_ctrl.SetValue(w.form)
 
 	def OnDoNewWord(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = self.frame.lemma_ctrl.GetClientData(self.frame.lemma_ctrl.GetSelection())
