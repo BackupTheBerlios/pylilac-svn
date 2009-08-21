@@ -10,7 +10,6 @@ A module for the generation of flexed forms.
 # General info
 __version__ = "0.1"
 __author__ = "Paolo Olmino"
-__url__ = "http://pylilac.berlios.de/"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
@@ -40,9 +39,11 @@ class Flexion:
 			    3. suffixation of «I{-a}», giving the final form «I{cávea}»
 
 			Mutation steps
-			--------------
+			==============
+			
 			Steps are modeled as tuple:
 			    >>> (search, substitution, mandatory)
+			
 			All the occurrences of the C{search} string in the base form are replace with the C{substitution}.
 			If C{mandatory} is C{True} and there are no occurrences of the C{search} string the operation will abort.
 			See the L{call<__call__>} method for details on execution.
@@ -52,8 +53,8 @@ class Flexion:
 			    2. C{u"a$"} S{->} C{u"e"}
 			    3. C{u"$"} S{->} C{u"a"}
 
-            If one of the initial regular expressions is not satisfied and the step is not defined as mandatory, it's neglected and the execution goes on to the next step.
-            in this case, the second step can be seen as optional, since stems not ending in «I{-a}» simply go on to the last step : «I{hir}» S{->} «I{híra}»
+			If one of the initial regular expressions is not satisfied and the step is not defined as mandatory, it's neglected and the execution goes on to the next step.
+			In this example, the second step might be seen as optional, since stems not ending in «I{-a}» simply go on to the last step : «I{hir}» S{->} «I{híra}» .
 			"""
 			def __init__(self, parent_flexion, based_on, condition, lemma_categories, steps = None):
 				self.__parent = parent_flexion
@@ -135,6 +136,8 @@ class Flexion:
 			raise FlexionError("Transform cannot apply %s to lemma '%s'" % (`self.categories`, lemma.entry_form))
 			
 	def __init__(self):
+		self.p_o_s = p_o_s
+		self.
 		self.__transforms = SortedDict()
 
 	def create_transform(self, categories):
@@ -170,19 +173,20 @@ class Flexions:
 		def __init__(self):
 			self.__flexions = []
 		def create_flexion(self, p_o_s, condition = None, lemma_categories = None):
-			f = Flexion()
+			flexion = Flexion()
 			if condition == u".":
 			    condition = None
 			cco = None
 			if condition:
-			    try:
-				    cco = re.compile(condition, re.IGNORECASE)
-			    except Exception, e:
-				    raise MutationStepError("Cannot compile %s: %s" % (`condition`, e.message))
-			self.__flexions.append((p_o_s, cco, lemma_categories, f))
-			return f
+				try:
+					cco = re.compile(condition, re.IGNORECASE)
+				except Exception, e:
+					raise MutationStepError("Cannot compile %s: %s" % (`condition`, e.message))
+			self.__flexions.append((p_o_s, condition,  cco, lemma_categories, flexion))
+			return flexion
+		
 		def __call__(self, lemma, words):
-			for p_o_s, cco, lemma_categories, f in self.__flexions:
+			for p_o_s, c,  cco, lemma_categories, f in self.__flexions:
 				if p_o_s == lemma.p_o_s and (cco is None or cco.search(lemma.entry_form)) and CategoryFilter.test(lemma_categories, lemma.categories):
 					return f(lemma, words)
 			return None
