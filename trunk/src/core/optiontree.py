@@ -7,7 +7,6 @@ A module for the OptionTree utility class.
 # General info
 __version__ = "2.0"
 __author__ = "Paolo Olmino"
-__url__ = "http://pylilac.berlios.de/"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 

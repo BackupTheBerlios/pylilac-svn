@@ -4,7 +4,7 @@
 """
 A module for lexicon management: Word and Lemma.
 
-G{classtree Particle, Word}
+G{classtree Lemma, Word}
 
 @todo: meaning must be extended to real translation
 
@@ -13,7 +13,6 @@ G{classtree Particle, Word}
 # General info
 __version__ = "0.1"
 __author__ = "Paolo Olmino"
-__url__ = "http://pylilac.berlios.de/"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
@@ -24,7 +23,7 @@ from bnf import Literal
 from utilities import Utilities
 
 
-DEFECTIVE = u"∄"
+DEFECTIVE = -3
 
 class ExistingLemmaError(ValueError):
 	pass
@@ -38,7 +37,7 @@ class Lemma:
 	def __init__(self, entry_form, id, p_o_s, categories = ()):
 		"""
 		It cannot be used publicly, since the class is abstract.
-    	"""
+		"""
 
 		if self.__class__ is Lemma: raise TypeError("Lemma is abstract and cannot be instantiated.")
 		self.__entry_form = Utilities.unicode(entry_form)
