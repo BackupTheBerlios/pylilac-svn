@@ -62,7 +62,7 @@ class Utilities:
 		
 		@return: The given string decoded into ASCII.
 		
-		@see: L{unidecode<http://www.tablix.org/~avian/blog/archives/2009/01/unicode_transliteration_in_python/>}
+		@see: U{unidecode<http://www.tablix.org/~avian/blog/archives/2009/01/unicode_transliteration_in_python/index.html>}
 		"""
 		if isinstance(unistring, unicode):
 			return _unidecode(unistring)

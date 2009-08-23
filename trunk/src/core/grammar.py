@@ -149,7 +149,7 @@ class Grammar:
 		If the grammar has never been compiled or it has been modified after last compilation, it will be translated into an FSA.
 		The result will be kept available inside a private member until the rules are modified or the grammar reset.
 
-		The algorithm calls recursively the L{bnf._Symbol.insert_transitions} method.
+		The algorithm calls recursively the L{bnf.NormalExpression.insert_transitions} method.
 
 		@param force: recompile grammar if it's already been compiled and validated
 		"""
@@ -170,7 +170,7 @@ class Grammar:
 			nfa.set_final(final)
 			
 			s = self.__rules[self.starting]
-			s.build(self, nfa, initial, final, (), max_levels)
+			s.insert_transitions(self, nfa, initial, final, (), max_levels)
 			#rewriting to save memory
 			nfa = nfa.reduced()
 			nfa = nfa.minimized()
