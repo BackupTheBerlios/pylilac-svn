@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -10,25 +10,32 @@ In that case, a pure-Python plugin for some classes and funcions must implemente
 """
 
 # General info
-__version__ = "0.1"
+__version__ = "0.4"
 __author__ = "Paolo Olmino"
-__url__ = "http://pylilac.berlios.de/"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 import sys
 
+#Native language libraries
 try: 
-    from gzip import GzipFile
+	from gzip import GzipFile
 except ImportError: 
-    raise ImportError("A plugin for module gzip is needed.")
-    #from purepython import GzipFile
+	raise ImportError("A plugin for module gzip is needed.")
+	#from purepython import GzipFile
 
 try: 
-    from csv import writer, reader
+	from csv import writer, reader
 except ImportError: 
-    raise ImportError("A plugin for module csv is needed.")
-    #from purepython import writer, reader
+	raise ImportError("A plugin for module csv is needed.")
+	#from purepython import writer, reader
+
+#Optional libraries
+try: 
+	from unidecode import unidecode as _complete_unidecode
+	_unidecode = _complete_unidecode
+except ImportError: 
+	_unidecode = lambda u: u.encode(sys.getdefaultencoding(), "replace")
 
 class Utilities:
 
@@ -44,17 +51,23 @@ class Utilities:
 		else:
 			return default
 
+
 	@staticmethod
-	def unicode(str):
+	def unidecode(unistring):
 		"""
-		Safely encodes a string into Unicode.
+		Decode a unicode string.
 		
-		@return: the given string encoded using Unicode
+		The C{unidecode} module is optional.
+		If C{unidecode} is available, the string is I{meaningfully} decoded, otherwise non ASCII characters are replace with C{'?'}.
+		
+		@return: The given string decoded into ASCII.
+		
+		@see: L{unidecode<http://www.tablix.org/~avian/blog/archives/2009/01/unicode_transliteration_in_python/>}
 		"""
-		if isinstance(str, unicode):
-			return str
+		if isinstance(unistring, unicode):
+			return _unidecode(unistring)
 		else:
-			return unicode(str)
+			raise TypeError(unistring)
 			
 
 class SortedDict(dict):
@@ -74,16 +87,17 @@ class SortedDict(dict):
 	def iteritems(self):
 		for key in self.__sort:
 			yield (key, self[key])
+
 	def __repr__(self):
 		s = []
 		for key in self.__sort:
 			if s:
 				s.append(", ")
 			else:
-				s.append("{[")
+				s.append("{")
 			s.append(`key` + " : ")
 			s.append(`self[key]`)
-		s.append("]}")
+		s.append("}")
 		return "".join(s)
 
 	def __unicode__(self):
@@ -92,27 +106,32 @@ class SortedDict(dict):
 			if s:
 				s.append(u", ")
 			else:
-				s.append(u"{[")
-			s.append(unicode(key) + u" : ")
-			s.append(unicode(self[key]))
-		s.append(u"]}")
+				s.append(u"{")
+			s.append(key + u" : ")
+			s.append(self[key])
+		s.append(u"}")
 		return u"".join(s)
 
 class ZipFile(GzipFile):
 	pass
-	    
+		
 class Csv:
 	@staticmethod
 	def writer(file):
-	    return writer(file)
+		return writer(file)
 	@staticmethod
 	def reader(file):
-	    return reader(file)
+		return reader(file)
  
 
 def __test():
 	a = None
-	print nvl(a, [])
+	print Utilities.nvl(a, "NULL")
+	w = u"lómi"
+	v = Utilities.unidecode(w)
+	print v
+	
+ 
 
 if __name__ == "__main__":
 	__test()

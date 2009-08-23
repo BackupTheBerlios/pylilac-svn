@@ -145,7 +145,7 @@
                     <tabs>
                         <tab window="la_language_pane">Language</tab>
                         <tab window="la_lexicon_pane">Lexicon</tab>
-                        <tab window="panel_2">Flexion</tab>
+                        <tab window="panel_2">Inflection</tab>
                         <tab window="la_grammar_pane">Grammar</tab>
                         <tab window="la_translation_pane">Translation</tab>
                     </tabs>
@@ -897,9 +897,9 @@
                                         <flag>wxEXPAND</flag>
                                         <border>0</border>
                                         <option>1</option>
-                                        <object class="wxStaticBoxSizer" name="flexion_panel" base="EditStaticBoxSizer">
+                                        <object class="wxStaticBoxSizer" name="inflection_panel" base="EditStaticBoxSizer">
                                             <orient>wxHORIZONTAL</orient>
-                                            <label>Flexions and Transforms:</label>
+                                            <label>Inflections and Transforms:</label>
                                             <object class="sizeritem">
                                                 <flag>wxEXPAND</flag>
                                                 <border>0</border>
@@ -992,7 +992,7 @@
                                         <flag>wxALL|wxEXPAND</flag>
                                         <border>5</border>
                                         <option>1</option>
-                                        <object class="wxFlexGridSizer" name="transform_sizer" base="EditFlexGridSizer">
+                                        <object class="wxFlexGridSizer" name="form_sizer" base="EditFlexGridSizer">
                                             <hgap>0</hgap>
                                             <rows>1</rows>
                                             <growable_cols>1</growable_cols>

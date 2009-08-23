@@ -20,29 +20,29 @@ Supported operations
 
 Over the set M{S{Sigma}} of possible BNF expressions, two operations are defined:
 
-    - concatenation (M{+}), for example: M{A + B S{equiv} AB}
+	- concatenation (M{+}), for example: M{A + B S{equiv} AB}
 
-    - alternation (M{|}) or choice, for example: M{A | B}
+	- alternation (M{|}) or choice, for example: M{A | B}
 
 M{S{Sigma}} has the following properties:
 
-    - Closure of M{S{Sigma}} under M{|} and M{+}
-      - For all M{a}, M{b} belonging to M{S{Sigma}}, both M{a | b} and M{a + b} belong to M{S{Sigma}} (or more formally, M{|} and M{+} are binary operations on M{S{Sigma}}).
+	- Closure of M{S{Sigma}} under M{|} and M{+}
+	  - For all M{a}, M{b} belonging to M{S{Sigma}}, both M{a | b} and M{a + b} belong to M{S{Sigma}} (or more formally, M{|} and M{+} are binary operations on M{S{Sigma}}).
 
-    - Both M{|} and M{+} are associative
-      - For all M{a}, M{b}, M{c} in M{S{Sigma}}, M{a | (b | c) = (a | b) | c} and M{a + (b + c) = (a + b) + c}.
+	- Both M{|} and M{+} are associative
+	  - For all M{a}, M{b}, M{c} in M{S{Sigma}}, M{a | (b | c) = (a | b) | c} and M{a + (b + c) = (a + b) + c}.
 
-    - M{|} is commutative
-      - For all M{a}, M{b}, M{c} belonging to M{S{Sigma}}, M{a | b = b | a}.
+	- M{|} is commutative
+	  - For all M{a}, M{b}, M{c} belonging to M{S{Sigma}}, M{a | b = b | a}.
 
-    - The operation M{+} is distributive over the operation M{|}
-      - For all M{a}, M{b}, M{c} belonging to M{S{Sigma}}, M{a + (b | c) = (a + b) | (a + c)}.
+	- The operation M{+} is distributive over the operation M{|}
+	  - For all M{a}, M{b}, M{c} belonging to M{S{Sigma}}, M{a + (b | c) = (a + b) | (a + c)}.
 
-    - Idempotence respect to M{|}
-      - For all M{a} belonging to M{S{Sigma}}, M{a | a = a}.
+	- Idempotence respect to M{|}
+	  - For all M{a} belonging to M{S{Sigma}}, M{a | a = a}.
 
-    - Existence of a multiplicative or juxtapositive (i.e. for M{+}) identity
-      - There exists an element M{S{epsilon}} in M{S{Sigma}}, such that for all M{a} belonging to M{S{Sigma}}, M{a + S{epsilon} = a}.
+	- Existence of a multiplicative or juxtapositive (i.e. for M{+}) identity
+	  - There exists an element M{S{epsilon}} in M{S{Sigma}}, such that for all M{a} belonging to M{S{Sigma}}, M{a + S{epsilon} = a}.
 
 Conversion to a Graph
 =====================
@@ -57,9 +57,8 @@ The technique is based on the representation in form of graph of the different s
 """
 
 # General info
-__version__ = "0.1"
+__version__ = "0.4"
 __author__ = "Paolo Olmino"
-__url__ = "http://pylilac.berlios.de/"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
@@ -113,14 +112,14 @@ class NormalExpression:
 		"""
 		Compare two expressions.
 		Equivalence between normal expressions is not trivial, but defined by the properties on M{S{Sigma}}:
-                    - Both M{|} and M{+} are associative
-                    - M{|} is commutative
-                    - M{+} is distributive respect to M{|}
-                    - Idempotence respect to M{|}
-                    - M{S{epsilon}} is the identity respect to M{|} and M{+}
+					- Both M{|} and M{+} are associative
+					- M{|} is commutative
+					- M{+} is distributive respect to M{|}
+					- Idempotence respect to M{|}
+					- M{S{epsilon}} is the identity respect to M{|} and M{+}
 
 		@rtype: bool
-		@return: True if two expressions are equivalent               
+		@return: True if two expressions are equivalent			   
 		"""
 		if isinstance(other, NormalExpression):
 			return self.to_expression() == other.to_expression()	
@@ -219,7 +218,7 @@ class Reference(NormalExpression):
 			return self.reference == other.reference
 		else:
 			return NotImplemented
-    
+	
 	def __hash__(self):
 		return hash(self.__class__) ^ hash(self.reference)
 
@@ -260,7 +259,7 @@ class Literal(NormalExpression):
 		if isinstance(other, Literal):
 			return self.content == other.content
 		else:
-		    return NotImplemented
+			return NotImplemented
 
 	def __hash__(self):
 		return hash(self.__class__) ^ hash(self.content)
@@ -505,7 +504,7 @@ class _Epsilon(Literal):
 		if b is None or isinstance(b, _Epsilon):
 			return True
 		elif isinstance(b, NormalExpression):
-		    return False
+			return False
 		else:
 			return NotImplemented
 

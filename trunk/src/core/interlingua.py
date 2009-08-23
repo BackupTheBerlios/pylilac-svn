@@ -18,9 +18,8 @@ For an example of machine interlingua, see U{The Lexical Semantics of a Machine 
 """
 
 # General info
-__version__ = "0.1"
+__version__ = "0.4"
 __author__ = "Paolo Olmino"
-__url__ = "http://pylilac.berlios.de/"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 

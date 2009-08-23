@@ -262,7 +262,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 
 		info.SetIcon(wx.Icon('ui/graphics/lilac.png', wx.BITMAP_TYPE_PNG))
 		info.SetName('pyLilac Linguistic Laboratory')
-		info.SetVersion('0.1.3')
+		info.SetVersion('0.4')
 		info.SetDescription(description)
 		info.SetCopyright('(C) 2007-2009 Paolo Olmino')
 		info.SetWebSite('http://pylilac.berlios.de')
@@ -494,8 +494,8 @@ class CBCodeBehind(FrameCodeBehind):
 
 	def OnSaveAs(self, event): # wxGlade: CBFrame.<event_handler>
 		dlg = wx.FileDialog(self.frame, "Save as...",
-		         wildcard = "CSV files (*.csv)|*.csv|All files|*.*",
-		         style = wx.SAVE)
+				 wildcard = "CSV files (*.csv)|*.csv|All files|*.*",
+				 style = wx.SAVE)
 
 		if dlg.ShowModal() == wx.ID_OK:
 			path = dlg.GetPath()

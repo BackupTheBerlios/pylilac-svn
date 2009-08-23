@@ -11,7 +11,7 @@ G{classtree Lemma, Word}
 """
 
 # General info
-__version__ = "0.1"
+__version__ = "0.4"
 __author__ = "Paolo Olmino"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
@@ -40,7 +40,12 @@ class Lemma:
 		"""
 
 		if self.__class__ is Lemma: raise TypeError("Lemma is abstract and cannot be instantiated.")
-		self.__entry_form = Utilities.unicode(entry_form)
+		
+
+		if isinstance(entry_form, unicode):
+			self.__entry_form = entry_form
+		else:
+			raise TypeError("'%s' is not Unicode" % repr(entry_form))	
 		self.__id = id
 		self.p_o_s = p_o_s
 		if not isinstance(categories, tuple):
@@ -78,7 +83,7 @@ class Lemma:
 		return hash(self.__entry_form) ^ (self.__id - 1)
 
 	def __repr__(self):
-		return `self.__entry_form`+ "." + str(self.__id)
+		return Utilities.unidecode(self.__entry_form)+ "." + str(self.__id)
 
 	def __unicode__(self):
 		"""
@@ -104,9 +109,9 @@ class Particle(Lemma):
 		Lemma.__init__(self, entry_form, id, p_o_s, categories)
 
 
-class Stem(Lemma):
+class Lexeme(Lemma):
 	"""
-	A single unit of language, a basic form, with no functional decoration, but with a definable meaning.
+	A single language unit, a basic form, with no functional decoration, but with a definable meaning.
 	
 	A stem is a L{Lemma} with a precise meaning.
 	In a dictionary, it can be also be explained by its translations.
@@ -117,34 +122,34 @@ class Stem(Lemma):
 		Create a stem in a specific language for the I{entry form} specified.
 
 		Example::
-			Stem(u"heart", 1, "noun", (), "kawcesi") #heart, the heart organ in English, with no classification.
-			Stem(u"heart", 2, "noun", (), "kawcijumi") #heart, the heart shape in English.
-			Stem(u"hɑɹt", 1, "noun", () ,"kawcesi") #/h\u0251\u0279t/, /hɑɹt/, the heart organ phonic representation in General American English
-			Stem(u"moku", 1, "verb", {"transitive": "n"}, "fucala") #moku, "to eat" in Toki Pona
+			Lexeme(u"heart", 1, "noun", (), "kawcesi") #heart, the heart organ in English, with no classification.
+			Lexeme(u"heart", 2, "noun", (), "kawcijumi") #heart, the heart shape in English.
+			Lexeme(u"hɑɹt", 1, "noun", () ,"kawcesi") #/h\u0251\u0279t/, /hɑɹt/, the heart organ phonic representation in General American English
+			Lexeme(u"moku", 1, "verb", {"transitive": "n"}, "fucala") #moku, "to eat" in Toki Pona
 
 		@type entry_form: unicode
 		@param entry_form: 
-		    A U{Unicode<http://www.unicode.org>} representation of the entry word, either graphical or phonical.
+			A U{Unicode<http://www.unicode.org>} representation of the entry word, either graphical or phonical.
 
-		    The representation of a word can be its written form or its spoken form, refer to Unicode conventions for the proper encoding.
+			The representation of a word can be its written form or its spoken form, refer to Unicode conventions for the proper encoding.
 
-		    For phonetic/phonical representations, the alphabet of the U{IPA<http://www.arts.gla.ac.uk/IPA>} (Internationa Phonetic Association) is the standard, though some kind of extension could be advisable; the representation should be a phonetic transcription.
+			For phonetic/phonical representations, the alphabet of the U{IPA<http://www.arts.gla.ac.uk/IPA>} (Internationa Phonetic Association) is the standard, though some kind of extension could be advisable; the representation should be a phonetic transcription.
 		@type id: number
 		@param id:  A unique id to distinguish different lemmas having identical representation in a given language.
 
-		    Major meanings in dictionaries are usually associated to different id's.
+			Major meanings in dictionaries are usually associated to different id's.
 		@type p_o_s: str
 		@param p_o_s: A string which indicates the I{part of speech} to which the lemma belongs to in the specific language.
 
-		    The I{part of speech} is the general classification of the word: usually it distinguish nouns from verbs &c..
+			The I{part of speech} is the general classification of the word: usually it distinguish nouns from verbs &c..
 		@type categories: tuple (srt)
 		@param categories: The categories of the lemma.
 
-		    Categories can specify better the features of a particular I{part of speech}.
+			Categories can specify better the features of a particular I{part of speech}.
 		@type gloss: str
 		@param gloss: The meaning and the translation technique, referring to the I{interlingua}.
 
-		    For the interlingua to use, Latejami or its successors are recommended.
+			For the interlingua to use, Latejami or its successors are recommended.
 
 		"""
 		Lemma.__init__(self, entry_form, id, p_o_s, categories)
@@ -160,27 +165,30 @@ class Word:
 		Create a word with its form, its L{lemma<Lemma>} and its categories.
 
 		Example::
-			Word(u"heart", Stem("eng", u"heart", 1, "noun", None, "kawcesi"))
-			Word(u"hearts", lemmas["eng", u"heart", 1], ("pl"))
+			Word(u"heart", Lexeme("eng", u"heart", 1, "noun", "kawcesi"), ("s"))
+			Word(u"hearts", lemmas("eng", u"heart", 1, "noun"), ("pl"))
 			Word(u"hɑɹts", hw, ("pl"))
 			Word(u"moku", "tko", moku)
 	
 		@type form: unicode
 		@param form:
-		    The traditional, standard or neutral form of the word, either graphical or phonical.
+			The traditional, standard or neutral form of the word, either graphical or phonical.
 		@type lemma:  Lemma
 		@param lemma:
-		    The lemma of the word.
+			The lemma of the word.
 		@type categories: dict (srt, str)
 		@param categories: 
-		    The categories of the word; default is the empty tuple.
+			The categories of the word; default is the empty tuple.
 
-		    Categories can indicate word declensions or modifications.
+			Categories can indicate word declensions or modifications.
 	
 		"""
 		if not isinstance(categories, tuple):
 			raise TypeError(categories)
-		self.__form = Utilities.unicode(form)
+		if isinstance(form, unicode):
+			self.__form = form
+		else:
+			raise TypeError("'%s' is not Unicode" % repr(form))				
 		self.__lemma = lemma
 		self.categories = categories
 
@@ -211,7 +219,7 @@ class Word:
 		"""
 		Give a verbose representation for a word in the format <form>@<lemma><categories>, for example: 'men'@'man'.1('pl')"
 		"""
-		z =  `self.__form` + "@" + `self.__lemma`
+		z =  Utilities.unidecode(self.__form) + "@" + `self.__lemma`
 		if len(self.categories) == 0:
 			return z
 		else:
@@ -339,7 +347,7 @@ class Lexicon:
 		return f
 
 	def __repr__(self):
-		return "[[%d entries, %d forms]]" % (len(self.__lemmas), len(self.__words))
+		return "[[%d lemmas, %d words]]" % (len(self.__lemmas), len(self.__words))
 		
 	def check(self, lect, corrective_p_o_s = None):
 		def check_length(w, l, err, corr):
@@ -397,7 +405,7 @@ class WordFilter(Literal):
 		elif other is None:
 			return False
 		else:
-		    raise TypeError(other.__class__)
+			raise TypeError(other.__class__)
 
 
 	def match(self, word):
@@ -521,15 +529,15 @@ class CategoryFilter:
 def __test():
 
 	lx = Lexicon()
-	r = Stem(u"ken", 1, "verb", ("tr",), "kus")
-	lx.add_word(Word(u"mi", Stem(u"mi", 1, "pronoun", (), "bavi")))
-	lx.add_word(Word(u"sina", Stem(u"sina", 1, "pronoun", (), "zavi")))
-	lx.add_word(Word(u"suli", Stem(u"suli", 1, "adjective", (), "kemo")))
-	lx.add_word(Word(u"suna", Stem(u"suna", 1, "noun", (), "Lakitisi")))
-	lx.add_word(Word(u"telo", Stem(u"telo", 1, "noun", (), "bocivi")))
-	lx.add_word(Word(u"moku", Stem(u"moku", 1, "verb", ("intr",), "fucala")))
-	lx.add_word(Word(u"moku", Stem(u"moku", 2, "verb", ("tr",), "fucalinza")))
-	lx.add_word(Word(u"jan", Stem(u"jan", 1, "noun", (), "becami")))
+	r = Lexeme(u"ken", 1, "verb", ("tr",), "kus")
+	lx.add_word(Word(u"mi", Lexeme(u"mi", 1, "pronoun", (), "bavi")))
+	lx.add_word(Word(u"sina", Lexeme(u"sina", 1, "pronoun", (), "zavi")))
+	lx.add_word(Word(u"suli", Lexeme(u"suli", 1, "adjective", (), "kemo")))
+	lx.add_word(Word(u"suna", Lexeme(u"suna", 1, "noun", (), "Lakitisi")))
+	lx.add_word(Word(u"telo", Lexeme(u"telo", 1, "noun", (), "bocivi")))
+	lx.add_word(Word(u"moku", Lexeme(u"moku", 1, "verb", ("intr",), "fucala")))
+	lx.add_word(Word(u"moku", Lexeme(u"moku", 2, "verb", ("tr",), "fucalinza")))
+	lx.add_word(Word(u"jan", Lexeme(u"jan", 1, "noun", (), "becami")))
 	lx.add_word(Word(u"li", Particle(u"li", 1, "sep")))
 	print lx
 	tk = lx.compile({"separator": " "})
@@ -538,8 +546,8 @@ def __test():
 	lx = WordCategoryFilter("noun")
 	lx1 = WordCategoryFilter("noun", ("m", CategoryFilter("in", ["pl","s"])))
 	lx2 = WordCategoryFilter("noun", (CategoryFilter("ni", ["m"]), None))
-	lx3 = WordFilter(Word("man", Stem("man", 1, "n", (), "None")))
-	w = Word("man", Stem("man", 1, "noun", ("m",), "Uomo"))
+	lx3 = WordFilter(Word("man", Lexeme("man", 1, "n", (), "None")))
+	w = Word("man", Lexeme("man", 1, "noun", ("m",), "Uomo"))
 	print `lx1`
 	print `lx2`
 	print `lx3`

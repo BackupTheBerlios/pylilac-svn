@@ -9,9 +9,8 @@ The module offers the high-level interfaces to internal structures.
 """
 
 # General info
-__version__ = "0.1"
+__version__ = "0.4"
 __author__ = "Paolo Olmino"
-__url__ = "http://pylilac.berlios.de/"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
@@ -73,13 +72,13 @@ class ExpressionReader:
 		"""
 		Transform a stream into a list of syntax trees.
 
-		The tokenizer transforms streams into token sequences, then the parser transforms them into syntax trees.
+		The tokenizer forms streams into token sequences, then the parser forms them into syntax trees.
 
 		@param stream: The stream to read, usually a string.
 		@type stream: C{str}
 		@raise ExpressionParseError: If no syntax tree could be constructed.
-		@return: A list of syntax trees
-		@rtype: C{list} of C{OptionTree}
+		@return: The list of possible interpretations.
+		@rtype: C{list} of C{ParseTree}
 		"""
 		token_tree = self.__tokenizer(stream)
 		results = []
@@ -99,23 +98,30 @@ class ExpressionReader:
 
 class ParseTree:
 	def __init__(self):
-		self.__content = None
+		self.__contents = None
 		self.__elements = SortedDict()
 
-	def is_leaf(self):
-		return (self.__content is not None)
 
 	def add_recognition(self, recognition):
 		for item, path in recognition:
 			self.add(item, path)
 
+	def elements(self, path):
+		return self.__elements.iteritems()
+
+	def contents(self):
+		for i in self.__contents:
+			yield i
+
 	def get(self, path):
 		st = self
 		for segm in path:
 			st = st.__elements[segm]
-		return st.__content
+		return st
 		
 	def add(self, item, path):
+		if len(path) == 0:
+			return
 		st = self
 		for segm in path:
 			if segm in st.__elements:
@@ -124,37 +130,18 @@ class ParseTree:
 				nst = ParseTree()
 				st.__elements[segm] = nst
 				st = nst
-		if st.__content is None:
-			st.__content = [item]
+		if st.__contents is None:
+			st.__contents = [item]
 		else:
-			st.__content.append(item)
+			st.__contents.append(item)
 
 	def __repr__(self):
 		s = []
-		m = False
-		if self.__content:
-			c = False
-			for i in self.__content:
-				if c:
-					s.append("; ")
-				else:
-					c = True
-				s.append(`i`)
-			m = True
 		if self.__elements:
-			if m:
-				s.append(", ")
-			s.append("(")
-			c = False
-			for k, v in self.__elements.iteritems():
-				if c:
-					s.append(", ")
-				else:
-					c = True
-				s.append(k+": ")
-				s.append(`v`)
-			s.append(")")
-		return "".join(s)
+			s.append(`self.__elements`)
+		if self.__contents:
+			s.append(`self.__contents`)
+		return "= ".join(s)
 		
 
 def __test():

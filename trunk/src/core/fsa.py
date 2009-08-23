@@ -10,9 +10,8 @@ The L{Finite State Automaton<FSA>} class is used to compile grammars and the L{P
 """
 
 # General info
-__version__ = "0.1"
+__version__ = "0.4"
 __author__ = "Paolo Olmino"
-__url__ = "http://pylilac.berlios.de/"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
@@ -49,7 +48,7 @@ class FSA:
 		Even though this is supported, S{Lambda} will contain C{(label, tag)} tuples.
 		- M{s S{isin} S}, the start state
 		- M{F S{sube} S}, the set of final states
-  		- M{S{delta}: S S{times} (S{Lambda}S{cup}{S{epsilon}}) S{->} S*}, transition function
+		  - M{S{delta}: S S{times} (S{Lambda}S{cup}{S{epsilon}}) S{->} S*}, transition function
 	
 	
 	
@@ -60,12 +59,12 @@ class FSA:
 
 	In general, the classes that implement states, labels and tags must support I{equivalence} and I{possibility to be used as a key}.
 	This means that they must implement:
-	     - C{__eq__}
-	     - C{__hash__}
+		 - C{__eq__}
+		 - C{__hash__}
 	In particular:
-	     - for common operations, states and labels must support I{equivalence}
-	     - for I{reduction}, states must also support I{hash method} and tags must support I{equivalence}
-	     - for I{minimization}, all classes must support I{equivalence} and I{hash method}
+		 - for common operations, states and labels must support I{equivalence}
+		 - for I{reduction}, states must also support I{hash method} and tags must support I{equivalence}
+		 - for I{minimization}, all classes must support I{equivalence} and I{hash method}
 
 	Tags
 	====

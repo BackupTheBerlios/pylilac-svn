@@ -5,16 +5,15 @@ A module for language variety serialization.
 """
 
 # General info
-__version__ = "0.1"
+__version__ = "0.4"
 __author__ = "Paolo Olmino"
-__url__ = "http://pylilac.berlios.de/"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 import utilities
 from grammar import Grammar
 from lexicon import Lexicon
-from flexion import Flexions
+from inflection import Inflections
 from expression import ExpressionReader
 import pickle
 
@@ -28,11 +27,11 @@ class Lect:
 
 		@type code: str
 		@param code:
-		    A language code according to U{ISO<http://www.iso.org>} standard.
+			A language code according to U{ISO<http://www.iso.org>} standard.
 
-		    For the language codes, refer to 639-3 specifications.
-		    
-		    A country/variant code and a representation system might be added: C{eng-US}, C{esp:ERG}, C{por-BR:IPA}
+			For the language codes, refer to 639-3 specifications.
+			
+			A country/variant code and a representation system might be added: C{eng-US}, C{esp:ERG}, C{por-BR:IPA}
 		"""
 		self.code = code
 		self.name = u""
@@ -42,7 +41,7 @@ class Lect:
 		self.__categories = {}
 		self.grammar = Grammar(code)
 		self.lexicon = Lexicon()
-		self.flexions = Flexions()
+		self.inflections = Inflections()
 		self.properties = {"separator" : " ", "capitalization" : "3"} #Lexical and Initials
 
 	def __tuple(self):
@@ -109,10 +108,26 @@ class Lect:
 		return (self.__lemma_categories[name], self.__categories[name])
 
 	def read(self, expression):
+		"""
+		Interprete an expression.
+
+		@param expression: The expression to read.
+		@type expression: C{str}
+		
+		@raise fsa.ParseError: If the grammar cannot parse the expression.
+		@raise expression.ExpressionParseError: If no syntax tree could be constructed.
+		
+		@return: The list of possible interpretations.
+		@rtype: C{list} of C{ParseTree}
+		"""
+		
+		if not isinstance(expression, unicode):
+			raise TypeError("'%s' is not Unicode" % repr(expression))
+				
 		tokenizer = self.lexicon.compile(self.properties)
 		parser = self.grammar.compile()
 		er = ExpressionReader(tokenizer, parser)
-		return er(utilities.Utilities.unicode(expression))
+		return er(expression)
 	
 	def compile(self, force = False):
 		self.lexicon.compile(self.properties, force)

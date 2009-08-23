@@ -5,7 +5,7 @@ A module for the OptionTree utility class.
 """
 
 # General info
-__version__ = "2.0"
+__version__ = "0.4"
 __author__ = "Paolo Olmino"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
@@ -20,9 +20,9 @@ class OptionTree:
 	def __init__(self, element = None, successors = []):
 		self.element = element
 		if not successors:
-		    self.__successors = []
+			self.__successors = []
 		else:
-		    self.__successors = successors
+			self.__successors = successors
 
 	def append(self, successor):
 		if not isinstance(successor, OptionTree):

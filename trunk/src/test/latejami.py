@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 """
 A module to create Latejami lect file.
@@ -7,7 +8,7 @@ A module to create Latejami lect file.
 from core.lect import Lect
 from core.grammar import Grammar
 from core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from core.lexicon import Lexicon, Particle, Word, Stem, WordCategoryFilter, WordFilter, CategoryFilter
+from core.lexicon import Lexicon, Particle, Word, Lexeme, WordCategoryFilter, WordFilter, CategoryFilter
 from core.interlingua import Interlingua, Concept
 
 def run():
@@ -35,14 +36,14 @@ def run():
 	l.save("test/ltq.lct", True)
 
 
-	show("kokwacala kokwabegi")
+	show(u"kokwacala kokwabegi")
 	print l.lexicon.check(l)
 
 def build_word(w0):
 	if (w0[2] == "V" or w0[2] == "D") and w0[4] == "0-n":
 		return Word(w0[0], Particle(w0[0], w0[1],  w0[2], (w0[4],)), ())
 	else:		
-		return Word(w0[0], Stem(w0[0], w0[1], w0[2], (w0[4],), w0[3]))
+		return Word(w0[0], Lexeme(w0[0], w0[1], w0[2], (w0[4],), w0[3]))
 
 def build_words():
 	w = {}
@@ -50,7 +51,7 @@ def build_words():
 	ltj.load()
 
 	for t in ltj.taxonomy:
-		w[t.interlingua] = (t.interlingua, 1, t.p_o_s, t.interlingua, t.arg_struct)
+		w[t.interlingua] = (unicode(t.interlingua), 1, t.p_o_s, t.interlingua, t.arg_struct)
 	return w
 
 def build_lexicon(w, props):

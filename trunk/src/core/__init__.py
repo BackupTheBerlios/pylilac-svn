@@ -6,11 +6,11 @@ PyLilac Poject
 
 U{http://pylilac.berlios.de}
 
-G{packagetree core.lect,core.lexicon,core.grammar,core.flexion}
+G{packagetree core.lect,core.lexicon,core.grammar,core.inflection}
 
-G{importgraph core.lect,core.lexicon,core.grammar,core.flexion}
+G{importgraph core.lect,core.lexicon,core.grammar,core.inflection}
 
-G{classtree core.lect.Lect,core.lexicon.Lexicon,core.grammar.Grammar,core.flexion.Flexions}
+G{classtree core.lect.Lect,core.lexicon.Lexicon,core.grammar.Grammar,core.inflection.Inflections}
 
 G{callgraph core.grammar.Grammar.compile}
 

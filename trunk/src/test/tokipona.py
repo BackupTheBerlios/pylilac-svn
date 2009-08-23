@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 """
 A module to create Tokipona lect file.
@@ -6,20 +7,20 @@ A module to create Tokipona lect file.
 from core.lect import Lect
 from core.grammar import Grammar
 from core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from core.lexicon import Lexicon, Particle, Word, Stem, WordCategoryFilter, WordFilter, CategoryFilter
+from core.lexicon import Lexicon, Particle, Word, Lexeme, WordCategoryFilter, WordFilter, CategoryFilter
 
 
 def run():
 	def show(s):
 		print
 		print s
-		for i, x in enumerate(l.read(s)):
+		for i, x in enumerate(l.read(unicode(s))):
 			print "%d. " % i, x
 
 	w = build_words()
 
 	l = Lect("tko")
-	l.name = "toki pona"
+	l.name = u"toki pona"
 	l.english_name = "Toki Pona"
 	l.append_p_o_s ("v", ("arguments",), ())
 	l.append_p_o_s ("n", (), ())
@@ -62,7 +63,7 @@ def run():
 
 def build_word(w0):
 	if w0[2] == "sep":
-		return Word(w0[0], Particle(w0[0], w0[1], "sep"), ())
+		return Word(unicode(w0[0]), Particle(unicode(w0[0]), w0[1], "sep"), ())
 	else:		
 		pos = w0[2]
 		cat = ()
@@ -72,7 +73,7 @@ def build_word(w0):
 		if pos == "vi":
 			pos = "v"
 			cat = ("intr",)
-		return Word(w0[0], Stem(w0[0], w0[1], pos, cat, w0[3]))
+		return Word(unicode(w0[0]), Lexeme(unicode(w0[0]), w0[1], pos, cat, w0[3]))
 
 def build_words():
 	w = {}
@@ -102,7 +103,7 @@ def build_words():
 	w["e_sep"] = ("e", 1, "sep", "")	#()
 	w["en_conj"] = ("en", 1, "conj", "sye")	#(and)
 	#w["esun_n"] = ("esun", 1, "n", "doykigi")	#(shop)
-	w["ijo_n"] = ("ijo", 1, "n", "byezumi")  	#(object)
+	w["ijo_n"] = ("ijo", 1, "n", "byezumi")	  #(object)
 	w["ijo_mod"] = ("ijo", 2, "mod", "[ijo]")	#(of something)
 	w["ijo_vt"] = ("ijo", 3, "vt", "byezumapa")	#(objectify)
 	w["ike_n"] = ("ike", 1, "n", "cafomoni")	#(negativity, badness, evil)
@@ -178,9 +179,9 @@ def build_words():
 	w["li_sep"] = ("li", 1, "sep", "[li]")	#((between any subject except mi and sina and its verb)
 	w["lili_mod"] = ("lili", 1, "mod", "fomo")	#(small, little, young, a bit, short, few, less)
 	w["lili_vt"] = ("lili", 2, "vt", "fomapa")	#(reduce, shorten, shrink, lessen)
-	w["linja_n"] = ("linja", 1, "n", "zezumi")	#(long, very thin, floppy thing, e.g. string, rope, hair, thread, cord, chain)
-	w["linja_n"] = ("linja", 2, "n", "zezopi")	#(long, very thin, floppy thing, e.g. string, rope, hair, thread, cord, chain)
-	w["linja_n"] = ("linja", 1, "mod", "twadelo")	#(long, very thin, floppy thing, e.g. string, rope, hair, thread, cord, chain)
+	w["linja_n"] = ("linja", 1, "n", "zezumi")	#(long, very thin, floppy thing, e.g. string, rope, hair, thread, cord, transform)
+	w["linja_n"] = ("linja", 2, "n", "zezopi")	#(long, very thin, floppy thing, e.g. string, rope, hair, thread, cord, transform)
+	w["linja_n"] = ("linja", 1, "mod", "twadelo")	#(long, very thin, floppy thing, e.g. string, rope, hair, thread, cord, transform)
 	w["lipu_n"] = ("lipu", 1, "n", "dejumi")	#(flat and bendable thing, e.g. paper, card, ticket)
 	w["lipu_n"] = ("lipu", 2, "n", "defimi")	#(flat and bendable thing, e.g. paper, card, ticket)
 	w["loje_mod"] = ("loje", 1, "mod", "zozigo")	#(red)
@@ -260,7 +261,7 @@ def build_words():
 	w["pali_vi"] = ("pali", 4, "vi", "joykava")	#(act, work, function)
 	w["palisa_n"] = ("palisa", 1, "n", "jikigi")	#(long, mostly hard object, e.g. rod, stick, branch)
 	w["palisa_n_1"] = ("palisa", 2, "n", "jitevi")	#(stick)
-	#w["pan_n"] = ("pan", 1, "n", "josepi")	        #(bread)
+	#w["pan_n"] = ("pan", 1, "n", "josepi")			#(bread)
 	w["pana_n"] = ("pana", 1, "n", "ximenvi")	#(giving, transfer, exchange)
 	w["pana_vt"] = ("pana", 2, "vt", "cema")	#(give, put, send, place, release, emit, cause)
 	w["pana_vt_1"] = ("pana", 3, "vt", "ximimba")	#(give, put, send, place, release, emit, cause)
