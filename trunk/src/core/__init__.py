@@ -23,5 +23,4 @@ G{callgraph core.grammar.Grammar.compile}
 # General info
 __version__ = "0.4"
 __author__ = "Paolo Olmino"
-__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
