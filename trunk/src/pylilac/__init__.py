@@ -19,7 +19,6 @@ G{callgraph core.grammar.Grammar.compile}
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
 """
 
-__docformat__ = "epytext en"
 
 # General info
 __version__ = "0.4"
@@ -27,11 +26,11 @@ __author__ = "Paolo Olmino"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
+from ui.la import LAApp
 
-import ui
-
-def run():
-	ui.run()
+def run_la():
+	app = LAApp(0)
+	app.MainLoop()
 
 if __name__ == "__main__":
-	run()
+	run_la()

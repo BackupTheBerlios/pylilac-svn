@@ -5,11 +5,11 @@
 A module to create Latejami lect file.
 """
 
-from core.lect import Lect
-from core.grammar import Grammar
-from core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from core.lexicon import Lexicon, Particle, Word, Lexeme, WordCategoryFilter, WordFilter, CategoryFilter
-from core.interlingua import Interlingua, Concept
+from pylilac.core.lect import Lect
+from pylilac.core.grammar import Grammar
+from pylilac.core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
+from pylilac.core.lexicon import Lexicon, Particle, Word, Lexeme, WordCategoryFilter, WordFilter, CategoryFilter
+from pylilac.core.interlingua import Interlingua, Concept
 
 def run():
 	def show(s):

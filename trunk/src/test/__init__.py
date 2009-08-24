@@ -8,3 +8,13 @@ Unit tests.
 """
 
 __docformat__ = "epytext en"
+
+
+import quenya as qya
+import latejami as ltq
+import tokipona as tko
+
+def run():
+	ltq.run()
+	qya.run()
+	tko.run()

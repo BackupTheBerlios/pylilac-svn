@@ -19,10 +19,3 @@ __version__ = "0.4"
 __author__ = "Paolo Olmino"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
-
-from la import LAApp
-
-def run():
-	app = LAApp(0)
-	app.MainLoop()
-

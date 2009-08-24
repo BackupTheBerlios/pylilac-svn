@@ -7,10 +7,10 @@ import graphics
 import os
 import sys
 from optparse import OptionParser
-from src.core.interlingua import Interlingua, Concept
-from src.core.utilities import Utilities
-from src.core.lect import Lect
-from src.core.lexicon import Lemma, Word
+from ..core.interlingua import Interlingua, Concept
+from ..core.utilities import Utilities
+from ..core.lect import Lect
+from ..core.lexicon import Lemma, Word
 
 class AppData:
 	def __init_():

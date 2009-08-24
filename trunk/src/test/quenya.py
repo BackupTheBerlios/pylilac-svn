@@ -5,10 +5,10 @@
 A module to create Quenya language file.
 """
 
-from core.lect import Lect
-from core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from core.lexicon import Lexicon, Particle, Word, Lexeme, CategoryFilter, WordCategoryFilter, WordFilter, DEFECTIVE
-from core.inflection import BASED_ON_ENTRY_FORM
+from pylilac.core.lect import Lect
+from pylilac.core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
+from pylilac.core.lexicon import Lexicon, Particle, Word, Lexeme, CategoryFilter, WordCategoryFilter, WordFilter, DEFECTIVE
+from pylilac.core.inflection import BASED_ON_ENTRY_FORM
 import re
 
 
@@ -1287,7 +1287,6 @@ def run():
 	lome = l.read(u"melin lóme")[0].get(('nucleus', 'Vs O', 'O', 'noun-phrase,Nom', 'noun-phrase,s,Nom', 'n'))
 	for i in lome.contents():
 		print i.form
-	from core.utilities import Utilities
 	for w in l.lexicon.retrieve_words(None, (u"lasse",1), (CategoryFilter("in",("s","pl")), None, "0")):
 		print " ".join(w.categories),":", w.form
 
