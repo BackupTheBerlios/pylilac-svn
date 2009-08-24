@@ -7,8 +7,8 @@ import wx.gizmos
 import graphics
 import os
 import sys
-from ui.lacodebehind import LACodeBehind, CBCodeBehind
-from ui.lawidgets import StockBitmapButton, CategoryPanelComboCtrl
+from lacodebehind import LACodeBehind, CBCodeBehind
+from lawidgets import StockBitmapButton, CategoryPanelComboCtrl
 
 
 class LAFrame(wx.Frame):
