@@ -22,17 +22,17 @@ class FrameCodeBehind:
 	def __init__(self, frame):
 		self.frame = frame
 		self.children = {}
-		
+
 		self.set_dirty(False)
 		self.frame.SetIcon(self.icon())
-		
+
 	def set_dirty(self, value = True):
 		#self.frame.reload_menu.Enable(value)
 		self.frame.save_menu.Enable(value)
 
 	def get_dirty(self):
 		return self.frame.save_menu.IsEnabled()
-		
+
 	def show_child(self, child_class):
 		name = str(child_class)
 		if name in self.children:
@@ -41,7 +41,7 @@ class FrameCodeBehind:
 			child = child_class(self.frame, -1, "")
 			self.children[name] = child
 		child.Show()
-		
+
 	def exit(self):
 		confirm = True
 		if self.get_dirty():
@@ -55,18 +55,18 @@ class FrameCodeBehind:
 	def icon(self):
 		icon = graphics.ArtProvider.get_icon("lilac", wx.ART_OTHER, (16,16))
 		return(icon)
-	
-	
+
+
 class LACodeBehind(FrameCodeBehind):
 	def __init__(self, frame):
-	
+
 		FrameCodeBehind.__init__(self, frame)
-		
+
 		language_file, interlingua_file, admin = self.__parse_args()
-			
+
 		data.interlingua = Interlingua(interlingua_file)
 		data.interlingua.load()
-		
+
 		if language_file:
 			self.__filename = os.path.basename(language_file)
 			self.__dirname = os.path.dirname(language_file)
@@ -76,13 +76,13 @@ class LACodeBehind(FrameCodeBehind):
 			self.__filename = ""
 			self.__dirname = ""
 			data.lect = Lect()
-			
+
 		self.__admin = admin
 		self.__selected_word_row = None
-		
+
 		self.__load_tabs()
-	
-		
+
+
 	def __parse_args(self):
 		parser = OptionParser("usage: %prog [options] [language_file]")
 
@@ -90,7 +90,7 @@ class LACodeBehind(FrameCodeBehind):
 			default = "data/Latejami.csv", help="Interlingua file to use.", type="string")
 		parser.add_option("-a", "--admin", action="store_true", dest="admin",
 			default = False, help="Allow administrative tasks.")
-			
+
 		options, args = parser.parse_args()
 
 		if len(args)>1:
@@ -103,7 +103,6 @@ class LACodeBehind(FrameCodeBehind):
 		interlingua_file = options.interlingua
 		admin = options.admin
 		return (language_file, interlingua_file, admin)		
-
 
 
 	def __load_tabs(self):
@@ -146,7 +145,7 @@ class LACodeBehind(FrameCodeBehind):
 		else:
 			self.frame.word_category_ctrl.SetCategoryValues([])
 			self.frame.form_ctrl.SetValue("")
-	
+
 
 	def OnOpen(self, event): # wxGlade: LAFrame.<event_handler>
 		fileType = "Lilac language files (.lct)|*.lct"
@@ -160,7 +159,7 @@ class LACodeBehind(FrameCodeBehind):
 
 			self.frame.Refresh()
 			self.frame.Update()
-			
+
 			wx.BeginBusyCursor()
 			try:
 				data.lect.load(full_path)
@@ -202,7 +201,7 @@ class LACodeBehind(FrameCodeBehind):
 				wx.EndBusyCursor()
 		else:
 			dlg.Destroy()
-			
+
 
 	def OnExit(self, event): # wxGlade: LAFrame.<event_handler>
 		self.exit()
@@ -241,7 +240,7 @@ class LACodeBehind(FrameCodeBehind):
 
 
 	def OnAbout(self, event): # wxGlade: LAFrame.<event_handler>
-		description = """pyLilac Linguistic Laboratory is a graphic interface 
+		description = """pyLilac Linguistic Laboratory is a graphic interface
 to pyLilac libraries to explore, classify and study languages."""
 
 		licence = """pyLilac Linguistic Laboratory is free software: you can redistribute
@@ -286,8 +285,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 			self.frame.gloss_ctrl.SetValue("-")
 		self.frame.word_category_ctrl.SetCategoryLabels(data.lect.get_categories(hw.p_o_s)[1])
 		self.__load_word_grid(hw_key)
-		
-		
+
+
 
 	def OnDoSearch(self, event): # wxGlade: LAFrame.<event_handler>
 		entry_form = self.frame.search_lemma.GetValue()
@@ -323,7 +322,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 		self.__load_word_grid(hw_key)
 
 	def OnDoDeleteWord(self, event): # wxGlade: LAFrame.<event_handler>
-		hw_key = self.frame.lemma_ctrl.GetClientData(self.lemma_ctrl.GetSelection())
+		hw_key = self.frame.lemma_ctrl.GetClientData(self.frame.lemma_ctrl.GetSelection())
 		words = data.lect.lexicon.retrieve_words(None, hw_key)
 		sel_t = self.frame.word_grid.GetSelectionBlockTopLeft()
 		sel_b = self.frame.word_grid.GetSelectionBlockBottomRight()
@@ -341,6 +340,14 @@ class CBCodeBehind(FrameCodeBehind):
 	def set_dirty(self, value = True):
 		self.frame.reload_menu.Enable(value)
 		self.frame.save_menu.Enable(value)
+
+	def show_find(self, child_class):
+		dlg = child_class(self.frame, -1)
+		dlg.CenterOnScreen()
+		if dlg.ShowModal() == wx.ID_OK:
+			value, column, exact = dlg.GetValue()
+			self.__find_tree_item(self.frame.concept_tree_ctrl.GetRootItem(), value, column, exact)
+		#dlg.Destroy()
 
 	def __init__(self, frame):
 		FrameCodeBehind.__init__(self, frame)
@@ -506,10 +513,6 @@ class CBCodeBehind(FrameCodeBehind):
 
 
 	def OnFind(self, event): # wxGlade: CBFrame.<event_handler>
-		#dlg = wx.TextEntryDialog(self, "Interlingua key to find:", "Find", self.current)
-		#if dlg.ShowModal() == wx.ID_OK:
-			#self.__find_tree_item(self.concept_tree_ctrl.GetRootItem(), dlg.GetValue(), 0, 1)
-		#dlg.Destroy()
 		dlg = FindDialog(self.frame, -1)
 		dlg.CenterOnScreen()
 		if dlg.ShowModal() == wx.ID_OK:

@@ -21,14 +21,14 @@ import sys
 try: 
 	from gzip import GzipFile
 except ImportError: 
-	raise ImportError("A plugin for module gzip is needed.")
-	#from purepython import GzipFile
+	#raise ImportError("A plugin for module gzip is needed.")
+	from purepython import GzipFile
 
 try: 
 	from csv import writer, reader
 except ImportError: 
-	raise ImportError("A plugin for module csv is needed.")
-	#from purepython import writer, reader
+	#raise ImportError("A plugin for module csv is needed.")
+	from purepython import writer, reader
 
 #Optional libraries
 try: 
@@ -62,7 +62,7 @@ class Utilities:
 		
 		@return: The given string decoded into ASCII.
 		
-		@see: U{unidecode<http://www.tablix.org/~avian/blog/archives/2009/01/unicode_transliteration_in_python/index.html>}
+		@see: U{unidecode<http://www.tablix.org/~avian/blog/archives/2009/01/unicode_transliteration_in_python/>}
 		"""
 		if isinstance(unistring, unicode):
 			return _unidecode(unistring)
@@ -118,9 +118,29 @@ class ZipFile(GzipFile):
 class Csv:
 	@staticmethod
 	def writer(file):
+		"""
+		Create a CSV writer function from a file.
+		
+		At each iteration, the method C{writerow} accepts the comma separated values and writes it.
+		
+		@param file: A binary writable (C{"wb"}) file object.
+		@type file: file
+		@return: A writer functions
+		@rtype: object with a C{writerow} method
+		"""
 		return writer(file)
 	@staticmethod
 	def reader(file):
+		"""
+		Create a CSV reader function from a file.
+		
+		At each iteration, C{next} returns the comma separated values.
+		
+		@param file: A binary readable (C{"rb"}) file object.
+		@type file: file
+		@return: A reader functions
+		@rtype: iterator
+		"""
 		return reader(file)
  
 

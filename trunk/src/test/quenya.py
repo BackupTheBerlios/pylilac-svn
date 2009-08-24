@@ -149,7 +149,8 @@ def run():
 		c.append_step(u"[ao]?$", u"o")
 
 		tr = f.create_form(("s", "Poss", "0"))
-		c = tr.create_transform(BASED_ON_ENTRY_FORM, u"[^aeioáéíóú][aeiou][^aeiouáéíóúx][aeiou]$")
+		c = tr.create_transform(BASED_ON_ENTRY_FORM, u"[^aeioáéíóú]*[aeiou][^aeiouáéíóúx][aeiou]$")
+		#c = tr.create_transform(BASED_ON_ENTRY_FORM, u"[aeiou][^aeiouáéíóúx][aeiou]$")
 		c.append_step(u"a$", u"áva")
 		c.append_step(u"e$", u"éva")
 		c.append_step(u"i$", u"íva")
@@ -1159,6 +1160,7 @@ def run():
 		d.append(  (u"ré", u"ré", "tovi", [(u"rein", ("pl","Dat","0"))]) ) #24hours
 		d.append(  (u"pí", u"pí", "byekagi", [(u"pín", ("pl","Dat","0"))]) ) #insect
 		d.append(  (u"oxi", u"ohte", "docesi")) #egg
+		d.append(  (u"lasse", u"lasse", "boybemi")) #leaf
 		
 		d.append(  (u"ambar", u"ambar", "jotisi")) #planet, world
 		d.append(  (u"istar", u"istar", "joybegi", [(u"istari", ("pl","Nom","0"))])) #doctor, wizard
@@ -1282,11 +1284,12 @@ def run():
 	show(u"melin fion ringa")
 	show(u"cor vanya mele i lauca alda")
 	show(u"melin lóme")
-	lome = l.read(u"melin lóme")[0].get(('nucleus', 'Vs O', 'O', 'noun-phrase,Nom', 'noun-phrase,s,Nom'))
+	lome = l.read(u"melin lóme")[0].get(('nucleus', 'Vs O', 'O', 'noun-phrase,Nom', 'noun-phrase,s,Nom', 'n'))
 	for i in lome.contents():
 		print i.form
 	from core.utilities import Utilities
-
+	for w in l.lexicon.retrieve_words(None, (u"lasse",1), (CategoryFilter("in",("s","pl")), None, "0")):
+		print " ".join(w.categories),":", w.form
 
 if __name__ == "__main__":
 	run()

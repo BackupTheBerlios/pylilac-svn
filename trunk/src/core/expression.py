@@ -45,7 +45,7 @@ class ExpressionParseError(StandardError):
 		Return a synthesis of the parse exceptions encountered while parsing the different tokenized interpretations.
 
 		@return: A list of the main end-points (I{culdesacs}) where the parsing of expressions interrupted.
-		@rtype: C{str}
+		@rtype: str
 		@see: L{ParseError<parser.ParseError>}
 		"""
 		return str(self.parse_error) + "*" + str(self.potence)
@@ -63,7 +63,6 @@ class ExpressionReader:
 		@type tokenizer: tokenizer.Tokenizer
 		@param parser: The parser to use.
 		@type parser: parser.Parser
-
 		"""
 		self.__parser = parser
 		self.__tokenizer = tokenizer
@@ -78,7 +77,7 @@ class ExpressionReader:
 		@type stream: C{str}
 		@raise ExpressionParseError: If no syntax tree could be constructed.
 		@return: The list of possible interpretations.
-		@rtype: C{list} of C{ParseTree}
+		@rtype: list of ParseTree
 		"""
 		token_tree = self.__tokenizer(stream)
 		results = []

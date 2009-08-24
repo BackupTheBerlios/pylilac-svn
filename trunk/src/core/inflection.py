@@ -4,7 +4,82 @@
 """
 A module for the generation of inflected forms.
 
+Inflection is the change of form that words undergo to mark such distinctions as those of case, gender, number, tense, person, mood, or voice.
+For example, in the Quenya fragment I{"lassi aldaron"}, meaning I{«leaves of trees»}, the single words refer to the lemmas I{"lasse"}, I{«leaf»} and I{«alda»}, I{«tree»}.
+Again, the same fragment in latin would be: I{"foliae arborum"}, from lemmas I{"folia"} and I{"arbor"}.
 
+Structure of inflection
+=======================
+G{classtree Inflection, Inflection.Form, Transform}
+
+Inflections
+-----------
+	Inflexions accept lemmas satisfying some conditions and route them to the appropriate forms.
+
+	Example of inflexions can be:
+		- the Quenya noun declension
+		- the Latin I (or I{a}) declension, to which I{"folia"} belongs
+	
+	While modeling languages, one of two apporaches may be chosen to model inflection:
+		- One inflection for all, with dedicated transforms on occasion.
+		- Several inflections with transforms usually different.
+	
+		For languages where inflection is more analytic, usually the former fits better; it is the case of Quenya noun declensions.
+		When inflection is more syntetic and varies throughout the forms for different classes of words, the latter is easier; this is the case of Latin.
+	
+		For instance, while the genitive forms I{"lasseo"} and I{"aldo"} end in I{"-o"} for both Quenya I{"lasse"} and I{"alda"} and only need a slight adjustment; in Latin the genitive forms I{"foliae"} and I{"arboris"} are systematically different, and must be separed at inflection level.
+
+Inflection forms
+----------------
+	Inflexion forms define what sequences of transformations must be applied to a word form to obtain another.
+
+Transforms
+----------
+	Transforms accept word forms satisfying some conditions and define the generation of other words forms.
+	Examples for transforms can be:
+		- the lengthening and suffixation for Quenya present forms
+		- the suffixation of "-is" for the singular genitive in Latin III declension
+	In Quenya: from the verb stem I{"cava"} the present form I{"cávea"} can be seen as applying different mutation steps, one in the middle and one at the end of the stem.
+	It can be done by applying three mutation steps to the stem:
+		1. alternation (apophony) of the last short vowel I{"-a-"} and I{"-á-"}, giving the intermediate form I{"cáva"}*
+		2. alternation of the final I{"-a"} and I{"-e"}, giving the intermediate form I{"cáve"}*
+		3. suffixation of I{"-a"}, giving the final form I{"cávea"}
+	In Latin, on the other hand, transforms are usually easier, because lemmas are separated at a higher level: we can obtain from I{"arboris"} I{"arbor"} by a single step.
+
+Mutation steps
+--------------
+	Mutation steps define the steps in transforms. 
+	
+	Steps are tuples:
+		>>> (search, substitution, mandatory)
+	
+	Search and substitution strings are U{regular expressions<http://www.regular-expressions.info>}.
+	
+	All the occurrences of the C{search} string in the base form are replace with the C{substitution}.
+	If C{mandatory} is C{True} and there are no occurrences of the C{search} string the operation will abort.
+	See the L{call<__call__>} method for details on execution.
+	
+	In the example above, the steps from I{"cava"} to I{"cávea"} can be seen as follows:
+		1. C{a(?=[^aeiouáíéóú][yw]?[au]?$)} S{->} C{á}
+		2. C{a$} S{->} C{e}
+	
+Complete example
+----------------
+
+	>>> decl = Inflections()
+	Instantiate inflections
+	>>> decl1 = decl.create_inflection("n", u"a$")
+	Declare inflection for nouns ending in I{"-a"}
+	>>> decl1N = decl1.create_form(("s","N"))
+	Declare inflection form for singular nominative.
+	>>> decl1N.create_transform(BASED_ON_ENTRY_FORM)
+	Declare a transform identical to the canonical form of lemma.
+	>>> decl1G = decl1.create_form(("s","G")) 
+	Declare inflection form for singular genitive.
+	>>> decl1Gae = decl1G.create_transform()
+	Declare using a default a transform starting from canonical form of lemma.
+	>>> decl1Gae.append_step(u"a$", u"ae", True)
+	Declare a mandatory step for I{"-ae"} suffixation.
 """
 
 # General info
@@ -18,15 +93,32 @@ from lexicon import Word, Lexicon, CategoryFilter, DEFECTIVE
 from utilities import SortedDict
 
 BASED_ON_ENTRY_FORM = 0
-
+"""
+It indicated a transform will take as initial form the entry form of the lemma.
+It is used for the C{based_on} parameter in L{Inflection.Form.create_transform}.
+"""
 
 class TransformSyntaxError(ValueError):
+	"""
+	Raised when the definition of a transform is syntactically malformed and cannot be compiled.
+	
+	@see: L{Regular Expressions <re>}
+	"""
 	pass
 class InflectionError(RuntimeError):
+	"""
+	Raised when definitions suit the given form.
+	"""
 	pass
 
 class Inflection:
+	"""
+	A class to define the inflected forms for a class of lemmas.
+	"""
 	class Form:
+		"""
+		A class to define the creation of an inflected forms for a class of lemmas.
+		"""
 		def __init__(self, parent_inflection, categories):
 			self.__parent = parent_inflection
 			self.categories = categories
@@ -112,15 +204,28 @@ class Inflection:
 		return "/".join(s)
 	
 class Inflections:
+		"""
+		A collection of inflections.
+		It is used to collect, generate and call instances of L{Inflection}.
+		"""
 		def __init__(self):
+			"""
+			Initialize a collection of instances of L{Inflection}.
+			"""
 			self.__inflections = []
 
 		def create_inflection(self, p_o_s, condition = None, lemma_categories = None):
+			"""
+			Create a new instance of L{Inflection}.
+			"""
 			inflection = Inflection(p_o_s, condition, lemma_categories)
 			self.__inflections.append(inflection)
 			return inflection
 		
 		def __call__(self, lemma, words):
+			"""
+			Find a suitable L{Inflection} and call it.
+			"""		
 			for inflection in self.__inflections:
 				if inflection.applies(lemma):
 					return inflection(lemma, words)
@@ -128,15 +233,10 @@ class Inflections:
 			
 class Transform:
 	"""
-	A transform, a chain of mutation steps.
-	
-	For example, in Quenya: from the verb stem «I{cava}» the present form «I{cávea}» can be
-	seen as applying different mutation steps, one in the middle and one at the end of the stem.
-	It can be done by applying three mutation steps to the stem:
-		1. alternation (apophony) of the last short vowel «I{-a-}» and «I{-á-}», giving the intermediate form «I{cáva}*»
-		2. alternation of the final «I{-a}» and «I{-e}», giving the intermediate form «I{cáve}*»
-		3. suffixation of «I{-a}», giving the final form «I{cávea}»
+	A class to define the creation of an inflected forms for a class of base forms.
 
+	A transform is a sequence of mutation steps.
+	
 	Mutation steps
 	==============
 	
@@ -146,11 +246,6 @@ class Transform:
 	All the occurrences of the C{search} string in the base form are replace with the C{substitution}.
 	If C{mandatory} is C{True} and there are no occurrences of the C{search} string the operation will abort.
 	See the L{call<__call__>} method for details on execution.
-	
-	In the example above, the steps from «I{cava}» «I{cávea}» can be seen as follows:
-		1. C{u"a(?=[^aeiouáíéóú][yw]?[au]?$)"} S{->} C{u"á"}
-		2. C{u"a$"} S{->} C{u"e"}
-		3. C{u"$"} S{->} C{u"a"}
 
 	If one of the initial regular expressions is not satisfied and the step is not defined as mandatory, it's neglected and the execution goes on to the next step.
 	In this example, the second step might be seen as optional, since stems not ending in «I{-a}» simply go on to the last step : «I{hir}» S{->} «I{híra}» .

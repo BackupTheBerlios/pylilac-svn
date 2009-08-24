@@ -7,13 +7,9 @@ An interface to build expressions in the Backus-Naur form (BNF), used as right h
 Hierarchy
 =========
 
-
 The classes follow this hierarchy:
 
-
 G{classtree NormalExpression}
-
-
 
 Supported operations
 ====================
@@ -278,6 +274,9 @@ class Literal(NormalExpression):
 
 
 class _ParallelExpression(NormalExpression):
+	"""
+	A L{NormalExpression} implemented as parallel, i.e. concatenation of alternatives.
+	"""
 	def __init__(self, double_iterable):
 		self.__fsot = frozenset([tuple(conc) for conc in double_iterable])
 
@@ -334,7 +333,7 @@ class _ParallelExpression(NormalExpression):
 
 	
 	def insert_transitions(self, grammar, fsa, initial, final, tag, max_levels):
-		def concatenation_insert_transitions(symbols, grammar, fsa, initial, final, tag):
+		def concatenation_build(symbols, grammar, fsa, initial, final, tag):
 			prev = initial
 			for n, symbol in enumerate(symbols):
 				if n + 1 == len(symbols):
@@ -347,7 +346,7 @@ class _ParallelExpression(NormalExpression):
 		if max_levels == 0: return
 		tag = Utilities.nvl(tag, ())
 		for concatenation in self.__fsot:
-			concatenation_insert_transitions(concatenation, grammar, fsa, initial, final, tag)
+			concatenation_build(concatenation, grammar, fsa, initial, final, tag)
 
 class _Closure(Reference):
 	"""

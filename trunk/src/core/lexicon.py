@@ -515,15 +515,15 @@ class CategoryFilter:
 		if operator not in self.FUNCTIONS:
 			raise KeyError(operator)
 		self.operator = operator
-		self.parameter = tuple(parameter)
+		self.parameter = frozenset(parameter)
 
 	def match(self, value):
-		test, rpr = self.FUNCTIONS[self.operator]
+		test, r = self.FUNCTIONS[self.operator]
 		return test(value, self.parameter)	
 
 	def __repr__(self):
-		test, rpr = self.FUNCTIONS[self.operator]
-		return rpr % `self.parameter`
+		t, rpr = self.FUNCTIONS[self.operator]
+		return rpr % repr(tuple(self.parameter))
 		
 
 def __test():

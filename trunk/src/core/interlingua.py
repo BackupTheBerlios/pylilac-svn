@@ -141,7 +141,6 @@ class Concept:
 class Taxonomy:
 	"""
 	A  hierarchy of concepts (I{taxa}).
-
 	"""
 	def __init__(self):
 		self.__nodes = {}

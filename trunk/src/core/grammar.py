@@ -36,13 +36,17 @@ class CyclicReferenceError(GrammarError):
 class _GrammarParser(Parser):
 	def match(self, label, token):
 		"""
-		Call L{match<lexicon.WordFilter.match>} method.
+		Call the C{match} method for the label.
+		Usually, it calls the L{match<lexicon.WordFilter.match>} method.
+		@rtype: bool
 		"""
 		return label.match(token)
 
 	def process(self, label, token):
 		"""
-		Call L{match<lexicon.WordFilter.process>} method.
+		Call the C{process} method for the label.
+		Usually, it calls the L{process<lexicon.WordFilter.process>} method.
+		@rtype: I{Tag}
 		"""
 		return label.process(token)
 
@@ -63,9 +67,16 @@ class Grammar:
 
 	def __setitem__(self, lhs, rhs):
 		"""
-		Add a definition to a left hand symbol.
+		Add a definition to a symbol.
+		
+		M{<lhs> ::= <EBNF expression>}
 
 		If the symbol was already defined, the new definition is appended as an alternative.
+		
+		@param lhs: The symbol to define or to add a new definition for.
+		@type lhs: str
+		@param rhs: The expression to define the symbol.
+		@type rhs: bnf.NormalExpression
 		"""
 		if lhs in self.__rules:
 			self.__rules[lhs] |= rhs.to_expression()
@@ -76,9 +87,23 @@ class Grammar:
 			self.starting = lhs
 
 	def __getitem__(self, lhs):
+		"""
+		Get the definition for a symbol.
+		
+		@param lhs: The symbol defined.
+		@type lhs: str
+		@return: The definition of the symbol, as s parallel EBNF expression.
+		@rtype: bnf.NormalExpression
+		"""
 		return self.__rules[lhs]
 
 	def __delitem__(self, lhs):
+		"""
+		Delete all definitions for a symbol.
+		
+		@param lhs: The symbol to clear.
+		@type lhs: str
+		"""
 		del self.__rules[lhs]
 		self.__symbols.remove(lhs)
 		if self.starting == lhs:
@@ -88,9 +113,15 @@ class Grammar:
 				self.starting = self.__symbols[0]
 
 	def __contains__(self, lhs):
+		"""
+		@rtype: bool
+		"""
 		return lhs in self.__rules
 
 	def __str__(self):
+		"""
+		@rtype: str
+		"""
 		representation = []
 		representation.append("\"Start Symbol\" = <%s>" % self.starting)
 		for symbol in self.__symbols:
@@ -99,6 +130,9 @@ class Grammar:
 
 
 	def __repr__(self):
+		"""
+		@rtype: str
+		"""
 		representation = []
 		representation.append("\"Name\" = \'%s\'" % self.name)
 		representation.append("\"Start Symbol\" = <%s>" % self.starting)
@@ -108,7 +142,7 @@ class Grammar:
 
 		
 
-	def _browse(self):
+	def browse(self):
 		"""
 		Check for anomalies in the grammar.
 		
@@ -117,7 +151,9 @@ class Grammar:
 			- No starting symbol defined
 			- Unresolved references
 			- Cyclic references (if C{ignore_recursion} is off)
+		
 		@returns: returns the maximum depths with no recursion
+		@rtype: int
 		
 		"""
 		def descend(lhs, ancestors = ()):
@@ -144,20 +180,24 @@ class Grammar:
 
 	def compile(self, force = False):
 		"""
-		Compile the set of rules into a Finite State Automaton (FSA).
+		Compile the set of rules into a Deterministic State Automaton (DFSA).
 
 		If the grammar has never been compiled or it has been modified after last compilation, it will be translated into an FSA.
-		The result will be kept available inside a private member until the rules are modified or the grammar reset.
+		The result will be kept available until the rules are modified or the grammar reset.
 
 		The algorithm calls recursively the L{bnf.NormalExpression.insert_transitions} method.
 
-		@param force: recompile grammar if it's already been compiled and validated
+		@param force: Recompile grammar even if it's already been validated and compiled.
+		@rtype: fsa.Parser
+		@return: A parser for the grammar.
+		
+		@see: L{Finite State Automaton<fsa.FSA>}
 		"""
 
 		if force or not self.__valid and self.__compiled is None:
 			self.__valid = False
 			
-			depth = self._browse()
+			depth = self.browse()
 			if self.ignore_recursion:
 				max_levels = int(depth * 1.8 + 4) #pretty deep, but it should takes seconds
 			else:
@@ -181,7 +221,7 @@ class Grammar:
 
 	def reset(self):
 		"""
-		Delete the result of the last compiling.
+		Delete the internal result of the last compiling.
 		"""
 		del self.__compiled
 		self.__compiled = None

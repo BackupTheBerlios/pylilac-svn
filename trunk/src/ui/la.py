@@ -678,7 +678,7 @@ class CBFrame(wx.Frame):
 		self.code_behind.OnExit(event)
 
 	def OnFind(self, event): # wxGlade: CBFrame.<event_handler>
-		self.code_behind.OnFind(event)
+		self.code_behind.show_find(FindDialog)
 
 	def OnUndo(self, event): # wxGlade: CBFrame.<event_handler>
 		self.code_behind.OnUndo(event)

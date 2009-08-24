@@ -25,16 +25,16 @@ def run():
 	filename = "data/Latejami2.csv"
 	
 	reader = csv.reader(open(filename, "rb"))
+	l.name = reader.next()[0]
+	l.p_o_s = list(reader.next())
+	l.arg_struct = list(reader.next())
 	try:
-		l.name = reader.next()[0]
-		l.p_o_s = list(reader.next())
-		l.arg_struct = list(reader.next())
 		for (i, pos, as, m, bc, d, n, r) in reader:
 			if bc == "":
 				bc = None
 			c = build(i, pos, as, m, bc, d, n, r)
 			t.set(c)
-	except csv.Error, e:
+	except Error, e:
 		sys.exit('file %s, line %d: %s' % (filename, reader.line_num, e))
 		
 	print "Now saving."
