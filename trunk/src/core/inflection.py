@@ -57,7 +57,7 @@ Mutation steps
 	
 	All the occurrences of the C{search} string in the base form are replace with the C{substitution}.
 	If C{mandatory} is C{True} and there are no occurrences of the C{search} string the operation will abort.
-	See the L{call<__call__>} method for details on execution.
+	See the L{call<Inflections.__call__>} method for details on execution.
 	
 	In the example above, the steps from I{"cava"} to I{"cávea"} can be seen as follows:
 		1. C{a(?=[^aeiouáíéóú][yw]?[au]?$)} S{->} C{á}
