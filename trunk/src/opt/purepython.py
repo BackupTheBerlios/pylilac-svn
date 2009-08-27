@@ -6,12 +6,13 @@ A module for using I{pylilac} on native platforms, such as IronPython.
 
 It is hidden by the L{utilities} module, which tries to load the standard Python libraries and then loads from a module called {purepython}.
 The module has not been implemented, but only these specifications are released for documentation purposes.
+
+@summary: Code behind for the Language Laboratory.
+@author: Paolo Olmino
+@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
 """
 
-# General info
-__version__ = "1.0"
-__author__ = "Paolo Olmino"
-__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 import re

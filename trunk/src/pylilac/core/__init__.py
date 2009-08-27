@@ -6,12 +6,9 @@ This package contains the core class implementing the business logic for I{pylil
 
 The package is divided into several subpackages:
 
-G{importgraph core}
-
 G{packagetree core}
 
 @summary: Core library module for pylilac
-@see: U{BerliOS<http://pylilac.berlios.de>} project site 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
 @version: Alpha 0.1.5

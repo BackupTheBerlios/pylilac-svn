@@ -71,14 +71,12 @@ class Lemma(object):
 	def __get_entry_form(self):
 		"""
 		Get the entry form of a lemma.
-		@rtype: unicode
 		"""
 		return self.__entry_form
 		
 	def __get_id(self):
 		"""
 		Get the ID of a lemma.
-		@rtype: int
 		"""
 		return self.__id
 
@@ -237,16 +235,12 @@ class Word(object):
 	def __get_form(self):
 		"""
 		Get the form of the word.
-		
-		@rtype: unicode
 		"""
 		return self.__form
 		
 	def __get_lemma(self):
 		"""
 		Get the lemma of the word.
-		
-		@rtype: Lemma
 		"""
 		return self.__lemma
 
