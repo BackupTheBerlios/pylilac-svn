@@ -3,7 +3,6 @@
 """
 A module for the wx widgets used in the Language Architect.
 
-@note: The code was generated with U{wx.Glade<http://wxglade.sourceforge.net/>}.
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
