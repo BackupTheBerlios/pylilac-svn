@@ -2,25 +2,19 @@
 # -*- coding: utf-8 -*-
 
 """
-PyLilac Poject Core module
-==========================
+This package contains the core class implementing the business logic for I{pylilac}.
 
-U{http://pylilac.berlios.de}
+The package is divided into several subpackages:
 
-G{packagetree core.lect,core.lexicon,core.grammar,core.inflection}
+G{importgraph core}
 
-G{importgraph core.lect,core.lexicon,core.grammar,core.inflection}
+G{packagetree core}
 
-G{classtree core.lect.Lect,core.lexicon.Lexicon,core.grammar.Grammar,core.inflection.Inflections}
-
-G{callgraph core.grammar.Grammar.compile}
-
-@summary: Core library module for pyLilac
+@summary: Core library module for pylilac
+@see: U{BerliOS<http://pylilac.berlios.de>} project site 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
 """
 
-# General info
-__version__ = "0.4"
-__author__ = "Paolo Olmino"
 __docformat__ = "epytext en"

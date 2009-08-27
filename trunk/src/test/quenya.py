@@ -539,7 +539,7 @@ def run():
 			c.append_step(u"u$", u"o")
 			c = tr.create_transform(BASED_ON_ENTRY_FORM)
 			c.append_step(u"$", u"e")
-			tr = f.create_form((u"aor", "pl", "0")) 
+			tr = f.create_form(("aor", "pl", "0")) 
 			c = tr.create_transform(BASED_ON_ENTRY_FORM, u"[au]$")
 			c.append_step(u"$", u"r")
 			c = tr.create_transform(BASED_ON_ENTRY_FORM)
@@ -627,7 +627,7 @@ def run():
 			c.append_step(u"$", u"ne")
 			c = tr.create_transform(BASED_ON_ENTRY_FORM)
 			c.append_step(u"$", u"ne") 
-			tr = f.create_form((u"past", "pl", "0")) 
+			tr = f.create_form(("past", "pl", "0")) 
 			c = tr.create_transform((u"past", "s", "0"))
 			c.append_step(u"$", u"r")
 
@@ -670,7 +670,7 @@ def run():
 			c.append_step(u"$", u"r")
 
 
-			tr = f.create_form((u"inf", "0", "0")) 
+			tr = f.create_form(("inf", "0", "0")) 
 			c = tr.create_transform(BASED_ON_ENTRY_FORM, u"a$")
 			c = tr.create_transform(BASED_ON_ENTRY_FORM, u"u$")
 			c.append_step(u"u$", u"o")
@@ -678,10 +678,10 @@ def run():
 			c.append_step(u"$", u"e")
 			
 
-			tr = f.create_form((u"imp", u"2", "0")) 
-			c = tr.create_transform((u"inf", "0", "0"))
+			tr = f.create_form(("imp", "2", "0")) 
+			c = tr.create_transform(("inf", "0", "0"))
 			
-			tr = f.create_form((u"act-part", "0", "0")) 
+			tr = f.create_form(("act-part", "0", "0")) 
 			c = tr.create_transform(BASED_ON_ENTRY_FORM)
 			c.append_step(u"a([^aeiouáíéóú][yw]?[au]?)$", u"á\\1")
 			c.append_step(u"a(qu[au]?)$", u"á\\1")
@@ -696,7 +696,7 @@ def run():
 			c.append_step(u"(?<=[^au])$", u"a")
 			c.append_step(u"$", u"la")
 			
-			tr = f.create_form((u"pass-part", "0", "0")) 
+			tr = f.create_form(("pass-part", "0", "0")) 
 			c = tr.create_transform(BASED_ON_ENTRY_FORM, u"qu$")
 			c.append_step(u"a(?=qu)$", u"á")
 			c.append_step(u"e(?=qu)$", u"é")
@@ -974,7 +974,7 @@ def run():
 		c = tr.create_transform(BASED_ON_ENTRY_FORM, u"[ie]n$")
 		c.append_step(u"(?<=[ie]n)$", u"ilda")
 
-		add_grd(u"rel")
+		add_grd("rel")
 
 		tr = f.create_form(("s", "Nom", "abs"))
 		c = tr.create_transform(BASED_ON_ENTRY_FORM, u"^[lmrs]")
@@ -984,7 +984,7 @@ def run():
 		c = tr.create_transform(BASED_ON_ENTRY_FORM)
 		c.append_step(u"^", u"an")
 
-		add_grd(u"abs")
+		add_grd("abs")
 
 	def build_grammar(gr):
 		def free_order(*symbols):
@@ -1270,7 +1270,7 @@ def run():
 	l.append_p_o_s("prep", ("argument",), ("object person",))
 	build_inflections(l.inflections)
 	build_lexicon(l.lexicon, l.inflections)
-	print l.lexicon
+	print str(l.lexicon)
 	build_grammar(l.grammar)
 	l.properties["capitalization"] = 2 #lexical
 	l.properties["separator"] = u" " #lexical
@@ -1284,8 +1284,8 @@ def run():
 	show(u"melin fion ringa")
 	show(u"cor vanya mele i lauca alda")
 	show(u"melin lóme")
-	lome = l.read(u"melin lóme")[0].get(('nucleus', 'Vs O', 'O', 'noun-phrase,Nom', 'noun-phrase,s,Nom', 'n'))
-	for i in lome.contents():
+	lome = l.read(u"melin lóme")[0].subtree(('nucleus', 'Vs O', 'O', 'noun-phrase,Nom', 'noun-phrase,s,Nom', 'n'))
+	for i in lome.iter_items():
 		print i.form
 	for w in l.lexicon.retrieve_words(None, (u"lasse",1), (CategoryFilter("in",("s","pl")), None, "0")):
 		print " ".join(w.categories),":", w.form

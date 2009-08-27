@@ -2,20 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-PyLilac Poject
-==============
+Module for the graphic user interface.
 
-U{http://pylilac.berlios.de}
-
-@summary: User interface for pyLilac
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
 """
 
-__docformat__ = "epytext en"
-
-# General info
-__version__ = "0.4"
-__author__ = "Paolo Olmino"
-__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"

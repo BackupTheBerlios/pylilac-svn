@@ -2,14 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-An interface to build expressions in the Backus-Naur form (BNF), used as right hand symbols in the rules of a L{grammar.Grammar}.
+A module to build expressions in the Extended Backus-Naur Form (EBNF).
+They are used as right hand symbols when defining the rules of a L{grammar.Grammar}.
 
-Hierarchy
-=========
+Class Diagram
+=============
 
-The classes follow this hierarchy:
+The classes in this pachage implement a strict object oriented implementation, according to this class tree:
 
 G{classtree NormalExpression}
+
+The top level class, NormalExpression, is an abstract class and can not be instantiated.
+
+Some classes are for package use only:
+	- L{ParallelExpression<_ParallelExpression>} is an internal implementation for the subclasses of L{NormalExpression} and their combinations using operators.
+	- L{Closure<_Closure>} and L{Epsilon<_Epsilon>} are accessible using constants.
+
 
 Supported operations
 ====================
@@ -40,27 +48,105 @@ M{S{Sigma}} has the following properties:
 	- Existence of a multiplicative or juxtapositive (i.e. for M{+}) identity
 	  - There exists an element M{S{epsilon}} in M{S{Sigma}}, such that for all M{a} belonging to M{S{Sigma}}, M{a + S{epsilon} = a}.
 
-Conversion to a Graph
-=====================
+Closures
+========
 
-A L{grammar<grammar.Grammar>} can be converted into a L{Finite State Automaton<fsa.FSA>} by the recursive use of L{insert_transitions<NormalExpression.insert_transitions>} method, applied to its starting symbol.
+When it is not quantified by a closure, an expression must occur once.
 
-The technique is based on the representation in form of graph of the different symbols.
+In other words, its cardinality is 1.
 
+To change minimum or maximum occurrences for a reference, these closures can be used:
+
+	- L{Optional or interrogative closure<OPTIONAL_CLOSURE>}, "C{?}"
+
+	- L{Positive or multiple closure<POSITIVE_CLOSURE>}, "C{+}"
+
+	- L{Kleene closure<KLEENE_CLOSURE>}, "C{+}"
+	
+
+Use of closures
+---------------
+
+	Closures are constants which can be accessed by the C{*} operator;
+	for example, the code to represent M{Z ::= (X Y)*} is:
+
+		>>> g["Z"] = Reference("XY") * KLEENE_CLOSURE
+		>>> g["XY"] = Reference("X") + Reference("Y")
+
+
+
+Resolving cyclic references
+---------------------------
+
+	Set of recursive rules such as the following are discouraged.
+
+	The translation into closures is more evident when rules are unrolled.
+
+	For example the rules::
+	
+		A ::= A1 C A2 | B
+		C ::= C1 A C2
+		
+	correspond to::
+	
+		A ::= (A1 C1)* B (C2 A2)*
+		
+	thus, they can be converted into::
+	
+		A ::= B1* B B2*
+		B1 ::= A1 C1
+		B2 ::= C2 A2
+
+	Again, the rule::
+	
+		X ::= X | Y
+		
+	is equivalent to::
+	
+		X ::= Y+
+
+
+Interaction with other modules
+==============================
+
+Grammar compilation
+-------------------
+	When L{compiling<grammar.Grammar.compile>} a L{grammar<grammar.Grammar>}, rules are converted into a L{Deterministic Finite State Automaton<fsa.FSA>}, to enable expression parsing.
+	The technique is based on the representation in form of graph of the different symbols and implemented by the recursive use of L{insert_transitions<NormalExpression.insert_transitions>} method.
+
+Linguistic Literals
+-------------------
+	Terminal symbols in a natural language grammar are subclasses of L{literals<Literal>} such as L{WordFilter<lexicon.WordFilter>} or L{WordCategoryFilter<lexicon.WordCategoryFilter>}.
+	They implement the I{tag method} C{match} as specialization of the equality operator.
+
+
+Operator use example
+====================
+To model this simple grammar:
+	>>> <clause>  ::= <subject> <verb>
+	... <subject> ::= {noun}
+	... <verb>    ::= {vt} <object> | {vi}
+	... <object>  ::= {noun}
+
+The following statements using operators can be used:
+	>>> G["clause"]  = Reference("subject") + Reference("verb")
+	>>> G["subject"] = Literal("noun")
+	>>> G["verb"]    = (Literal("vt") + Reference("object")) | Literal("vi")
+	>>> G["object"]  = Literal("noun")
+
+@author: Paolo Olmino
+@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
 
 @todo: an unordered concatenation operation M{&}
 
 """
 
-# General info
-__version__ = "0.4"
-__author__ = "Paolo Olmino"
-__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 from utilities import Utilities
 
-class NormalExpression:
+class NormalExpression(object):
 	"""
 	An abstract class to model a Backus-Naur form (BNF) expression.
 	It provides the basic construction element for more complex BNF expressions.
@@ -70,7 +156,7 @@ class NormalExpression:
 		Prevent the class from being instantiated.
 		To build an expression, the subclasses must be combined using operators.
 		"""	
-		if self.__class__ is NormalExpression: raise TypeError("NormalExpression is abstract and cannot be instantiated.")
+		if self.__class__ is NormalExpression: raise TypeError("NormalExpression is abstract and can not be instantiated.")
 		
 	def to_expression(self):
 		"""
@@ -79,12 +165,15 @@ class NormalExpression:
 		@rtype: NormalExpression
 		"""
 		return _ParallelExpression([[self]])
+		
 	def __add__(self, b):
 		"""
 		Concatenate with another expression.
-		The resulting expression is a sequence of the two operators.
+		The resulting expression expresses a sequence of the two operands.
 		M{A + (X|YZ) S{hArr} A + X | A + YZ S{equiv} AX | AYZ}
 
+		@param b: The expression to concatenate.
+		@type b: NormalExpression		
 		@rtype: NormalExpression		
 		"""
 		if not b: #espilon or None
@@ -95,9 +184,11 @@ class NormalExpression:
 	def __or__(self, b):
 		"""
 		Alternate with another symbol.
-		The resulting expression is a choice between the two operators.
+		The resulting expression expresses a choice between the two operands.
 		M{A | (X|YZ) S{hArr} A | X | YZ S{equiv} X | YZ | A}
 
+		@param b: The expression to alternate.
+		@type b: NormalExpression	
 		@rtype: NormalExpression
 		"""
 		c = [conc for conc in b.to_expression()]
@@ -108,17 +199,21 @@ class NormalExpression:
 		"""
 		Compare two expressions.
 		Equivalence between normal expressions is not trivial, but defined by the properties on M{S{Sigma}}:
-					- Both M{|} and M{+} are associative
-					- M{|} is commutative
-					- M{+} is distributive respect to M{|}
-					- Idempotence respect to M{|}
-					- M{S{epsilon}} is the identity respect to M{|} and M{+}
+			- Both M{|} and M{+} are associative
+			- M{|} is commutative
+			- M{+} is distributive respect to M{|}
+			- Idempotence respect to M{|}
+			- M{S{epsilon}} is the identity respect to M{|} and M{+}
 
+		@param other: The expression to compare.
+		@type other: NormalExpression	
 		@rtype: bool
 		@return: True if two expressions are equivalent			   
 		"""
 		if isinstance(other, NormalExpression):
 			return self.to_expression() == other.to_expression()	
+		elif other is None:
+			return False
 		else:
 			return NotImplemented
 
@@ -126,11 +221,12 @@ class NormalExpression:
 		"""
 		Compare two expressions for inequality.
 
+		@param other: The expression to compare.
+		@type other: NormalExpression
 		@rtype: bool
 		@return: True if two expressions are not equivalent
 		"""	
 		return not self.__eq__(other)
-
 
 	def __hash__(self):
 		"""
@@ -142,7 +238,7 @@ class NormalExpression:
 
 	def __repr__(self):
 		"""
-		Build up a verbose representation according to BNF.
+		Return a string representation according to BNF.
 
 		@rtype: str
 		"""
@@ -150,7 +246,7 @@ class NormalExpression:
 
 	def dependencies(self):
 		"""
-		Compute the I{non-terminals} the symbol depends on.
+		Compute the I{non-terminal} symbols (references) the normal expression depends on.
 
 		@rtype: frozenset
 		"""
@@ -158,20 +254,20 @@ class NormalExpression:
 
 	def insert_transitions(self, grammar, fsa, initial, final, tag, max_levels):
 		"""
-		Inserts a sub-FSA in a L{FSA<fsa.FSA>} according to the rules in a L{grammar<grammar.Grammar>}.
+		Insert a sub-FSA in a L{FSA<fsa.FSA>} according to the rules in a L{grammar<grammar.Grammar>}.
 
 		@type grammar: Grammar
-		@param grammar: the grammar providing the rules and options to build the sub-FSA
+		@param grammar: The grammar providing the rules and options to build the sub-FSA.
 		@type fsa: FSA
-		@param fsa: the Finite-state Automaton in which the sub-graph must be inserted
+		@param fsa: The Finite-state Automaton in which the sub-graph must be inserted.
 		@type initial: FSA node
-		@param initial: the state from which the sub-graph departs
+		@param initial: The state from which the sub-graph departs.
 		@type final: FSA node
-		@param final: the state in which the sub-graph ends
+		@param final: The state in which the sub-graph ends.
 		@type tag: FSA tag
-		@param tag: the initial tag for the arcs
+		@param tag: The initial tag for the arcs.
 		@type max_levels: int
-		@param max_levels: the maximum number of levels of recursion to accept
+		@param max_levels: The maximum number of levels of recursion to accept.
 		"""
 		return
 
@@ -188,30 +284,42 @@ class NormalExpression:
 		"""
 		Apply a closure to the expression.
 
+		@param closure: The closure to apply.
+		@type closure: Closure constant
 		@rtype: NormalExpression
 		"""	
-		raise TypeError("Symbol doesn't support closures")
+		raise TypeError("NormalExpression is abstract and does not support closures")
 
 class Reference(NormalExpression):
 	"""
 	A non-terminal symbol.
-
-	A non-terminal symbol is that symbol which has the capability of being further defined in terms of terminals and/or non-terminals.
-
-	It may be said to be a glyph or mark that is further decomposable.
+	A non-terminal symbol is a symbol which has the capability of being further defined in terms of terminals and/or non-terminals.
 
 	@see: Literal
 	"""
 	def __init__(self, reference):
+		"""
+		Create a non-terminal symbol.
+		It contains a link to a symbol defined somewhere else.
+		
+		@param reference: The link to the symbol.
+		@type reference: str
+		"""
 		self.reference = reference
 
 	def __eq__(self, other):
 		"""
 		Compare a non-terminal to another.
-		Two non-terminals are equal if their references are the same.
+		
+		@param other: The non-terminal symbol to compare.
+		@type other: Reference	
+		@rtype: bool
+		@return: True if the two links are the same.
 		"""
 		if isinstance(other, Reference):
 			return self.reference == other.reference
+		elif other is None:
+			return False
 		else:
 			return NotImplemented
 	
@@ -239,21 +347,33 @@ class Literal(NormalExpression):
 	A terminal symbol.
 
 	A terminal symbol can be thought of as an indivisible entity.
+	It is not possible to express a literal in terms of other literals or references.
 
-	It is not possible to express a terminal in terms of other terminals or nonterminals.
-
+	During token parsing, the methods L{match} and L{process} are called.
+	
 	@see: Reference
 	"""
 	def __init__(self, content):
+		"""
+		Create a terminal symbol.
+		@param content: An object to wrap in th symbol.
+		@type content: object
+		"""
 		self.content = content
 
 	def __eq__(self, other):
 		"""
 		Compare a terminal to another.
-		Two terminals are equal if their contents are the same.
+		
+		@param other: The literal to compare.
+		@type other: Literal
+		@rtype: bool
+		@return: True if the two contents are equal.
 		"""
 		if isinstance(other, Literal):
 			return self.content == other.content
+		elif other is None:
+			return False
 		else:
 			return NotImplemented
 
@@ -264,9 +384,31 @@ class Literal(NormalExpression):
 		return `self.content`
 
 	def match(self, token):
+		"""
+		Verify that a token can be pocessed.
+		It is used in parsing.
+		It is often overridden for specialized behavior.
+		
+		@see: fsa.Parse
+		@param token: The object to check.
+		@type token: object
+		@rtype: bool
+		@return: True if the content is equal to the token.
+		"""
 		return self.content == token
 
 	def process(self, token):
+		"""
+		Process the token and return the appropriate tag.
+		It is used in parsing.
+		It is often overridden for specialized behavior.
+		
+		@see: fsa.Parse
+		@param token: The object to process.
+		@type token: object
+		@rtype: hashable
+		@return: The token itself.
+		"""
 		return token
 
 	def insert_transitions(self, grammar, fsa, initial, final, tag, max_levels):
@@ -276,8 +418,16 @@ class Literal(NormalExpression):
 class _ParallelExpression(NormalExpression):
 	"""
 	A L{NormalExpression} implemented as parallel, i.e. concatenation of alternatives.
+	@note: For internal use only.
 	"""
 	def __init__(self, double_iterable):
+		"""
+		Create an instance of ParallelExpression based on an alternative of concatenations.
+		M{(A1+A2+...)|(B1+B2+...)|...}
+		@note: For internal use only.
+		@param double_iterable: A matrix of literals.
+		
+		"""
 		self.__fsot = frozenset([tuple(conc) for conc in double_iterable])
 
 	def __iter__(self):
@@ -293,25 +443,19 @@ class _ParallelExpression(NormalExpression):
 		return " | ".join(r)
 
 	def __add__(self, b):
-		"""
-		Concatenate with another symbol.
-		M{(A|BC)+(X|YZ) S{hArr} A+X | BC+X | A+YZ | BC+YZ S{equiv} AX | BCX | AYZ | BCYZ}
-		"""
 		if not b: #epsilon or none
 			return _ParallelExpression(self.__fsot)
 		else:
 			return _ParallelExpression([x + y for x in self.__fsot for y in b.to_expression()])
 
 	def __or__(self, b):
-		"""
-		Alternate with another symbol.
-		M{(A|BC)|(X|YZ) S{hArr} A | BC | Y | YZ}
-		"""
 		return _ParallelExpression(self.__fsot | b.to_expression().__fsot)
 
 	def __eq__(self, other):
 		if isinstance(other, _ParallelExpression):
 			return self.__fsot == other.__fsot
+		elif other is None:
+			return False
 		else:
 			return NotImplemented
 
@@ -331,7 +475,6 @@ class _ParallelExpression(NormalExpression):
 				dep |= s.dependencies()
 		return frozenset(dep)
 
-	
 	def insert_transitions(self, grammar, fsa, initial, final, tag, max_levels):
 		def concatenation_build(symbols, grammar, fsa, initial, final, tag):
 			prev = initial
@@ -357,63 +500,25 @@ class _Closure(Reference):
 	
 		>>> g["Z"] = Reference("XY") * KLEENE_CLOSURE
 		>>> g["XY"] = Reference("X") + Reference("Y")
-
-
-	Typical closures
-	================
-
-	When it's not quantified by a closure, an expression must occur once.
-	
-	In other words, its cardinality is 1.
-
-	To change minimum or maximum occurrences for a reference, these closures can be used:
-
-		- L{Optional or interrogative closure<OPTIONAL_CLOSURE>}, "C{?}"
-
-		- L{Positive or multiple closure<POSITIVE_CLOSURE>}, "C{+}"
-
-		- L{Kleene closure<KLEENE_CLOSURE>}, "C{+}"
-
-
-
-	Resolving cyclic references
-	===========================
-
-	Set of recursive rules such as the following are not accepted.
-
-	The translation into closures is more evident when rules are unrolled.
-
-	For example the rules::
-	
-		A ::= A1 C A2 | B
-		C ::= C1 A C2
-		
-	correspond to::
-	
-		A ::= (A1 C1)* B (C2 A2)*
-		
-	thus, they can be converted into::
-	
-		A ::= B1* B B2*
-		B1 ::= A1 C1
-		B2 ::= C2 A2
-
-	Again, the rule::
-	
-		X ::= X | Y
-		
-	is equivalent to::
-	
-		X ::= Y+
-
-	
 	"""
-	def __init__(self, non_terminal, forward_back):
-		# ! False, False
-		# ? True, False
-		# + False, True
-		# * True, True
-		Reference.__init__(self, non_terminal.reference)
+	def __init__(self, expression, forward_back):
+		"""
+		Create a closure.
+		
+		The closure are depicted by using alternative S{epsilon} transitions in parallel::
+		
+				 Forward  Backward
+			()!                    
+			()?     Y              
+			()+               Y    
+			()*     Y         Y    
+		
+		@param expression: The expression to apply the closure to.
+		@type expression: Literal
+		@param forward_back: Two booleans to indicate if the closure adds an S{epsilon} transition in parallel
+		@type forward_back: tuple of bool
+		"""
+		Reference.__init__(self, expression.reference)
 		self.__forward, self.__back = forward_back
 
 
@@ -444,6 +549,8 @@ class _Closure(Reference):
 		CHARS = "!?+*"
 		return Reference.__repr__(self) + CHARS[index]
 
+#{ Closure constants
+
 OPTIONAL_CLOSURE = (True, False)
 """
 
@@ -453,7 +560,7 @@ The expression is optional.
 	
 In other words, its cardinality can be 0 or 1.
 
-@type: C{sequence} of C{bool}
+@type: tuple of bool
 
 """
 POSITIVE_CLOSURE = (False, True)
@@ -465,7 +572,7 @@ The expression is mandatory and can be repeated any number of times.
 	
 In other words, its cardinality can be 1 to S{infin}.
 
-@type: C{sequence} of C{bool}
+@type: tuple of bool
 """
 KLEENE_CLOSURE = (True, True)
 """
@@ -476,14 +583,13 @@ The expression is optional and can be repeated any number of times.
 	
 In other words, its cardinality can be 0 to S{infin}.
 
-@type: C{sequence} of C{bool}
+@type: tuple of bool
 """
+#}
 
 class _Epsilon(Literal):
 	"""
 	The class for alternative and juxtapositive identity.
-
-	Also used as the I{null} label in transitions.
 	"""
 
 	def __init__(self):
@@ -491,24 +597,38 @@ class _Epsilon(Literal):
 
 	def __add__(self, b):
 		"""
-		Concatenate with another symbol, being absorbed.
+		Concatenate with another expression.
+		The identity is absorbed.
+		
 		M{S{epsilon}+(X|YZ) S{hArr} X | YZ}
+		
+		@param b: The expression to concatenate.
+		@type b: NormalExpression
+		@rtype: NormalExpression
 		"""
 		if not b:
 			return EPSILON_SYMBOL
 		else:
 			return _pack(b._to_concatenations())
 
-	def __eq__(self, b):
-		if b is None or isinstance(b, _Epsilon):
+	def __eq__(self, other):
+		"""
+		Compare to a normal expressions.
+
+		@param other: The expression to compare.
+		@type other: NormalExpression	
+		@rtype: bool
+		@return: True if the parameter is S{epsilon} or C{None}, False if it is a different normal expression.
+		"""
+		if other is None or isinstance(other, _Epsilon):
 			return True
-		elif isinstance(b, NormalExpression):
+		elif isinstance(other, NormalExpression):
 			return False
 		else:
 			return NotImplemented
 
 	def __repr__(self):
-		return u"ε".encode("UTF-8")
+		return "{epsilon}"
 
 	def insert_transitions(self, grammar, fsa, initial, final, tag, max_levels):
 		fsa.add_transition(initial, EPSILON_SYMBOL, final, tag)

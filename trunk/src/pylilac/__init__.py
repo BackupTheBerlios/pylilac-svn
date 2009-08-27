@@ -2,33 +2,46 @@
 # -*- coding: utf-8 -*-
 
 """
-PyLilac Poject
-==============
+PyLilac Project
+===============
+The PYthon LInguistic Laboratory (pylilac) is a Python library and a set of tools to help in studying, analyzing and engineering languages.
 
-U{http://pylilac.berlios.de}
 
-G{packagetree core.lect,core.lexicon,core.grammar,core.inflection}
+PyLilac (= I{U{Py}thon {li}nguistic {l}aboratory}) is a Python library and a set of tools to help in studying, analyzing and engineering languages.
 
-G{importgraph core.lect,core.lexicon,core.grammar,core.inflection}
+In the initial study of a natural or constructed language, the need for a framework to store the language characteristics may rise.
+In particular when studying several languages, it can be useful a tool to bring the study to a I{normalized} form, to highlight the things in common with other languages.
+PyLilac wants to provide a library and a set of tools to study, analyze and engineer languages as composed by:
+	- A lexicon
+	- An inflective system
+	- A grammar
+When exposed to a new language, the user will be able to describe it and, later on, he will be able to browse through the schema they have built.
+On the other hand, another user will be able to open the same file and to explore the language prepared by someone else.
+They both will be going to use a graphical interface tool to work with the data.
+Eventually, a third user might want to develop a linguistic software (for training purpose, documentation, study and so on) and he will be going to use the library directly.
 
-G{classtree core.lect.Lect,core.lexicon.Lexicon,core.grammar.Grammar,core.inflection.Inflections}
+Structure
+---------
 
-G{callgraph core.grammar.Grammar.compile}
+G{packagetree pylilac}
 
+The library is contained in the L{pylilac.core} package, while the implementation of tools is in the L{pylilac.ui} 
+
+@summary: The pylilac project.
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
 """
 
-
-# General info
-__version__ = "0.4"
-__author__ = "Paolo Olmino"
-__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 from ui.la import LAApp
 
 def run_la():
+	"""
+	Run the Language Architect GUI.
+	@see: L{Graphical User documentation<Tools.LanguageArchitect>}.
+	"""
 	app = LAApp(0)
 	app.MainLoop()
 

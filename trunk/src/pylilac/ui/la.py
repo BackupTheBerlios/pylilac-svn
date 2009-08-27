@@ -1,6 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+A module for the wx frames in the Language Architect.
+
+the active code is in the L{code behind<lacodebehind.LACodeBehind>} class.
+
+@note: The code was generated with U{wx.Glade<http://wxglade.sourceforge.net/>}.
+
+@author: Paolo Olmino
+@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
+"""
+
+__docformat__ = "epytext en"
+
 import wx
 import wx.grid
 import wx.gizmos
@@ -12,11 +26,17 @@ from lawidgets import StockBitmapButton, CategoryPanelComboCtrl
 
 
 class LAFrame(wx.Frame):
+	"""
+	Main frame.
+	It is used to manipulate a L{lect<core.lect.Lect>} object.
+	"""
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: LAFrame.__init__
 		kwds["style"] = wx.DEFAULT_FRAME_STYLE
 		wx.Frame.__init__(self, *args, **kwds)
 		self.la_notebook = wx.Notebook(self, -1, style=0)
+		self.la_translation_pane = wx.Panel(self.la_notebook, -1)
+		self.la_grammar_pane = wx.Panel(self.la_notebook, -1)
 		self.panel_2 = wx.Panel(self.la_notebook, -1)
 		self.la_lexicon_pane = wx.Panel(self.la_notebook, -1)
 		self.la_language_pane = wx.Panel(self.la_notebook, -1)
@@ -153,8 +173,11 @@ class LAFrame(wx.Frame):
 		self.form_ctrl_copy = wx.TextCtrl(self.panel_2, -1, "")
 		self.cancel_button_copy = wx.Button(self.panel_2, wx.ID_CANCEL, "")
 		self.apply_button_copy = wx.Button(self.panel_2, wx.ID_APPLY, "")
-		self.la_grammar_pane = wx.Panel(self.la_notebook, -1)
-		self.la_translation_pane = wx.Panel(self.la_notebook, -1)
+		self.grammar_ctrl = wx.TextCtrl(self.la_grammar_pane, -1, "", style=wx.TE_MULTILINE)
+		self.from_lang_ctrl = wx.TextCtrl(self.la_translation_pane, -1, "", style=wx.TE_MULTILINE)
+		self.to_lang_ctrl = wx.TextCtrl(self.la_translation_pane, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
+		self.comprehend_button = wx.Button(self.la_translation_pane, -1, "Comprehend")
+		self.translate_button = wx.Button(self.la_translation_pane, -1, "Translate")
 
 		self.__set_properties()
 		self.__do_layout()
@@ -196,6 +219,7 @@ class LAFrame(wx.Frame):
 		self.Bind(wx.grid.EVT_GRID_CMD_SELECT_CELL, self.OnWordSelect, self.word_grid_copy)
 		self.Bind(wx.EVT_BUTTON, self.OnUndo, self.cancel_button_copy)
 		self.Bind(wx.EVT_BUTTON, self.OnApply, self.apply_button_copy)
+		self.Bind(wx.EVT_BUTTON, self.OnDoComprehend, self.comprehend_button)
 		# end wxGlade
 
 		# members
@@ -207,7 +231,7 @@ class LAFrame(wx.Frame):
 	def __set_properties(self):
 		# begin wxGlade: LAFrame.__set_properties
 		self.SetTitle("Lilac - Language Architect")
-		self.SetSize((1157, 674))
+		self.SetSize((1411, 674))
 		self.SetToolTipString("Lilac Language Architect")
 		self.separator_ctrl.SetSelection(-1)
 		self.capitalization_ctrl.SetSelection(0)
@@ -243,11 +267,17 @@ class LAFrame(wx.Frame):
 		self.word_grid_copy.SetColLabelValue(0, "Categories")
 		self.word_grid_copy.SetColLabelValue(1, "Form")
 		self.apply_button_copy.Enable(False)
+		self.translate_button.Enable(False)
 		# end wxGlade
 
 	def __do_layout(self):
 		# begin wxGlade: LAFrame.__do_layout
 		la_frame_sizer = wx.BoxSizer(wx.VERTICAL)
+		sizer_8 = wx.BoxSizer(wx.VERTICAL)
+		sizer_9 = wx.BoxSizer(wx.HORIZONTAL)
+		grid_sizer_3 = wx.FlexGridSizer(5, 3, 0, 0)
+		sizer_10 = wx.BoxSizer(wx.VERTICAL)
+		la_grammar_sizer = wx.BoxSizer(wx.VERTICAL)
 		la_lexicon_sizer_copy = wx.BoxSizer(wx.HORIZONTAL)
 		lemma_sizer_copy = wx.FlexGridSizer(3, 1, 0, 0)
 		lemma_button_sizer_copy = wx.GridSizer(1, 2, 0, 0)
@@ -412,6 +442,18 @@ class LAFrame(wx.Frame):
 		lemma_sizer_copy.AddGrowableCol(0)
 		la_lexicon_sizer_copy.Add(lemma_sizer_copy, 3, wx.EXPAND, 0)
 		self.panel_2.SetSizer(la_lexicon_sizer_copy)
+		la_grammar_sizer.Add(self.grammar_ctrl, 1, wx.ALL|wx.EXPAND, 0)
+		self.la_grammar_pane.SetSizer(la_grammar_sizer)
+		sizer_10.Add(self.from_lang_ctrl, 1, wx.EXPAND, 0)
+		sizer_10.Add(self.to_lang_ctrl, 1, wx.EXPAND, 0)
+		sizer_9.Add(sizer_10, 5, wx.EXPAND, 0)
+		grid_sizer_3.Add(self.comprehend_button, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+		grid_sizer_3.Add(self.translate_button, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+		grid_sizer_3.AddGrowableRow(4)
+		grid_sizer_3.AddGrowableCol(1)
+		sizer_9.Add(grid_sizer_3, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
+		sizer_8.Add(sizer_9, 1, wx.EXPAND, 0)
+		self.la_translation_pane.SetSizer(sizer_8)
 		self.la_notebook.AddPage(self.la_language_pane, "Language")
 		self.la_notebook.AddPage(self.la_lexicon_pane, "Lexicon")
 		self.la_notebook.AddPage(self.panel_2, "Inflection")
@@ -510,10 +552,21 @@ class LAFrame(wx.Frame):
 		print "Event handler `OnDoGenerateWords' not implemented"
 		event.Skip()
 
+	def OnComprehend(self, event): # wxGlade: LAFrame.<event_handler>
+		self.code_behind.OnComprehend(event)
+
+	def OnDoComprehend(self, event): # wxGlade: LAFrame.<event_handler>
+		self.code_behind.OnDoComprehend(event)
+
 # end of class LAFrame
 
 class CBFrame(wx.Frame):
-
+	"""
+	Concept Browser frame.
+	It is used to browse and edit L{taxonomy<core.interlingua.Taxonomy>} object.
+	
+	@see: lacodebehind.
+	"""
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: CBFrame.__init__
 		kwds["style"] = wx.CAPTION|wx.CLOSE_BOX|wx.MINIMIZE_BOX|wx.SYSTEM_MENU|wx.RESIZE_BORDER|wx.FRAME_FLOAT_ON_PARENT|wx.CLIP_CHILDREN
@@ -697,6 +750,9 @@ class CBFrame(wx.Frame):
 # end of class CBFrame
 
 class FindDialog(wx.Dialog):
+	"""
+	A Find Dialog to search in the Concept Browser.
+	"""
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: FindDialog.__init__
 		kwds["style"] = wx.DEFAULT_DIALOG_STYLE
@@ -777,9 +833,12 @@ class FindDialog(wx.Dialog):
 
 
 class LAApp(wx.App):
+	"""
+	A class to wrap the Language Architect application.
+	"""
 	def OnInit(self):
 		wx.InitAllImageHandlers()
-		la_frame = LAFrame(None, -1, "Linguistic Laboratory")
+		la_frame = LAFrame(None, -1, "Linguistic Architect")
 		self.SetTopWindow(la_frame)
 		la_frame.Show()
 		return 1

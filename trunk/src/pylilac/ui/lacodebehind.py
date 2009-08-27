@@ -1,6 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+A module to decouple the active code of the Language Laboratory from the definition of the frames.
+
+@summary: Code behind for the Language Laboratory.
+@author: Paolo Olmino
+@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
+"""
+
+__docformat__ = "epytext en"
 
 import wx
 import graphics
@@ -13,6 +23,9 @@ from ..core.lect import Lect
 from ..core.lexicon import Lemma, Word
 
 class AppData:
+	"""
+	A class to wrap the application data.
+	"""
 	def __init_():
 		self.lect = None
 		self.interlingua = None
@@ -20,6 +33,9 @@ class AppData:
 data = AppData()
 
 class FrameCodeBehind:
+	"""
+	A base class for code behind.
+	"""
 	def __init__(self, frame):
 		self.frame = frame
 		self.children = {}
@@ -59,6 +75,9 @@ class FrameCodeBehind:
 
 
 class LACodeBehind(FrameCodeBehind):
+	"""
+	A class for the code behind the Language Architect.
+	"""
 	def __init__(self, frame):
 
 		FrameCodeBehind.__init__(self, frame)
@@ -117,6 +136,8 @@ class LACodeBehind(FrameCodeBehind):
 		frame.lemma_ctrl.Clear()
 		for hw in lang.lexicon.iter_lemmas():
 			frame.lemma_ctrl.Append("%s.%d" % hw.key(), hw.key())
+		
+		frame.grammar_ctrl.SetValue(`lang.grammar`)
 
 
 	def __load_word_grid(self, hw_key):
@@ -333,6 +354,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 				w = words[row]
 				data.lect.lexicon.remove_word(w)
 		self.__load_word_grid(hw_key)
+		
+	def OnDoComprehend(self, event): # wxGlade: LAFrame.<event_handler>
+		from_s = self.frame.from_lang_ctrl.GetValue()
+		self.frame.to_lang_ctrl.SetValue("")
+		to_s = ""
+		try:
+			to_ss = data.lect.read(from_s)
+			to_s = "\n".join(map(repr, to_ss))
+		except Exception, e:
+			dlg = wx.MessageDialog(self.frame, str(e), e.__class__.__name__, wx.ICON_ERROR|wx.OK)
+			dlg.ShowModal()
+			dlg.Destroy()
+		self.frame.to_lang_ctrl.SetValue(to_s)
 
 
 
@@ -356,7 +390,7 @@ class CBCodeBehind(FrameCodeBehind):
 
 		self.frame.pos_ctrl.AppendItems(data.interlingua.p_o_s)
 		self.frame.arg_struct_combo.AppendItems(data.interlingua.arg_struct)
-
+		
 		self.set_dirty(False)
 		self.current = None
 

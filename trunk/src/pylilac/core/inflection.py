@@ -10,7 +10,7 @@ Again, the same fragment in latin would be: I{"foliae arborum"}, from lemmas I{"
 
 Structure of inflection
 =======================
-G{classtree Inflection, Inflection.Form, Transform}
+G{classtree Inflection, Form, Transform}
 
 Inflections
 -----------
@@ -69,7 +69,7 @@ Complete example
 	>>> decl = Inflections()
 	Instantiate inflections
 	>>> decl1 = decl.create_inflection("n", u"a$")
-	Declare inflection for nouns ending in I{"-a"}
+	Declare inflection for nouns ending in “-a”
 	>>> decl1N = decl1.create_form(("s","N"))
 	Declare inflection form for singular nominative.
 	>>> decl1N.create_transform(BASED_ON_ENTRY_FORM)
@@ -79,73 +79,107 @@ Complete example
 	>>> decl1Gae = decl1G.create_transform()
 	Declare using a default a transform starting from canonical form of lemma.
 	>>> decl1Gae.append_step(u"a$", u"ae", True)
-	Declare a mandatory step for I{"-ae"} suffixation.
+	Declare a mandatory step for “-ae” suffixation.
+
+@author: Paolo Olmino
+@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
 """
 
-# General info
-__version__ = "0.4"
-__author__ = "Paolo Olmino"
-__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 import re
 from lexicon import Word, Lexicon, CategoryFilter, DEFECTIVE
 from utilities import SortedDict
 
-BASED_ON_ENTRY_FORM = 0
+BASED_ON_ENTRY_FORM = "-"
 """
 It indicated a transform will take as initial form the entry form of the lemma.
-It is used for the C{based_on} parameter in L{Inflection.Form.create_transform}.
+It is used for the C{based_on} parameter in L{Form.create_transform}.
 """
 
 class TransformSyntaxError(ValueError):
 	"""
-	Raised when the definition of a transform is syntactically malformed and cannot be compiled.
+	Exception to indicate that the definition of a transform is syntactically malformed and can not be compiled.
 	
 	@see: L{Regular Expressions <re>}
 	"""
 	pass
 class InflectionError(RuntimeError):
 	"""
-	Raised when definitions suit the given form.
+	Exception to indicate that no definitions suit the given form.
 	"""
 	pass
+	
+	
 
-class Inflection:
+class Inflections(object):
+	"""
+	A collection of inflections.
+	It is used to collect, generate and call instances of L{Inflection}.
+	"""
+	def __init__(self):
+		"""
+		Initialize an empty collection of instances of L{Inflection}.
+		"""
+		self.__inflections = []
+
+	def create_inflection(self, p_o_s, condition = None, lemma_categories = None):
+		"""
+		Create a new instance of L{Inflection} and append it.
+		
+		@param p_o_s: The part of speech accepted by the inflection.
+		@type p_o_s: str
+		@param condition: The regular expression filtering the entry forms accepted by the inflection.
+		@type condition: unicode
+		@param lemma_categories: The categories of the lemmas accepted by the inflection.
+		@type lemma_categories: tuple of str/CategoryFilter
+		@return: The new inflection.
+		@rtype: Inflection
+		@raise TransformSyntaxError: If the condition can not be compiled.
+		"""
+		inflection = Inflection(p_o_s, condition, lemma_categories)
+		self.__inflections.append(inflection)
+		return inflection
+	
+	def __call__(self, lemma, words = ()):
+		"""
+		Find a suitable L{Inflection} and call it, generating the inflection table for the lemma, preserving the given words.
+	
+		@param lemma: The lemma to inflect.
+		@type lemma: Lemma
+		@param words: The inflected forms (usually a list of irregular forms).
+		@type words: sequence of Word
+		@return: The inflection table of the lemma.
+		@rtype: utilities.SortedDict
+		@raise InflectionError: If no inflection accept the lemma.
+		@raise TransformSyntaxError: If the substitution pattern in some step can not be compiled.
+		"""
+		for inflection in self.__inflections:
+			if inflection.accept(lemma):
+				return inflection(lemma, words)
+		raise InflectionError("can not inflect %s" % `lemma`)	
+
+class Inflection(object):
 	"""
 	A class to define the inflected forms for a class of lemmas.
 	"""
-	class Form:
-		"""
-		A class to define the creation of an inflected forms for a class of lemmas.
-		"""
-		def __init__(self, parent_inflection, categories):
-			self.__parent = parent_inflection
-			self.categories = categories
-			self.transforms = []
-			
-		def create_transform(self, based_on = BASED_ON_ENTRY_FORM, condition = u".", lemma_categories = None):
-			c = Transform(self.__parent, based_on , condition, lemma_categories)
-			self.transforms.append(c)
-			return c
-
-		def append_step(self, search, substitution, mandatory = False):
-			for c in self.transforms:
-				c.append_step(search, substitution, mandatory)
-
-		def __call__(self, lemma, words):
-			for transform in self.transforms:
-				s = transform(lemma, words)
-				if s is not None:
-					return s
-			raise InflectionError("Transform cannot apply %s to lemma '%s'" % (`self.categories`, lemma.entry_form))
-			
-	#Inflection class body
 	def __init__(self, p_o_s, condition, lemma_categories):
+		"""
+		Create a new instance of inflection.
+		
+		@param p_o_s: The part of speech accepted by the inflection.
+		@type p_o_s: str
+		@param condition: The regular expression filtering the entry forms accepted by the inflection.
+		@type condition: unicode
+		@param lemma_categories: The categories of the lemmas accepted by the inflection.
+		@type lemma_categories: tuple of str/CategoryFilter
+		@raise TransformSyntaxError: If the condition can not be compiled.
+		@note: In the process of modeling inflections, use the L{Inflections.create_inflection} method instead. 
+		"""
 		self.p_o_s = p_o_s
 		if condition == u".":
 			condition = None
-					
 		cco = None
 		if condition:
 			if not isinstance(condition, unicode):
@@ -153,23 +187,54 @@ class Inflection:
 			try:
 				cco = re.compile(condition, re.IGNORECASE)
 			except Exception, e:
-				raise TransformSyntaxError("Cannot compile %s: %s" % (`condition`, `e`))
+				raise TransformSyntaxError("can not compile %s: %s" % (`condition`, `e`))
 		self.condition = condition
 		self.lemma_categories = lemma_categories
 		self.__cco = cco
 		self.__forms = SortedDict()
 
 	def create_form(self, categories):
+		"""
+		Create a new instance of L{inflection form<Form>} and append it.
+
+		@param categories: The categories of the word generated by the form.
+		@type categories: tuple of str
+		@return: The new inflection form.
+		@rtype: Form
+		"""
 		if not isinstance(categories, tuple):
 			raise TypeError(categories)
-		t =  self.Form(self, categories)
+		for c in categories:
+			if not isinstance(c, str): #and not isinstance(c, unicode)?
+				raise TypeError(c)
+		t =  Form(self, categories)
 		self.__forms[categories] = t
 		return t
 
 	def iter_forms(self):
+		"""
+		Return an iterator on the inflection forms.
+
+		@rtype: iterator of Form
+		"""
 		return self.__forms.itervalues()
 
-	def do_form(self, lemma, words, categories):
+	def do_form(self, lemma, categories, words = ()):
+		"""
+		Generate the specified inflected form for the lemma, preserving the given words.
+		When a word form is provided, it is returned; when not, it is generated applying the appropriate inflection form.
+	
+		@param lemma: The lemma to inflect.
+		@type lemma: Lemma
+		@param words: The inflected forms (usually a list of irregular forms).
+		@type words: sequence of Word
+		@param categories: The categories of the word to generate.
+		@type categories: tuple of str/CategoryFilter
+		@return: The inflected form for the lemma.
+		@rtype: Word
+		@raise InflectionError: If the inflection form can not accept the lemma respecting mandatory steps.
+		@raise TransformSyntaxError: If the substitution pattern in some step can not be compiled.
+		"""
 		word = None
 		for w in words:
 			if CategoryFilter.test(categories, w.categories):
@@ -180,58 +245,132 @@ class Inflection:
 			word = Word(form(lemma, words), lemma, categories)
 		return word
 	
-	def applies(self, lemma):
+	def accept(self, lemma):
+		"""
+		Verify if the inflection accepts a lemma.
+	
+		@param lemma: The lemma to verify.
+		@type lemma: Lemma
+		@return: True if the inflection can accept the lemma.
+		@rtype: bool
+		"""
 		cco = self.__cco
 		if self.p_o_s == lemma.p_o_s and (cco is None or cco.search(lemma.entry_form)) and CategoryFilter.test(self.lemma_categories, lemma.categories):
 			return True
 		else:
 			return False
 
-	def __call__(self, lemma, words):
+	def __call__(self, lemma, words=()):
+		"""
+		Generate the inflection table for the lemma, preserving the given words.
+		When a word form is provided, it is used; when not, it is generated applying the appropriate inflection form.
+		For each inflection form, if it is not defective, a word is generated and appended.
+	
+		@see: do_form
+		@param lemma: The lemma to inflect.
+		@type lemma: Lemma
+		@param words: The inflected forms (usually a list of irregular forms).
+		@type words: sequence of Word
+		@return: The inflection table of the lemma.
+		@rtype: utilities.SortedDict
+		@raise InflectionError: If any inflection forms can not accept the lemma respecting mandatory steps.
+		@raise TransformSyntaxError: If the substitution pattern in some step can not be compiled.		
+		"""
 		table = SortedDict()
 		for categories in self.__forms.iterkeys():
-			word = self.do_form(lemma, words, categories)
+			word = self.do_form(lemma, categories, words)
 			if word.form <> DEFECTIVE:
 				table[word.categories] = word
 		return table
 		
 	def __repr__(self):
+		"""
+		Return a string representation.
+		
+		@rtype: str
+		"""
 		s = [self.p_o_s]
 		if self.condition:
 			s.append(self.condition)
 		if self.lemma_categories:
 			s.append(`self.lemma_categories`)
 		return "/".join(s)
-	
-class Inflections:
-		"""
-		A collection of inflections.
-		It is used to collect, generate and call instances of L{Inflection}.
-		"""
-		def __init__(self):
-			"""
-			Initialize a collection of instances of L{Inflection}.
-			"""
-			self.__inflections = []
 
-		def create_inflection(self, p_o_s, condition = None, lemma_categories = None):
-			"""
-			Create a new instance of L{Inflection}.
-			"""
-			inflection = Inflection(p_o_s, condition, lemma_categories)
-			self.__inflections.append(inflection)
-			return inflection
+class Form(object):
+	"""
+	A class to define the creation of an inflected forms for a class of lemmas.
+	"""
+	def __init__(self, parent_inflection, categories):
+		"""
+		Create a new instance of inflection form.
+
+		@param parent_inflection: The inflection the form belongs to.
+		@type parent_inflection: Inflection
+		@param categories: The categories of the word generated by the form.
+		@type categories: tuple of str/CategoryFilter
+		@note: For Internal use only. Use the L{Inflection.create_form} method instead. 
+		"""
+		self.__parent = parent_inflection
+		self.categories = categories
+		self.transforms = []
 		
-		def __call__(self, lemma, words):
-			"""
-			Find a suitable L{Inflection} and call it.
-			"""		
-			for inflection in self.__inflections:
-				if inflection.applies(lemma):
-					return inflection(lemma, words)
-			raise InflectionError("Cannot inflect %s" % `lemma`)
+	def create_transform(self, based_on = BASED_ON_ENTRY_FORM, condition = u".", lemma_categories = None, steps = ()):
+		"""
+		Create a new instance of L{transform<Transform>} and append it.
+
+		@param based_on: The base form to start from.
+		@type based_on: tuple of str/CategoryFilter/L{BASED_ON_ENTRY_FORM}
+		@param condition: The regular expression filtering the base forms accepted by the transform.
+		@type condition: unicode
+		@param lemma_categories: The categories of the lemmas accepted by the transform.
+		@type lemma_categories: tuple of str/CategoryFilter
+		@param steps: The steps to append at the beginning of the transform.
+		@type steps: sequence of C{(search, substitution, mandatory)} tuples
+		@return: The new transform.
+		@rtype: Transform
+		@raise TransformSyntaxError: If the condition can not be compiled.
+		"""
+		c = Transform(self.__parent, based_on , condition, lemma_categories, steps)
+		self.transforms.append(c)
+		return c
+
+	def append_step(self, search, substitution, mandatory = False):
+		"""
+		Append a step to each transform.
+		
+		@see: Substitution in regular expressions.
+		@param search: The regular expression that the step search for.
+		@type search: unicode
+		@param substitution: The substitution pattern.
+		@type substitution: unicode
+		@param mandatory: True if the step must always be applied.
+		@type mandatory: bool
+		@raise TransformSyntaxError: If the search string can not be compiled.
+		"""
+		for c in self.transforms:
+			c.append_step(search, substitution, mandatory)
+
+	def __call__(self, lemma, words=()):
+		"""
+		Generate the inflected form for the lemma, preserving the given words.
+		When a word form is provided, it is returned; when not, it is generated applying the appropriate inflection form.
+	
+		@param lemma: The lemma to inflect.
+		@type lemma: Lemma
+		@param words: The inflected forms (usually a list of irregular forms).
+		@type words: sequence of Word
+		@return: The inflected form for the lemma.
+		@rtype: Word
+		@raise InflectionError: If no transform can not accept the lemma, also respecting mandatory steps.
+		@raise TransformSyntaxError: If the substitution pattern in some step can not be compiled.
+		"""
+		for transform in self.transforms:
+			s = transform(lemma, words)
+			if s is not None:
+				return s
+		raise InflectionError("Transform can not apply %s to lemma '%s'" % (`self.categories`, lemma.entry_form))
 			
-class Transform:
+class Transform(object):
 	"""
 	A class to define the creation of an inflected forms for a class of base forms.
 
@@ -250,47 +389,87 @@ class Transform:
 	If one of the initial regular expressions is not satisfied and the step is not defined as mandatory, it's neglected and the execution goes on to the next step.
 	In this example, the second step might be seen as optional, since stems not ending in «I{-a}» simply go on to the last step : «I{hir}» S{->} «I{híra}» .
 	"""
-	def __init__(self, parent_inflection, based_on, condition, lemma_categories, steps = None):
+	def __init__(self, parent_inflection, based_on, condition, lemma_categories, steps = ()):
+		"""
+		Create a new instance of L{transform<Transform>}.
 
+		@param parent_inflection: The inflection the transform belongs to.
+		@type parent_inflection: Inflection
+		@param based_on: The base form to start from.
+		@type based_on: tuple of str/CategoryFilter/L{BASED_ON_ENTRY_FORM}
+		@param condition: The regular expression filtering the base forms accepted by the transform.
+		@type condition: unicode
+		@param lemma_categories: The categories of the lemmas accepted by the transform.
+		@type lemma_categories: tuple of str/CategoryFilter
+		@param steps: The steps to append at the beginning of the transform.
+		@type steps: sequence of C{(search, substitution, mandatory)} tuples
+		@raise TransformSyntaxError: If the condition can not be compiled.
+		@note: For internal use only. Use the L{Form.create_transform} method instead. 
+		"""
 		if not isinstance(condition, unicode):
 			raise TypeError("'%s' is not Unicode" % repr(condition))		
 		self.__parent = parent_inflection
 
-		if BASED_ON_ENTRY_FORM == based_on:
-			self.based_on = None
-		else:
-			self.based_on = based_on
+		self.based_on = based_on
 		self.condition = condition
 		self.lemma_categories = lemma_categories
 		try:
 			self.__cco = re.compile(condition, re.IGNORECASE)
 		except Exception, e:
-			raise TransformSyntaxError("Cannot compile %s: %s" % (`condition`, `e`))
-		self.steps = []
+			raise TransformSyntaxError("can not compile %s: %s" % (`condition`, `e`))
+		self.__steps = []
 		if steps:
 			for search, substitution, mandatory in steps:
 				self.append_step(search, substitution, mandatory)
 
 	def append_step(self, search, substitution, mandatory = False):
 		"""
-		Add a step characterized by the string to search, its replacement and a flag stating if the string must be found at least once.
+		Append a step.
+		
+		@see: Substitution in regular expressions.
+		@param search: The regular expression that the step search for.
+		@type search: unicode
+		@param substitution: The substitution pattern.
+		@type substitution: unicode
+		@param mandatory: True if the step must always be applied.
+		@type mandatory: bool
+		@raise TransformSyntaxError: If the search string can not be compiled.
 		"""
-
 		if not isinstance(search, unicode):
 			raise TypeError("'%s' is not Unicode" % repr(search))
 		if not isinstance(substitution, unicode):
 			raise TypeError("'%s' is not Unicode" % repr(substitution))
-
 		try:
 			cre = re.compile(search, re.IGNORECASE)
 		except Exception, e:
-			raise TransformSyntaxError("Cannot compile %s for %s: %s" % (`substitution`, `search`, e.message))
-		self.steps.append((search, cre, substitution, mandatory))
+			raise TransformSyntaxError("can not compile %s for %s: %s" % (`substitution`, `search`, e.message))
+		self.__steps.append((search, cre, substitution, mandatory))
+		
+	def iter_steps(self):
+		"""
+		Return an iterator over the steps.
+		@rtype: iterator of C{(search, substitution, mandatory)} tuples
+		"""
+		for search, cre, substitution, mandatory in self.__steps:
+			yield (search, substitution, mandatory)
 	
-	def __call__(self, lemma, words):
+	def __call__(self, lemma, words = ()):
+		"""
+		Apply the transform to the lemma, preserving the given words.
+		When a word form is provided, it is returned; when not, it is generated applying the appropriate inflection form.
+		If the transform does not accept the lemma or violates any mandatory step, nothing is returned.
+	
+		@param lemma: The lemma to inflect.
+		@type lemma: Lemma
+		@param words: The inflected forms (usually a list of irregular forms).
+		@type words: sequence of Word
+		@return: The inflected form (string) for the lemma.
+		@rtype: str
+		@raise TransformSyntaxError: If the substitution pattern in some step can not be compiled.
+		"""
 		if not CategoryFilter.test(self.lemma_categories, lemma.categories):
 			return None
-		if self.based_on is None:
+		if self.based_on == BASED_ON_ENTRY_FORM:
 			s = lemma.entry_form
 		else:
 			s = None
@@ -299,7 +478,7 @@ class Transform:
 					s = w.form
 					break
 			if not s:
-				w = self.__parent.do_form(lemma, words, self.based_on)
+				w = self.__parent.do_form(lemma, self.based_on, words)
 				s = w.form
 		if not s:
 			return None
@@ -307,12 +486,12 @@ class Transform:
 			return DEFECTIVE #propagation
 		if not self.__cco.search(s):
 			return None
-		for r, cre, substitution, mandatory in self.steps:
+		for r, cre, substitution, mandatory in self.__steps:
 			if cre.search(s):
 				try:
 					s = cre.sub(substitution, s)
 				except:
-					raise InflectionError("Invalid form %s for %s" % (`substitution`, `r`))
+					raise TransformSyntaxError("Invalid form %s for %s" % (`substitution`, `r`))
 			elif mandatory:
 				return None
 		return s

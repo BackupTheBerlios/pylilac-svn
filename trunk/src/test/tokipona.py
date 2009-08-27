@@ -10,13 +10,7 @@ from pylilac.core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTION
 from pylilac.core.lexicon import Lexicon, Particle, Word, Lexeme, WordCategoryFilter, WordFilter, CategoryFilter
 
 
-def run():
-	def show(s):
-		print
-		print s
-		for i, x in enumerate(l.read(unicode(s))):
-			print "%d. " % i, x
-
+def prepare():
 	w = build_words()
 
 	l = Lect("tko")
@@ -34,6 +28,15 @@ def run():
 	l.lexicon = build_lexicon(w, l.properties)
 	l.grammar = build_grammar(w)
 	l.properties["capitalization"] = 0
+	return l
+
+def run():
+	def show(s):
+		print
+		print s
+		for i, x in enumerate(l.read(unicode(s))):
+			print "%d. " % i, x	
+	l = prepare()
 	print l.grammar
 	l.save("test/tko.lct", False)
 
@@ -452,6 +455,26 @@ def build_grammar(w):
 	g.compile()
 	
 	return g
+
+def callgraph():
+	import pycallgraph
+	l = prepare()
+	l.reset()
+	lx = l.lexicon
+	gr = l.grammar
+	prp = l.properties
+	#Lexicon Compile
+	pycallgraph.start_trace()
+	lx.compile(prp, True)
+	pycallgraph.make_dot_graph('lexicon_compile.png')
+	#Grammar Compile
+	pycallgraph.start_trace()
+	gr.compile(True)
+	pycallgraph.make_dot_graph('grammar_compile.png')
+	#Read
+	pycallgraph.start_trace()
+	l.read(u"mi pona e ilo")
+	pycallgraph.make_dot_graph('read.png')
 
 if __name__ == "__main__":
 	run()

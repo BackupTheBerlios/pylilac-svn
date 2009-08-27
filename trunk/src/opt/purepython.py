@@ -9,7 +9,7 @@ The module has not been implemented, but only these specifications are released 
 """
 
 # General info
-__version__ = "0.4"
+__version__ = "1.0"
 __author__ = "Paolo Olmino"
 __license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
@@ -71,8 +71,6 @@ class GzipFile(file):
 	A file class implementing GZ compression.
 	"""
 	pass
-
-	
 
 
 def __test():

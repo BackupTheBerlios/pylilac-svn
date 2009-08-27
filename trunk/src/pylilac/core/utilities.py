@@ -7,12 +7,11 @@ Common utilities functions.
 This module also encapsulates the (potentially) unsupported features in I{non pure-Python} environments.
 In that case, a pure-Python plugin for some classes and funcions must implemented and referenced.
 
+@author: Paolo Olmino
+@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
 """
 
-# General info
-__version__ = "0.4"
-__author__ = "Paolo Olmino"
-__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 import sys
@@ -20,15 +19,20 @@ import sys
 #Native language libraries
 try: 
 	from gzip import GzipFile
-except ImportError: 
-	#raise ImportError("A plugin for module gzip is needed.")
-	from purepython import GzipFile
+except ImportError:
+	try: 
+		from purepython import GzipFile
+	except ImportError: 
+		raise ImportError("Module gzip is unsupported.")
 
 try: 
 	from csv import writer, reader
 except ImportError: 
-	#raise ImportError("A plugin for module csv is needed.")
-	from purepython import writer, reader
+	try: 
+		from purepython import writer, reader
+	except ImportError: 
+		raise ImportError("Module csv is unsupported.")
+		
 
 #Optional libraries
 try: 
@@ -37,7 +41,7 @@ try:
 except ImportError: 
 	_unidecode = lambda u: u.encode(sys.getdefaultencoding(), "replace")
 
-class Utilities:
+class Utilities(object):
 
 	@staticmethod
 	def nvl(obj, default):
@@ -70,52 +74,69 @@ class Utilities:
 			raise TypeError(unistring)
 			
 
-class SortedDict(dict):
+class SortedDict(object):
 	def __init__(self):
-		dict.__init__(self)
+		self.__dict = {}
 		self.__sort = []
+
+	def __getitem__(self, key):
+		return self.__dict[key]
+
+	def __contains__(self, key):
+		return key in self.__dict
+
 	def __setitem__(self, key, value):
-		is_new = dict.__contains__(self, key)
-		dict.__setitem__(self, key, value)
-		if not is_new: self.__sort.append(key)
+		has_key = key in self.__dict
+		self.__dict[key] = value
+		if not has_key:
+			self.__sort.append(key)
+
+	def __delitem__(self, key):
+		del self.__dict[key]
+		self.__sort.remove(key)
+
 	def iterkeys(self):
 		for key in self.__sort:
 			yield key
+
 	def itervalues(self):
 		for key in self.__sort:
 			yield self[key]
+	
 	def iteritems(self):
 		for key in self.__sort:
 			yield (key, self[key])
 
 	def __repr__(self):
+		z = ["{"]
 		s = []
 		for key in self.__sort:
-			if s:
-				s.append(", ")
+			value = self.__dict[key]
+			if value is None:
+				s.append(`key`)
 			else:
-				s.append("{")
-			s.append(`key` + " : ")
-			s.append(`self[key]`)
-		s.append("}")
-		return "".join(s)
+				s.append("%s: %s" % (`key`, `value`))
+		z.append(", ".join(s))
+		z.append("}")
+		return "".join(z)
 
 	def __unicode__(self):
+		z = [u"{"]
 		s = []
 		for key in self.__sort:
-			if s:
-				s.append(u", ")
+			value = self.__dict[key]
+			if value is None:
+				s.append(unicode(key))
 			else:
-				s.append(u"{")
-			s.append(key + u" : ")
-			s.append(self[key])
-		s.append(u"}")
-		return u"".join(s)
+				s.append(u"%s: %s" % (unicode(key), unicode(value)))
+		z.append(u", ".join(s))
+		z.append(u"}")
+		return u"".join(z)
 
 class ZipFile(GzipFile):
 	pass
 		
-class Csv:
+class Csv(object):
 	@staticmethod
 	def writer(file):
 		"""

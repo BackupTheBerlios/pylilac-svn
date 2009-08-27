@@ -3,32 +3,30 @@
 
 
 """
-A module to manage Extended Backus-Naur (EBNF) rules.
-
-
+A module to define and manage grammar rules.
+The notation used to model rules is Extended Backus-Naur (EBNF) rules, supported by the L{bnf} module.
+@author: Paolo Olmino
+@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
 """
 
-# General info
-__version__ = "0.4"
-__author__ = "Paolo Olmino"
-__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 from fsa import FSA, Parser
 
 class GrammarError(ValueError):
 	"""
-	Exception meaning that some attribute of the grammar is not correctly specified.
+	Exception indicating that some attribute of the grammar is not correctly specified.
 	"""
 	pass
 class UndefinedSymbolError(GrammarError):
 	"""
-	Exception meaning that a given symbol was used in a right hand expression without being previously defined as a left hand member.
+	Exception indicating that a given symbol was used in a right hand expression without being previously defined as a left hand member.
 	"""
 	pass
 class CyclicReferenceError(GrammarError):
 	"""
-	Exception meaning that a cyclic reference or recursion has been attempted.
+	Exception indicating that a cyclic reference or recursion has been encountered when not expected or attempted and failed.
 	"""
 	def __str__(self):
 		return "<%s>(<%s>)" % self.args 
@@ -36,27 +34,32 @@ class CyclicReferenceError(GrammarError):
 class _GrammarParser(Parser):
 	def match(self, label, token):
 		"""
-		Call the C{match} method for the label.
-		Usually, it calls the L{match<lexicon.WordFilter.match>} method.
+		Verify if a label in the FSA matches a token, calling the C{match} method of the label.
+		Typically, it calls the L{match<lexicon.WordFilter.match>} method.
+		
+		@return: True if the label matches the token.
 		@rtype: bool
 		"""
 		return label.match(token)
 
 	def process(self, label, token):
 		"""
-		Call the C{process} method for the label.
-		Usually, it calls the L{process<lexicon.WordFilter.process>} method.
-		@rtype: I{Tag}
+		Process a token, returning the tag to append to the parsing result., calling the C{process} method of the label.
+		
+		Typically, it calls the L{process<lexicon.WordFilter.process>} method.
+		@return: The tag to add to the parsing.
+		@rtype: tag
 		"""
 		return label.process(token)
 
-class Grammar:
+class Grammar(object):
 	"""
 	A container for EBNF rules.
-
-	Cyclic reference or recursion is not supported, but it can be traslated using L{closures<bnf._Closure>}.
 	"""
 	def __init__(self, name):
+		"""
+		Create a Grammar with the given name.
+		"""
 		self.name = name
 		self.starting = None
 		self.__symbols = []
@@ -65,111 +68,118 @@ class Grammar:
 		self.__compiled = None
 		self.__valid = False
 
-	def __setitem__(self, lhs, rhs):
+	def __setitem__(self, symbol, rhs):
 		"""
 		Add a definition to a symbol.
 		
-		M{<lhs> ::= <EBNF expression>}
+		M{<symbol> ::= <EBNF expression>}
 
 		If the symbol was already defined, the new definition is appended as an alternative.
 		
-		@param lhs: The symbol to define or to add a new definition for.
-		@type lhs: str
+		@param symbol: The symbol to define or to add a new definition for.
+		@type symbol: str
 		@param rhs: The expression to define the symbol.
 		@type rhs: bnf.NormalExpression
 		"""
-		if lhs in self.__rules:
-			self.__rules[lhs] |= rhs.to_expression()
+		if symbol in self.__rules:
+			self.__rules[symbol] |= rhs.to_expression()
 		else:
-			self.__rules[lhs] = rhs.to_expression()
-			self.__symbols.append(lhs)
+			self.__rules[symbol] = rhs.to_expression()
+			self.__symbols.append(symbol)
 		if self.starting is None:
-			self.starting = lhs
+			self.starting = symbol
 
-	def __getitem__(self, lhs):
+	def __getitem__(self, symbol):
 		"""
 		Get the definition for a symbol.
 		
-		@param lhs: The symbol defined.
-		@type lhs: str
+		@param symbol: The symbol defined.
+		@type symbol: str
 		@return: The definition of the symbol, as s parallel EBNF expression.
 		@rtype: bnf.NormalExpression
 		"""
-		return self.__rules[lhs]
+		return self.__rules[symbol]
 
-	def __delitem__(self, lhs):
+	def __delitem__(self, symbol):
 		"""
 		Delete all definitions for a symbol.
 		
-		@param lhs: The symbol to clear.
-		@type lhs: str
+		@param symbol: The symbol to clear.
+		@type symbol: str
 		"""
-		del self.__rules[lhs]
-		self.__symbols.remove(lhs)
-		if self.starting == lhs:
+		del self.__rules[symbol]
+		self.__symbols.remove(symbol)
+		if self.starting == symbol:
 			if len(self.__symbols) == 0:
 				self.starting = None
 			else:
 				self.starting = self.__symbols[0]
 
-	def __contains__(self, lhs):
+	def __contains__(self, symbol):
 		"""
+		Check if a symbol is defined.
+		
+		@param symbol: The symbol to search.
+		@type symbol: str
 		@rtype: bool
 		"""
-		return lhs in self.__rules
+		return symbol in self.__rules
 
 	def __str__(self):
 		"""
+		Return a short string representation for the symbols defined in the grammar.
 		@rtype: str
 		"""
 		representation = []
-		representation.append("\"Start Symbol\" = <%s>" % self.starting)
 		for symbol in self.__symbols:
-			representation.append("<%s> ::= %s" % (symbol, str(self.__rules[symbol])))
-		return "\n".join(representation)
+			representation.append("<%s>" % symbol)
+		return "<" + ", ".join(representation) + ">"
 
 
 	def __repr__(self):
 		"""
+		Return a verbose string representation for the grammar.
 		@rtype: str
 		"""
 		representation = []
-		representation.append("\"Name\" = \'%s\'" % self.name)
-		representation.append("\"Start Symbol\" = <%s>" % self.starting)
 		for symbol in self.__symbols:
-			representation.append("<%s> ::= %s" % (symbol, repr(self.__rules[symbol])))
+			if symbol == self.starting:
+				is_starting = "^"
+			else:
+				is_starting = ""
+			representation.append("%s<%s> ::= %s" % (is_starting, symbol, repr(self.__rules[symbol])))
 		return "\n".join(representation)
 
 		
 
 	def browse(self):
 		"""
-		Check for anomalies in the grammar.
-		
+		Check the grammar for anomalies.
 		These anomalies will trigger an error:
 
 			- No starting symbol defined
 			- Unresolved references
-			- Cyclic references (if C{ignore_recursion} is off)
+			- Cyclic references (if the grammar does not ignore recursion)
 		
-		@returns: returns the maximum depths with no recursion
+		@returns: The maximum depth with no recursion
 		@rtype: int
+		@raise GrammarError: If anomalies are encountered while browsing.
 		
 		"""
-		def descend(lhs, ancestors = ()):
-			if lhs not in self.__rules:
-				raise UndefinedSymbolError(lhs)
-			rhs = self.__rules[lhs]
+		def descend(symbol, ancestors = ()):
+			if symbol not in self.__rules:
+				raise UndefinedSymbolError(symbol)
+			rhs = self.__rules[symbol]
 			max_depth = 0
 			for dep in rhs.dependencies():
 				d = 0
 				if dep in ancestors:
 					if not self.ignore_recursion:
-						raise CyclicReferenceError(lhs, dep)
+						raise CyclicReferenceError(symbol, dep)
 					else:
 						d = 1# don't descend to avoid endless loop
 				else:
-					d = descend(dep, ancestors + (lhs,)) + 1
+					d = descend(dep, ancestors + (symbol,)) + 1
 				if d > max_depth:
 					max_depth = d
 			return max_depth
@@ -186,12 +196,18 @@ class Grammar:
 		The result will be kept available until the rules are modified or the grammar reset.
 
 		The algorithm calls recursively the L{bnf.NormalExpression.insert_transitions} method.
-
-		@param force: Recompile grammar even if it's already been validated and compiled.
-		@rtype: fsa.Parser
-		@return: A parser for the grammar.
 		
+		In case a recursive rule is encountered and the flag C{ignore_recursion} is on, the grammar tries to crawl down the recursion.
+
+		If the C{force} flag is off and the grammar was already compiled and was not updated, the old result is taken with no recompiling.
+
 		@see: L{Finite State Automaton<fsa.FSA>}
+		@param force: Recompile grammar even if it has already been validated and compiled.
+		@type force: bool
+		@raise GrammarError: If anomalies are encountered while precompiling.
+		@return: A parser for the grammar.
+		@rtype: fsa.Parser
+		
 		"""
 
 		if force or not self.__valid and self.__compiled is None:
@@ -199,7 +215,7 @@ class Grammar:
 			
 			depth = self.browse()
 			if self.ignore_recursion:
-				max_levels = int(depth * 1.8 + 4) #pretty deep, but it should takes seconds
+				max_levels = int(depth * 1.8 + 4) #pretty deep, but it should take seconds
 			else:
 				max_levels = 100 #very very deep, endless, a technological limit
 

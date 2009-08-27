@@ -33,6 +33,7 @@ def run():
 	l.grammar = build_grammar(w)
 	l.properties["capitalization"] = 2 #Only lexical
 	print l.grammar
+	print l.lexicon
 	l.save("test/ltq.lct", True)
 
 

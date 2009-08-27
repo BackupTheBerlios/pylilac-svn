@@ -14,22 +14,19 @@ For an example of machine interlingua, see U{The Lexical Semantics of a Machine 
 
 @see: Literal
 
-
+@author: Paolo Olmino
+@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
 """
 
-# General info
-__version__ = "0.4"
-__author__ = "Paolo Olmino"
-__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 import os.path
 from utilities import Csv
 
-class Interlingua:
+class Interlingua(object):
 	"""
 	A representation for a machine interlingua.
-
 	"""
 	def __init__(self, filename):
 		"""
@@ -50,13 +47,12 @@ class Interlingua:
 		bn = os.path.basename(filename)
 		self.name = bn.split(".")[0]
 		self.__filename = filename
-		
 
 	def save(self, filename = None):
 		"""
 		Save the interlingua object to a comma separated values file.
 
-		@param filename: The file name to use; if not specified the name of the source file will be used.
+		@param filename: The file name to use; if not specified, the name of the source file will be used.
 		@type filename: str
 		"""
 		if filename is None:
@@ -90,7 +86,7 @@ class Interlingua:
 		self.name, self.p_o_s, self.arg_struct, self.taxonomy = name, p_o_s,  arg_struct, taxonomy
 		
 
-class Concept:
+class Concept(object):
 	"""
 	A  universal concept with its attributes:
 	  - representation in the interlingua
@@ -134,18 +130,29 @@ class Concept:
 
 	def __repr__(self):
 		return "%s (%s, %s): %s"%(self.interlingua, self.p_o_s, self.arg_struct, self.meaning)
+	
 	def __str__(self):
 		return self.interlingua
 	
 
-class Taxonomy:
+class Taxonomy(object):
 	"""
 	A  hierarchy of concepts (I{taxa}).
 	"""
 	def __init__(self):
+		"""
+		Create a new empty taxonomy.
+		"""
 		self.__nodes = {}
 		self.__tree = {None: {}}
 	def get(self, key):
+		"""
+		Retrieve a concept from the taxonomy.
+
+		@param key: The key of the concept to retrieve.
+		@type key: str
+		@rtype: Concept
+		"""
 		return self.__nodes.get(key)
 	def set(self, concept):
 		"""
@@ -156,6 +163,8 @@ class Taxonomy:
 
 		@param concept: The taxon to add to the taxonomy.
 		@type concept: Concept
+		@return: True if the concept was added, False if it already existed and it was updated.
+		@rtype: bool
 		"""
 		old_concept = self.__nodes.get(concept.interlingua)
 		key = concept.interlingua
@@ -178,7 +187,15 @@ class Taxonomy:
 			del old_siblings[key]
 			siblings[key] = concept
 		return mode
+	
 	def remove(self, key):
+		"""
+		Remove a concept and its subconcepts from the taxonomy.
+		If key is C{None}, the taxonomy is cleared.
+
+		@param key: The key of the concept to remove.
+		@type key: str
+		"""
 		if key is not None:
 			if key in self.__tree:
 				for k in self.__tree[key].keys():
@@ -190,8 +207,11 @@ class Taxonomy:
 				del self.__tree[parent_key]
 			del self.__nodes[key]
 		else: #key == None, clear
+			del self.__nodes
+			del self.__tree
 			self.__nodes = []
 			self.__tree = {None: {}}
+
 	def subconcepts(self, key):
 		"""
 		Retrieve the subconcepts of the taxon having the given key.
@@ -209,6 +229,10 @@ class Taxonomy:
 		else:
 			return []
 	def __iter__(self):
+		"""
+		Return an iterator over the taxa.
+		@rtype: iterator
+		"""
 		def add_node(node):
 			sequencing.append(node)
 			if node.interlingua in self.__tree:
@@ -224,8 +248,7 @@ class Taxonomy:
 		
 def _test():
 	pass
-	
-	
+
 
 if __name__ == "__main__":
 	_test()

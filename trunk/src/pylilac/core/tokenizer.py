@@ -3,34 +3,54 @@
 
 """
 A specialized parser for expressions.
+
+@author: Paolo Olmino
+@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
 """
 
-# General info
-__version__ = "0.4"
-__author__ = "Paolo Olmino"
-__license__ = "GNU GPL v3"
 __docformat__ = "epytext en"
 
 from fsa import FSA, Parser, ParseError
 from optiontree import OptionTree
 
-class UnknownTokenException(KeyError): 
+class UnknownTokenException(KeyError):
+	"""
+	Exception to indicate that a token was not expected.
+	"""
 	pass
 
 class Tokenizer(Parser):
-	def __init__(self, dict, properties):
-		self._separator = properties["separator"]
-		fsa = self.__create_key_fsa(dict)
+	"""
+	A parser specialized for tokenizing strings.
+	"""
+	def __init__(self, map, options):
+		"""
+		Create a Tokenizer from a map.
+		@param map: A map associating tokens to their possible recognitions.
+		@type map: dict (unicode -> list of object)
+		@param options: The options to use.
+			Required information is:
+				- A separator
+		@type options: dict
+		"""
+		self._separator = options["separator"]
+		fsa = self.__create_key_fsa(map)
 		Parser.__init__(self, fsa)
-		self.__dict = dict
+		self.__dict = map
 		
 	def process(self, label, token):
 		"""
+		Override the generic behavior of a Parser.
 		No processing required for tokenizing.
+		@return: C{None}
 		"""
 		return None		
 
 	def __create_key_fsa(self, dict):
+		"""
+		Create an FSA from the keys in a map.
+		"""
 		def add_key(fsa, key):
 			def add_new_transition(fsa, start, label, end, tag):
 				for x in fsa.transitions_from(start):
@@ -62,6 +82,15 @@ class Tokenizer(Parser):
 		return fsa
 
 	def __call__(self, stream):
+		"""
+		Tokenize a character stream.
+		@param stream: A character stream.
+		@param stream: unicode
+		@return: The result of the parsing.
+		@rtype: OptionTree
+		
+		@raise tokenizer.UnknownTokenException: If an unexpected token is encountered.
+		"""
 		def explode_list(dct, lst, pos):
 			t = OptionTree()
 			if pos < len(lst):

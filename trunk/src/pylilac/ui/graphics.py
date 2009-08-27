@@ -1,10 +1,24 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+A module to wrap the images used in wx graphical interface.
+
+@author: Paolo Olmino
+@license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
+@version: Alpha 0.1.5
+"""
+
+__docformat__ = "epytext en"
 
 from wx import ImageFromStream, BitmapFromImage, EmptyIcon, ART_OTHER
 import cStringIO
 
-class ArtProvider:
-
+class ArtProvider(object):
+	"""
+	A factory for the graphical resources.
+	
+	Images can be estracted as bitmaps or icons.
+	"""
 	__data = {('lilac', ART_OTHER, (16,16)): \
 '\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x10\x00\x00\x00\x10\x08\x06\
 \x00\x00\x00\x1f\xf3\xffa\x00\x00\x00\x04sBIT\x08\x08\x08\x08|\x08d\x88\x00\
@@ -122,16 +136,36 @@ T>d\xd8x\xb9uT,w,\xcf\xdb\xb6\xf3\x11zw$Jq=d\x86\x11\xb8\xe1\xe29\xdb\xee*{d\
 \xbf\xb2\x7f\x83\x17D2Z\xd0\xb30\x9b\x9c\x00\x00\x00\x00IEND\xaeB`\x82' 
 }
 
-
 	@staticmethod
 	def get_bitmap(id, client = ART_OTHER, size = (-1,-1)):
+		"""
+		Return a bitmap.
+		@param id: The ID of the image.
+		@type id: str
+		@return: The image as a bitmap.
+		@rtype: wx.Bitmap
+		"""
 		stream = cStringIO.StringIO(ArtProvider.__data[(id, client, size)])
 		img = ImageFromStream(stream)
 		return BitmapFromImage(img)
 
 	@staticmethod
 	def get_icon(id, client = ART_OTHER, size = (-1,-1)):
+		"""
+		Return an icon.
+		@param id: The ID of the image.
+		@type id: str
+		@return: The image as an icon.
+		@rtype: wx.Icon
+		"""
 		icon = EmptyIcon()
 		icon.CopyFromBitmap(ArtProvider.get_bitmap(id, client, size))
 		return icon
 
+	@staticmethod
+	def iter_keys():
+		"""
+		Return an iterator on images.
+		@rtype: iterator of (ID, client, size)
+		"""
+		return ArtProvider.__data.iterkeys()
