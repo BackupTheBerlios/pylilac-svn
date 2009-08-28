@@ -134,7 +134,7 @@ class LACodeBehind(FrameCodeBehind):
 		frame.pos_ctrl.Clear()
 		frame.pos_ctrl.AppendItems(lang.get_p_o_s_names())
 		frame.lemma_ctrl.Clear()
-		for hw in lang.lexicon.iter_lemmas():
+		for hw in lang.lexicon.find_lemmas():
 			frame.lemma_ctrl.Append("%s.%d" % hw.key(), hw.key())
 		
 		frame.grammar_ctrl.SetValue(`lang.grammar`)
@@ -153,7 +153,7 @@ class LACodeBehind(FrameCodeBehind):
 			if new_rows<self.__selected_word_row:
 				self.__selected_word_row = None
 
-		words = data.lect.lexicon.retrieve_words(None, hw_key)
+		words = [w for w in data.lect.lexicon.find_words(None, hw_key)]
 		grid = self.frame.word_grid
 		redim(grid, len(words))
 		for i, w in enumerate(words):
@@ -329,7 +329,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 
 	def OnWordSelect(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = self.frame.lemma_ctrl.GetClientData(self.frame.lemma_ctrl.GetSelection())
-		words = data.lect.lexicon.retrieve_words(None, hw_key)
+		words = [w for w in data.lect.lexicon.find_words(None, hw_key)]
 		row = event.GetRow()
 		self.__selected_word_row = row
 		w = words[row]
@@ -345,7 +345,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>."""
 
 	def OnDoDeleteWord(self, event): # wxGlade: LAFrame.<event_handler>
 		hw_key = self.frame.lemma_ctrl.GetClientData(self.frame.lemma_ctrl.GetSelection())
-		words = data.lect.lexicon.retrieve_words(None, hw_key)
+		words = [w for w in data.lect.lexicon.find_words(None, hw_key)]
 		sel_t = self.frame.word_grid.GetSelectionBlockTopLeft()
 		sel_b = self.frame.word_grid.GetSelectionBlockBottomRight()
 		sel_cnt = len(sel_t)

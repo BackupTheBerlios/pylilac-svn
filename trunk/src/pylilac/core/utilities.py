@@ -72,7 +72,27 @@ class Utilities(object):
 			return _unidecode(unistring)
 		else:
 			raise TypeError(unistring)
-			
+
+
+	@staticmethod
+	def dict_str(map):
+		z = ["{"]
+		s = []
+		for key, value in map.iteritems():
+			s.append("%s: %s" % (str(key), str(value)))
+		z.append(", ".join(s))
+		z.append("}")
+		return "".join(z)
+
+	@staticmethod
+	def tuple_str(t):
+		z = ["("]
+		s = []
+		for elem in t:
+			s.append(str(elem))
+		z.append(", ".join(s))
+		z.append(")")
+		return "".join(z)
 
 class SortedDict(object):
 	def __init__(self):

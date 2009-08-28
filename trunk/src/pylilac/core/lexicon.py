@@ -61,7 +61,7 @@ class Lemma(object):
 		if isinstance(entry_form, unicode):
 			self.__entry_form = entry_form
 		else:
-			raise TypeError("'%s' is not Unicode" % repr(entry_form))	
+			raise TypeError("%s is not Unicode" % repr(entry_form))	
 		self.__id = id
 		self.p_o_s = p_o_s
 		if not isinstance(categories, tuple):
@@ -228,7 +228,7 @@ class Word(object):
 		if isinstance(form, unicode):
 			self.__form = form
 		else:
-			raise TypeError("'%s' is not Unicode" % repr(form))				
+			raise TypeError("%s is not Unicode" % repr(form))				
 		self.__lemma = lemma
 		self.categories = categories
 
@@ -289,7 +289,7 @@ class Word(object):
 		if len(self.categories) == 0:
 			return z
 		else:
-			return z + `self.categories`
+			return z + Utilities.tuple_str(self.categories)
 
 	def __unicode__(self):
 		"""
@@ -360,7 +360,8 @@ class Lexicon(object):
 		del self.__compiled
 		self.__compiled = None
 		self.__valid = False
-		
+
+	#{Methods for manipulating words
 	def add_word(self, word):
 		"""
 		Create a word in the lexicon.
@@ -403,7 +404,7 @@ class Lexicon(object):
 		self.__words[word.form].remove(word)
 		self.__valid = False
 
-	def retrieve_words(self, form = None, lemma_key = None, categories = None):
+	def find_words(self, form = None, lemma_key = None, categories = None):
 		"""
 		Search the lexicon for words matching the given conditions.
 		If some fields are irrelevant they must be left C{None}.
@@ -414,23 +415,27 @@ class Lexicon(object):
 		@type lemma_key: tuple (entry form, ID)
 		@param categories: The categories of words to retrieve.
 		@type categories: tuple of str/CategoryFilter
-		@return: The list of the words matching the conditions.
-		@rtype: list of Word
+		@return: The iterator to the words matching the conditions.
+		@rtype: iterator of Word
 		"""
-		ws = []
 		if lemma_key is not None:
 			for w in self.__indexed_words[lemma_key]:
 				if form is not None and form != w.form:
 					continue
 				if not CategoryFilter.test(categories, w.categories):
 					continue
-				ws.append(w)
-		else:
+				yield w
+		elif form is not None:
 			for w in self.__words.get(form, []):
 				if CategoryFilter.test(categories, w.categories):
-					ws.append(w)
-		return ws
+					yield w
+		else:
+			for k in self.__indexed_words.itervalues():
+				for w in k:
+					yield w
+	#}
 	
+	#{Methods for manipulating lemmas
 	def add_lemma(self, lemma):
 		"""
 		Add a lemma to the lexicon.
@@ -473,24 +478,8 @@ class Lexicon(object):
 		@type lemma_key: tuple (entry word, ID)
 		"""
 		return self.__lemmas.get(lemma_key)
-		
-	def iter_lemmas(self):
-		"""
-		Return an iterator to lemmas.
-		@rtype: iterator of Lemma
-		"""
-		return self.__lemmas.itervalues()
-		
-	def iter_words(self):
-		"""
-		Return an iterator to words.
-		@rtype: iterator of Word
-		"""
-		for lw in self.__indexed_words.itervalues():
-			for w in lw:
-				yield w
 
-	def retrieve_lemmas(self, entry_form, id = None, p_o_s = None, lemma_categories = None):
+	def find_lemmas(self, entry_form = None, id = None, p_o_s = None, lemma_categories = None):
 		"""
 		Search the lexicon for lemmas matching the given conditions.
 		If some fields are irrelevant they must be left C{None}.
@@ -503,10 +492,9 @@ class Lexicon(object):
 		@type lemma_categories: tuple of str/CategoryFilter
 		@param p_o_s: The part of speech of the lemmas to retrieve.
 		@type p_o_s: str
-		@return: The list of the lemmas matching the conditions.
-		@rtype: list of Lemma
+		@return: The iterator to the lemmas matching the conditions.
+		@rtype: iterator of Lemma
 		"""
-		f = []
 		for i in self.__lemmas.itervalues():
 			if entry_form is not None and entry_form != i.entry_form:
 				continue
@@ -516,8 +504,8 @@ class Lexicon(object):
 				continue
 			if not CategoryFilter.test(lemma_categories, i.categories):
 				continue
-			f.append(j)
-		return f
+			yield i
+	#}
 
 	def __str__(self):
 		"""
@@ -526,7 +514,7 @@ class Lexicon(object):
 		"""
 		return "[[%d lemmas, %d words]]" % (len(self.__lemmas), len(self.__words))
 		
-	def check(self, lect, corrective_p_o_s = None):
+	def _check(self, lect, corrective_p_o_s = None):
 		"""
 		Run a diagnostic on the lexicon.
 		These anomalies are detected:
@@ -637,23 +625,17 @@ class WordFilter(Literal):
 		"""
 		return word
 
-	def __str__(self):
-		"""
-		Return a short string representation.
-		@rtype: str
-		"""
-		return "'%s'" % self.content[0]
-
 	def __repr__(self):
 		"""
 		Return a verbose string representation.
 		@rtype: str
 		"""
-		r = []
-		r.append("{'%s'(%s%d)" % self.content[0:3])
+		form, entry_form, id = self.content[0:3]
+		categories = self.content[5]
+		r = ["{"]
+		r.append(Utilities.unidecode(form)+"@"+Utilities.unidecode(entry_form)+"."+str(id))
 		if self.content[5]:
-			r.append(" ")
-			r.append(`self.content[5]`)
+			r.append(categories)
 		r.append("}")
 		return "".join(r)
 
@@ -706,18 +688,6 @@ class WordCategoryFilter(WordFilter):
 			raise TypeError(categories)
 		Literal.__init__(self, (None, None, None, p_o_s, lemma_categories, categories))
 
-	def __str__(self):
-		"""
-		Return a short string representation.
-		@rtype: str
-		"""
-		p_o_s = self.content[3]
-		if p_o_s is None:
-			return "{*}"
-		else:
-			return "{%s}" % p_o_s
-		
-
 	def __repr__(self):
 		"""
 		Return a verbose string representation.
@@ -726,17 +696,16 @@ class WordCategoryFilter(WordFilter):
 		p_o_s, lemma_categories, categories = self.content[3:6]
 		r = []
 		r.append("{")
-		if p_o_s is None:
-			r.append("*")
-		else:
+		if p_o_s:
 			r.append(p_o_s)
+		else:
+			r.append("*")
 		if lemma_categories:
-			r.append(" ")
-			r.append(`lemma_categories`)
+			r.append(Utilities.tuple_str(lemma_categories))
 		elif categories:
-			r.append(" ()")
+			r.append("()")
 		if categories:
-			r.append(`categories`)
+			r.append(Utilities.tuple_str(categories))
 		r.append("}")
 		return "".join(r)
 
@@ -767,7 +736,7 @@ class CategoryFilter(object):
 	"""
 	FUNCTIONS = {}
 	FUNCTIONS["in"] = (lambda x, parameter: x in parameter, "%s")
-	FUNCTIONS["ni"] = (lambda x, parameter: x not in parameter, "¬%s")
+	FUNCTIONS["ni"] = (lambda x, parameter: x not in parameter, "~%s")
 
 	@staticmethod
 	def test(filter_categories, categories):
@@ -827,7 +796,10 @@ class CategoryFilter(object):
 		@rtype: str
 		"""
 		t, rpr = self.FUNCTIONS[self.operator]
-		return rpr % repr(tuple(self.parameter))
+		z = "|".join(self.parameter)
+		if len(self.parameter)>1:
+			z = "("+z+")"
+		return rpr % z
 		
 
 def __test():

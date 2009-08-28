@@ -176,8 +176,10 @@ class LAFrame(wx.Frame):
 		self.grammar_ctrl = wx.TextCtrl(self.la_grammar_pane, -1, "", style=wx.TE_MULTILINE)
 		self.from_lang_ctrl = wx.TextCtrl(self.la_translation_pane, -1, "", style=wx.TE_MULTILINE)
 		self.to_lang_ctrl = wx.TextCtrl(self.la_translation_pane, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
+		self.panel_14 = wx.Panel(self.la_translation_pane, -1)
 		self.comprehend_button = wx.Button(self.la_translation_pane, -1, "Comprehend")
 		self.translate_button = wx.Button(self.la_translation_pane, -1, "Translate")
+		self.panel_15 = wx.Panel(self.la_translation_pane, -1)
 
 		self.__set_properties()
 		self.__do_layout()
@@ -267,7 +269,6 @@ class LAFrame(wx.Frame):
 		self.word_grid_copy.SetColLabelValue(0, "Categories")
 		self.word_grid_copy.SetColLabelValue(1, "Form")
 		self.apply_button_copy.Enable(False)
-		self.translate_button.Enable(False)
 		# end wxGlade
 
 	def __do_layout(self):
@@ -275,7 +276,7 @@ class LAFrame(wx.Frame):
 		la_frame_sizer = wx.BoxSizer(wx.VERTICAL)
 		sizer_8 = wx.BoxSizer(wx.VERTICAL)
 		sizer_9 = wx.BoxSizer(wx.HORIZONTAL)
-		grid_sizer_3 = wx.FlexGridSizer(5, 3, 0, 0)
+		grid_sizer_3 = wx.FlexGridSizer(4, 1, 10, 10)
 		sizer_10 = wx.BoxSizer(wx.VERTICAL)
 		la_grammar_sizer = wx.BoxSizer(wx.VERTICAL)
 		la_lexicon_sizer_copy = wx.BoxSizer(wx.HORIZONTAL)
@@ -447,11 +448,14 @@ class LAFrame(wx.Frame):
 		sizer_10.Add(self.from_lang_ctrl, 1, wx.EXPAND, 0)
 		sizer_10.Add(self.to_lang_ctrl, 1, wx.EXPAND, 0)
 		sizer_9.Add(sizer_10, 5, wx.EXPAND, 0)
-		grid_sizer_3.Add(self.comprehend_button, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
-		grid_sizer_3.Add(self.translate_button, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
-		grid_sizer_3.AddGrowableRow(4)
-		grid_sizer_3.AddGrowableCol(1)
-		sizer_9.Add(grid_sizer_3, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
+		grid_sizer_3.Add(self.panel_14, 1, wx.EXPAND, 0)
+		grid_sizer_3.Add(self.comprehend_button, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+		grid_sizer_3.Add(self.translate_button, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+		grid_sizer_3.Add(self.panel_15, 0, wx.EXPAND, 0)
+		grid_sizer_3.AddGrowableRow(0)
+		grid_sizer_3.AddGrowableRow(3)
+		grid_sizer_3.AddGrowableCol(0)
+		sizer_9.Add(grid_sizer_3, 1, wx.EXPAND, 0)
 		sizer_8.Add(sizer_9, 1, wx.EXPAND, 0)
 		self.la_translation_pane.SetSizer(sizer_8)
 		self.la_notebook.AddPage(self.la_language_pane, "Language")
@@ -551,9 +555,6 @@ class LAFrame(wx.Frame):
 	def OnDoGenerateWords(self, event): # wxGlade: LAFrame.<event_handler>
 		print "Event handler `OnDoGenerateWords' not implemented"
 		event.Skip()
-
-	def OnComprehend(self, event): # wxGlade: LAFrame.<event_handler>
-		self.code_behind.OnComprehend(event)
 
 	def OnDoComprehend(self, event): # wxGlade: LAFrame.<event_handler>
 		self.code_behind.OnDoComprehend(event)

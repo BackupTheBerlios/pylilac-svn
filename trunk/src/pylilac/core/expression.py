@@ -199,9 +199,9 @@ class ParseTree(object):
 		"""
 		s = []
 		if self.__elements:
-			s.append(`self.__elements`)
+			s.append(Utilities.dict_str(self.__elements))
 		if self.__contents:
-			s.append(`self.__contents`)
+			s.append(str(self.__contents))
 		return " = ".join(s)
 		
 

@@ -32,13 +32,13 @@ def run():
 	l.lexicon = build_lexicon(w, l.properties)
 	l.grammar = build_grammar(w)
 	l.properties["capitalization"] = 2 #Only lexical
-	print l.grammar
+	print repr(l.grammar)
 	print l.lexicon
 	l.save("test/ltq.lct", True)
 
 
 	show(u"kokwacala kokwabegi")
-	print l.lexicon.check(l)
+	print l.lexicon._check(l)
 
 def build_word(w0):
 	if (w0[2] == "V" or w0[2] == "D") and w0[4] == "0-n":

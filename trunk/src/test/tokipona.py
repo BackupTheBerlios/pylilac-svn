@@ -62,7 +62,7 @@ def run():
 	#show("jan sewi Jawe li pali e ni: jan ali li poki ala jan, li lon ma mute, li ken ala pali e ma tomo")
 	#show("nimi pi ma tomo ni li Pape tan ni: jan sewi Jawe li pakala e toki pi jan ali. tan ma tomo Pape la jan sewi Jawe li tawa e jan tawa ma mute")
 
-	print l.lexicon.check(l)
+	print l.lexicon._check(l)
 
 def build_word(w0):
 	if w0[2] == "sep":

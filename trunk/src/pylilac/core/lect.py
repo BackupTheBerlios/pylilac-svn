@@ -148,7 +148,7 @@ class Lect(object):
 		"""
 		
 		if not isinstance(expression, unicode):
-			raise TypeError("'%s' is not Unicode" % repr(expression))
+			raise TypeError("%s is not Unicode" % repr(expression))
 				
 		tokenizer = self.lexicon.compile(self.properties, False)
 		parser = self.grammar.compile(False)

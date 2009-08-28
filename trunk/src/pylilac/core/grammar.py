@@ -132,7 +132,11 @@ class Grammar(object):
 		"""
 		representation = []
 		for symbol in self.__symbols:
-			representation.append("<%s>" % symbol)
+			if symbol == self.starting:
+				is_starting = "^"
+			else:
+				is_starting = ""
+			representation.append("%s<%s>" % (is_starting, symbol))
 		return "<" + ", ".join(representation) + ">"
 
 
