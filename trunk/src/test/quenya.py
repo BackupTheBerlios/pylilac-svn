@@ -3,14 +3,33 @@
 
 """
 A module to create Quenya language file.
+Yo.
 """
 
 from pylilac.core.lect import Lect
-from pylilac.core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
+from pylilac.core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE,  EPSILON_SYMBOL
 from pylilac.core.lexicon import Lexicon, Particle, Word, Lexeme, CategoryFilter, WordCategoryFilter, WordFilter, DEFECTIVE
 from pylilac.core.inflection import BASED_ON_ENTRY_FORM
 import re
 
+
+def report_words():
+	vc = open("test/words.txt", "r")
+	from pylilac.core.interlingua import Interlingua
+	il = Interlingua("data/Latejami.csv")
+	il.load()
+	tx = il.taxonomy
+	for riga in vc:
+		x = [manca.entry_form.encode("utf-8",  "replace") for manca in l.lexicon.find_lemmas() if isinstance(manca, Lexeme) and riga.startswith(manca.gloss)]
+		if x:
+			pass#print riga[:-1],  x
+		else:
+			if tx.get(riga[:-1]):
+				mn = tx.get(riga[:-1]).meaning
+			else:
+				mn = riga[:-1]
+			print"\td.append( (u\"...\", u\"...\", \""+riga[:-1]+"\") )  #"+mn
+	vc.close()
 
 def run():
 	def show(s):
@@ -95,7 +114,11 @@ def run():
 				id = h[3]
 			else:
 				id = 1
-			lemma = Lexeme(h[0], id, "adj", (), h[1])
+			if len(h)>4:
+				arguments =  h[4]
+			else:
+				arguments = ("0", )
+			lemma = Lexeme(h[0], id, "adj", arguments, h[1])
 			words = []
 			if len(h)>2:
 				for j in h[2]:
@@ -121,7 +144,6 @@ def run():
 			l.add_word(Word(adverb, Lexeme(adverb, id, "adv", (), adverb_gloss), ()))
 		
 		l.add_word(Word(u"i", Particle(u"i", 1, "adj", ()), ("0", "0", "0")))
-		l.add_word(Word(u"er", Particle(u"er", 1, "adj", ()), ("0", "0", "0")))
 		
 
 
@@ -506,6 +528,8 @@ def run():
 			c.append_step(u"$", u"r")
 			c = f.create_transform(("aor", "pl", "0"),BASED_ON_ENTRY_FORM)
 			c.append_step(u"$", u"ir")
+			c = f.create_transform(("aor", "d", "0"),BASED_ON_ENTRY_FORM)
+			c.append_step(u"$", u"it")
 
 			c = f.create_transform(("pres", "s", "0"), BASED_ON_ENTRY_FORM)
 			c.append_step(u"a(?=[^aeiouáíéóú][yw]?[au]?$)", u"á")
@@ -522,6 +546,8 @@ def run():
 			c.append_step(u"$", u"a")
 			c = f.create_transform(("pres", "pl", "0"), ("pres", "s", "0"))
 			c.append_step(u"$", u"r")
+			c = f.create_transform(("pres", "d", "0"), ("pres", "s", "0"))
+			c.append_step(u"$", u"t")
 
 
 			c = f.create_transform(("past", "s", "0"), BASED_ON_ENTRY_FORM, u"ha$")
@@ -588,6 +614,8 @@ def run():
 			c.append_step(u"$", u"ne") 
 			c = f.create_transform(("past", "pl", "0"), (u"past", "s", "0"))
 			c.append_step(u"$", u"r")
+			c = f.create_transform(("past", "d", "0"), ("past", "s", "0"))
+			c.append_step(u"$", u"t")
 
 
 
@@ -616,6 +644,8 @@ def run():
 			
 			c = f.create_transform(("perf", "pl", "0"), ("perf", "s", "0"))
 			c.append_step(u"$", u"r")
+			c = f.create_transform(("perf", "d", "0"), ("perf", "s", "0"))
+			c.append_step(u"$", u"t")
 
 			c = f.create_transform(("fut", "s", "0"), BASED_ON_ENTRY_FORM, u"u$")
 			c.append_step(u"u$", u"úva")
@@ -624,6 +654,8 @@ def run():
 			
 			c = f.create_transform(("fut", "pl", "0"), ("fut", "s", "0"))
 			c.append_step(u"$", u"r")
+			c = f.create_transform(("fut", "d", "0"), ("fut", "s", "0"))
+			c.append_step(u"$", u"t")
 
 
 			c = f.create_transform(("inf", "0", "0"), BASED_ON_ENTRY_FORM, u"a$")
@@ -669,8 +701,9 @@ def run():
 			c.append_step(u"$", u"na")	
 
 			TENSE = ["aor","pres","past","perf","fut"]
-			SUBJ = {"1s":[u"nye",u"n"], "2":[u"lye",u"l"], "3s":[u"rye",u"s"], "1+2+3": [u"lve"], "1+3": [u"lme"], "1d": [u"mme"], "3pl":[u"nte"]}
-			OBJ = {"1s":u"n", "2":u"l", "3s":u"s", "3pl":u"t"}
+			SUBJ = {"1s":[u"nye",u"n"], "2s":[u"cce",u"t"], "3s":[u"rye",u"s"], "1+2+3": [u"lve"], "2+3":[u"lye",u"l"], "1+3": [u"lme"], "1d": [u"mme"], "3pl":[u"nte"]}
+			SUBJ2 = {"1s":u"ne", "2s":u"cce", "3s":u"rye", "3sm":u"ro", "3sf":u"re", "1+2+3": u"lve", "2+3":u"le", "1+3": u"lme", "1d": u"mme", "3pl":u"nte"}
+			OBJ = {"1s":u"n", "2s":u"c", "3s":u"s", "2+3":u"l", "3pl":u"t"}
 			for t in TENSE:
 				for k,v in SUBJ.iteritems():
 					c = f.create_transform((t, k, "0"), (t, "s", "0"))
@@ -680,10 +713,15 @@ def run():
 						c.append_step(u"$", v[0])
 					else:
 						c.append_step(u"$", v[1])
-					if transitive:
+						
+				if transitive:
+					for k,v in SUBJ2.iteritems():
 						for k1, v1 in OBJ.iteritems():
-							c = f.create_transform((t, k, k1), (t, "s", "0"))
-							c.append_step(u"$", v[0]+v1)
+							if k<>k1:
+								c = f.create_transform((t, k, k1), (t, "s", "0"))
+								if t==u"aor":
+									c.append_step(u"e$", u"i")
+								c.append_step(u"$", v+v1)
 
 			if transitive:
 				for k1, v1 in OBJ.iteritems():
@@ -938,68 +976,87 @@ def run():
 
 		fin = CategoryFilter("in", ("pres", "past", "perf", "aor", "fut"))
 		n0 = CategoryFilter("ni", "0")
+		pers = CategoryFilter("in", ("s", "pl", "d"))
 		
 		def auto_noun_phrase(gr):
-			for case in ("Gen", "Poss", "Dat", "Abl", "All", "Loc", "Instr", "Resp"):
+			for case in ("Nom", "Gen", "Poss", "Dat", "Loc", "Instr", "Resp"):
 				for num in ("s", "d", "pl", "part"):
 					if num == "part":
-						gr["noun-phrase,"+case] = WordCategoryFilter("n", (), (num, case, None)) + WordCategoryFilter("adj", (), ("pl", "Nom", None))
-						gr["noun-phrase,"+case] = WordCategoryFilter("adj", (), ("pl", "Nom", None)) + WordCategoryFilter("n", (), (num, case, None))
-						gr["noun-phrase,"+case] = WordCategoryFilter("n", (), (num, case, None))
+						gr[case] = WordCategoryFilter("n", (), (num, case, None)) + WordCategoryFilter("adj", (), ("pl", "Nom", None))
+						gr[case] = WordCategoryFilter("adj", (), ("pl", "Nom", None)) + WordCategoryFilter("n", (), (num, case, None))
+						gr[case] = WordCategoryFilter("n", (), (num, case, None))
 					else:
-						gr["noun-phrase,"+case] = WordCategoryFilter("n", (), (num, "Nom", None)) + WordCategoryFilter("adj", (), (num, case, None))
-						gr["noun-phrase,"+case] = WordCategoryFilter("adj", (), (num, "Nom", None)) + WordCategoryFilter("n", (), (num, case, None))
-						gr["noun-phrase,"+case] = WordCategoryFilter("n", (), (num, case, None))
-
+						gr[case] = WordCategoryFilter("n", (), (num, "Nom", None)) + WordCategoryFilter("adj", (), (num, case, None))
+						gr[case] = WordCategoryFilter("adj", (), (num, "Nom", None)) + WordCategoryFilter("n", (), (num, case, None))
+						gr[case] = WordCategoryFilter("n", (), (num, case, None))
 			
-		gr["sentence"] = Reference("nucleus") + Reference("complements")
-		gr["nucleus"] = Reference("Vso")|Reference("Vs O")|Reference("S Vo")|Reference("S V O") # verbal sentence: o === 0/O
-		#gr["nucleus"] = Reference("Cs N") | Reference("S C N")  # nominal sentence 
-		#gr["nucleus"] = Reference("Vso D")|Reference("Vs O D")|Reference("S V O D") # dative sentence
 		
-		gr["S Vo"] = free_order(Reference("S,s"), Reference("Vo,s"))|free_order(Reference("S,m"), Reference("Vo,m"))
-		gr["Vs O"] = free_order(Reference("Vs"), Reference("O"))
-		gr["S V O"] = free_order(Reference("S,s"), Reference("V,s"), Reference("O")) | free_order(Reference("S,m"), Reference("V,m"), Reference("O"))
-
-		#gr["Cs N"] = free_order(Reference("Cs"), Reference("N"))|free_order(Reference("Cs,s"), Reference("Na,s"))|free_order(Reference("Cs,m"), Reference("Na,m"))
-		#gr["S C N"] = free_order(Reference("S,s"), Reference("C,s"), Reference("N")) | free_order(Reference("S,m"), Reference("C,m"), Reference("N"))
-
-	
+		def F(case, tr, nick):
+			if case == "0":
+				acc = "Acc"
+			else:
+				acc = "Acc+"+case
+			V = {}
+			V[("intr", "V")] = WordCategoryFilter("v", (case,), (fin, pers, "0"))	
+			V[("tr", "V")] = WordCategoryFilter("v", (acc,), (fin, pers, "0"))	
+			V[("intr", "Vs")] = WordCategoryFilter("v", (case,), (fin, n0, "0"))
+			V[("tr", "Vs")] = WordCategoryFilter("v", (acc,), (fin, n0, "0"))
+			V[("tr", "Vso")] = WordCategoryFilter("v", (acc,), (fin, n0, n0))
+			V[("intr", "V/s")] = WordCategoryFilter("v", (case,), (fin, "s", "0"))
+			V[("intr", "V/p")] = WordCategoryFilter("v", (case,), (fin, "pl", "0"))
+			V[("intr", "V/d")] = WordCategoryFilter("v", (case,), (fin, "d", "0"))
+			V[("tr", "V/s")] = WordCategoryFilter("v", (acc,), (fin, "s", "0"))
+			V[("tr", "V/p")] = WordCategoryFilter("v", (acc,), (fin, "pl", "0"))
+			V[("tr", "V/d")] = WordCategoryFilter("v", (acc,), (fin, "d", "0"))
+			return V[(tr, nick)]
 		
-		gr["Vso"] = WordCategoryFilter("v", ("0",), (fin, n0, "0"))
-		gr["Vso"] = WordCategoryFilter("v", ("Acc",), (fin, n0, n0))
-		gr["Vo,s"] = WordCategoryFilter("v", ("0",), (fin, "s", "0"))
-		gr["Vo,s"] = WordCategoryFilter("v", ("Acc",), (fin, "s", n0))
-		gr["Vo,m"] = WordCategoryFilter("v", ("0",), (fin, "pl", "0"))
-		gr["Vo,m"] = WordCategoryFilter("v", ("Acc",), (fin, "pl", n0))
-		gr["V,s"] = WordCategoryFilter("v", ("Acc",), (fin, "s", "0"))
-		gr["V,m"] = WordCategoryFilter("v", ("Acc",), (fin, "pl", "0"))
-		gr["Vs"] = WordCategoryFilter("v", ("Acc",), (fin, CategoryFilter("ni", ("s", "pl")), "0"))
-		gr["O"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,Nom") + Reference("noun-complements")
-		gr["S,s"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,s,Nom") + Reference("noun-complements")
-		gr["S,m"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,m,Nom") + Reference("noun-complements")
-		gr["noun-phrase,Nom"] = Reference("noun-phrase,s,Nom")|Reference("noun-phrase,m,Nom")
-		gr["noun-phrase,s,Nom"] = WordCategoryFilter("n", (), ("s", "Nom", None)) + WordCategoryFilter("adj", (), ("s", "Nom", None))
-		gr["noun-phrase,s,Nom"] = WordCategoryFilter("adj", (), ("s", "Nom", None)) + WordCategoryFilter("n", (), ("s", "Nom", None))
-		gr["noun-phrase,s,Nom"] = WordCategoryFilter("n", (), ("s", "Nom", None))
-		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("pl", "Nom", None)) + WordCategoryFilter("adj", (), ("pl", "Nom", None))
-		gr["noun-phrase,m,Nom"] = WordCategoryFilter("adj", (), ("pl", "Nom", None)) + WordCategoryFilter("n", (), ("pl", "Nom", None))
-		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("pl", "Nom", None))
-		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("d", "Nom", None)) + WordCategoryFilter("adj", (), ("d", "Nom", None))
-		gr["noun-phrase,m,Nom"] = WordCategoryFilter("adj", (), ("d", "Nom", None)) + WordCategoryFilter("n", (), ("d", "Nom", None))
-		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("d", "Nom", None))
-		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("part", "Nom", None)) + WordCategoryFilter("adj", (), ("pl", "Nom", None))
-		gr["noun-phrase,m,Nom"] = WordCategoryFilter("adj", (), ("pl", "Nom", None)) + WordCategoryFilter("n", (), ("part", "Nom", None))
-		gr["noun-phrase,m,Nom"] = WordCategoryFilter("n", (), ("part", "Nom", None))
+		gr["clause"] = (Reference("Vs") | Reference("SV")) +Reference("C")* KLEENE_CLOSURE
+		gr["clause"] = (Reference("Vso") | Reference("VsO") | Reference("S V O")) +Reference("C")* KLEENE_CLOSURE
+		gr["clause"] = (Reference("VsD") | Reference("SVD")) +Reference("C")* KLEENE_CLOSURE
+		gr["clause"] = (Reference("VsoD") | Reference("VsOD") | Reference("S V OD")) +Reference("C")* KLEENE_CLOSURE
+		gr["Vs"] = F("0", "intr", "Vs")
+		gr["SV"] = free_order(Reference("S/s"), F("0", "intr", "V/s"))
+		gr["SV"] = free_order(Reference("S/p"), F("0", "intr", "V/p"))
+		gr["SV"] = free_order(Reference("S/d"), F("0", "intr", "V/d"))
+		gr["Vso"] = F("0", "tr", "Vso")
+		gr["VsO"] = free_order(F("0", "tr", "Vs"),  Reference("O"))
+		gr["S V O"] = Reference("S/s")+F("0", "tr", "V/s")+Reference("O")
+		gr["S V O"] = Reference("S/p")+F("0", "tr", "V/p")+Reference("O")
+		gr["S V O"] = Reference("S/d")+F("0", "tr", "V/d")+Reference("O")
+		
+		gr["VsD"] = free_order(F("Dat", "intr", "Vs"),  Reference("D"))
+		gr["SVD"] = free_order(Reference("S/s"), F("Dat", "intr", "V/s"),  Reference("D"))
+		gr["SVD"] = free_order(Reference("S/p"), F("Dat", "intr", "V/p"),  Reference("D"))
+		gr["SVD"] = free_order(Reference("S/d"), F("Dat", "intr", "V/d"),  Reference("D"))
+		gr["VsoD"] = free_order(F("Dat", "tr", "Vso"),  Reference("D"))
+		gr["VsOD"] = free_order(F("Dat", "tr", "Vs"),  Reference("O"),  Reference("D"))
+		gr["S V OD"] = Reference("S/s")+F("Dat", "tr", "V/s")+free_order(Reference("O"),  Reference("D"))
+		gr["S V OD"] = Reference("S/p")+F("Dat", "tr", "V/p")+free_order(Reference("O"),  Reference("D"))
+		gr["S V OD"] = Reference("S/d")+F("Dat", "tr", "V/d")+free_order(Reference("O"),  Reference("D"))
+
+
+		gr["O"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Nom") + Reference("nC")* KLEENE_CLOSURE 
+		gr["D"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Dat") + Reference("nC")* KLEENE_CLOSURE 
+		gr["S/s"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/s") + Reference("nC")* KLEENE_CLOSURE 
+		gr["S/p"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/p") + Reference("nC")* KLEENE_CLOSURE 
+		gr["S/d"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/d") + Reference("nC")* KLEENE_CLOSURE 
+		
+		gr["Nom/s"] = free_order(WordCategoryFilter("n", (), ("s", "Nom", None)),  WordCategoryFilter("adj", (), ("s", "Nom", None)))
+		gr["Nom/s"] = WordCategoryFilter("n", (), ("s", "Nom", None))
+		gr["Nom/d"] = free_order(WordCategoryFilter("n", (), ("d", "Nom", None)),  WordCategoryFilter("adj", (), ("d", "Nom", None)))
+		gr["Nom/d"] = WordCategoryFilter("n", (), ("d", "Nom", None))
+		gr["Nom/p"] = free_order(WordCategoryFilter("n", (), ("pl", "Nom", None)),  WordCategoryFilter("adj", (), ("pl", "Nom", None)))
+		gr["Nom/p"] = WordCategoryFilter("n", (), ("pl", "Nom", None))
+		gr["Nom/p"] = free_order(WordCategoryFilter("n", (), ("part", "Nom", None)),  WordCategoryFilter("adj", (), ("pl", "Nom", None)))
+		gr["Nom/p"] = WordCategoryFilter("n", (), ("part", "Nom", None))
 		gr["article"] = WordFilter(Word(u"i", Particle(u"i", 1, "adj")))
-		gr["noun-complements"] = Reference("noun-complement") * KLEENE_CLOSURE
-		gr["noun-complement"] = Reference("Cposs") | Reference("Cgen")
-		gr["Cposs"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,Poss")
-		gr["Cgen"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,Gen")
-		gr["complements"] = Reference("noun-complement") * KLEENE_CLOSURE
-		gr["complement"] = Reference("Cloc") | Reference("Cmod") | Reference("adverb")
-		gr["Cloc"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,Loc")
-		gr["Cmod"] = Reference("article") * OPTIONAL_CLOSURE + Reference("noun-phrase,Instr")
+		
+		gr["nC"] = Reference("P") | Reference("G")
+		gr["P"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Poss")
+		gr["G"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Gen")
+		gr["C"] = Reference("adverb") | Reference("I") | Reference("L")
+		gr["L"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Loc")
+		gr["I"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Instr")
 		gr["adverb"] = WordCategoryFilter("adv")
 		auto_noun_phrase(gr)
 		
@@ -1015,9 +1072,9 @@ def run():
 		d.append(  (u"telme", u"telme", "bidetavi") ) #blanket
 		d.append(  (u"limpe", u"limpe", "zoyfupi") ) #spirits
 		#d.append(  (u"0", u"síra", "bape-tovay") ) #today
-		d.append(  (u"sovasamb", u"sovasan", "bodepi") ) #restroom
+		d.append(  (u"sovaþamb", u"sovaþan", "bodepi") ) #restroom
 		d.append(  (u"lindale", u"lindale", "dinjami") ) #music
-		d.append(  (u"colla", u"colla", "byetavi") ) #garment
+		d.append(  (u"hampe", u"hampe", "byetavi") ) #garment
 		d.append(  (u"tecil", u"tecil", "bofifusi") ) #pen
 		d.append(  (u"hríve", u"hríve", "cayfemi") ) #winter
 		d.append(  (u"laire", u"laire", "fefemi") ) #summer
@@ -1050,7 +1107,6 @@ def run():
 		d.append(  (u"telco", u"telco", "jicesi", [(u"telqui", ("pl","Nom","0"))]) ) #leg
 		d.append(  (u"polca", u"polca","jotigi") ) #pig
 		d.append(  (u"meldo", u"meldo", "zoyzevi") ) #friend
-		d.append(  (u"aure", u"aure", "tovi") ) #day
 		d.append(  (u"ear", u"ear", "kebivi") ) #sea
 		d.append(  (u"malle", u"malle", "zegi", [(u"maller", ("pl","Nom","0"))]))#road
 		d.append(  (u"caima", u"caima", "kunjisi") ) #bed
@@ -1091,7 +1147,6 @@ def run():
 		
 		d.append(  (u"Cemen", u"Cemen", "Ladijotisi")) #earth
 		d.append(  (u"Anar", u"Anar", "Lakitisi") ) #sun
-		#d.append(  Periphrase(g["noun"], "i Ertaini Nóri") ) #United States
 		d.append(  (u"Vintamurta", u"Vintamurta", "Laryoxodugi") ) #New York City
 		d.append(  (u"Colindor", u"Colindor", "Ladyadugi") ) #India
 		d.append(  (u"Marasildor", u"Marasildor", "Lazidugi") ) #Brazil
@@ -1107,17 +1162,29 @@ def run():
 		d.append(  (u"Masiqua", u"Masiqua", "Laruxodugi") ) #Moscow
 		d.append(  (u"Iþil", u"Iþil", "Labatisi") ) #moon
 		d.append( (u"kuiveyulda", u"kuiveyulda", "cafefupi") ) #coffee
-		#d.append( (u"norolle liéva ", u"norolle liéva ", "zetimi") ) #bus
 		d.append( (u"vilyacirya", u"vilyacirya", "datimi") ) #airplane
 		d.append( (u"vilyahopasse", u"vilyahopasse", "dakigi") ) #airport
 		d.append( (u"sarno", u"sarno", "bujisi") ) #table
 		d.append( (u"yáve", u"yáve", "babemi") ) #fruit (a -)
 		d.append( (u"olpe", u"olpe", "finzipi") ) #bottle
 		d.append( (u"angatea", u"angatea", "kuzegi") ) #railroad
-		#d.append( (u"norolle angaina", "norolle angaina", u"kuzetimi") ) #train
 		d.append( (u"lambe", u"lambe", "tejami") ) #language
 		d.append( (u"quetta", u"quetta", "tekusi") ) #word
 		d.append( (u"tów", u"tó", "twazopi") ) #wool
+		d.append(  (u"þúri", u"þúre", "dafepi")) #leaf
+
+		d.append( (u"varil", u"varil", "byukigi") )  #hotel, inn, hospice, roadhouse
+		#d.append( (u"norolle liéva", u"norolle liéva", "zetimi") ) #bus
+		#d.append( (u"...", u"...", "jatimi") )  #taxi/taxicab
+		d.append( (u"caimasse", u"caimasse", "bijoykigi") )  #hospital
+		#d.append( (u"...", u"...", "xetimi") )  #bicycle
+		#d.append( (u"norolle angaina", "norolle angaina", u"kuzetimi") ) #train
+		d.append( (u"asto", u"asto", "fawfimi") )  #garbage, rubbish, waste
+		d.append( (u"matasse", u"matasse", "fukigi") )  #restaurant, eatery, eating house
+		d.append( (u"colca", u"colca", "titwazipi") )  #suitcase, valise, portmanteau, trunk
+		#d.append(  Periphrase(g["noun"], "i Ertaini Nóri") , "Lacodugi") #United States
+		d.append( (u"aure", u"aure", "kifemi") )  #day(time), daylight hours
+		
 		
 		return d
 
@@ -1125,7 +1192,9 @@ def run():
 	def verbs():
 		d = []
 		d.append(  (u"na", "Nom", "dapa", [(u"ne", ("past","s","0"))]) ) 
-		d.append(  (u"ea", "Loc", "zoga", [(u"ea", ("pres","s","0")), (u"engie", ("perf","s","0")), (u"enge", ("past","s","0"))]) ) 
+		d.append(  (u"ea", "0", "kava", [(u"ea", ("pres","s","0")), (u"engie", ("perf","s","0")), (u"enge", ("past","s","0"))]) )  #esserci(?)
+		d.append(  (u"ea", "Loc", "zoga", [(u"ea", ("pres","s","0")), (u"engie", ("perf","s","0")), (u"enge", ("past","s","0"))], 2) ) #trovarsi
+
 		d.append(  (u"cen", "Acc", "kiva") ) 
 		d.append(  (u"mel", "Acc", "bakopa") )  #love
 		d.append(  (u"mat", "0", "fucala") ) #eat
@@ -1136,7 +1205,6 @@ def run():
 		d.append(  (u"ulya", "0", "tibokava", [], 2) )  
 		d.append(  (u"mar", "0", "kwicala", [(u"ambárie", ("perf","s","0"))]) )
 		d.append(  (u"móta", "0", "bucala") ) #work
-		#d.append(  (u"mára", "Acc", u"zoykopa") ) #like
 		d.append(  (u"tyal", "0", "dwecala" ) ) #play
 		d.append(  (u"canta", "Acc", "joykavapa") ) #fix
 		d.append(  (u"rac", "Acc", "joyjuvapa") ) #break
@@ -1149,6 +1217,11 @@ def run():
 		d.append(  (u"anta", "Acc+Dat", "ximamba", [(u"áne", ("past","s","0"))]) )  #give
 		d.append(  (u"yuhta", "Acc", "busasa") ) #use, control
 		d.append(  (u"lanta", u"0", "dafagupa") ) #fall
+		d.append(  (u"sam", u"Acc", "ximunza", [(u"sáme", ("past","s","0"))]) )  #have
+		d.append( (u"ten", "0", "zogipa") )  #arrive
+		d.append( (u"ten", "Loc", "zogimba", [], 2 ) )  #arrive at
+
+
 		return d
 
 
@@ -1176,7 +1249,7 @@ def run():
 		d.append(  (u"vára", "cinjuvo", [(u"anwára", ("s","Nom","abs"))]) )   #dirty
 		d.append(  (u"laurea", "todapyu taykocivo")  ) #golden
 		d.append(  (u"ilya", "bikavo")  ) #all, whole
-		
+		d.append(  (u"mára", u"zoykopa", [], 2, ("Dat",))) #like
 		return d
 
 	def adv():
@@ -1189,7 +1262,7 @@ def run():
 	l.english_name = "Neo-Quenya"
 	l.append_p_o_s("v", ("arguments",), ("tense", "person", "object person"))
 	l.append_p_o_s("n", (), ("number", "case", "person"))
-	l.append_p_o_s("adj", (), ("number", "case", "degree"))
+	l.append_p_o_s("adj", ("arguments",), ("number", "case", "degree"))
 	l.append_p_o_s("adv", (), ())
 	l.append_p_o_s("prep", ("argument",), ("object person",))
 	build_inflections(l.inflections)
@@ -1198,22 +1271,23 @@ def run():
 	build_grammar(l.grammar)
 	l.properties["capitalization"] = 2 #lexical
 	l.properties["separator"] = u" " #lexical
+	l.save("test/qya.lct")
 	print "now compiling"
 	l.compile()
 	print "compiled"
-	print "now saving"
-	l.save("test/qya.lct", True)
-	print "done!"
-	print "now reading"
 	show(u"melin fion ringa")
 	show(u"cor vanya mele i lauca alda")
 	show(u"melin lóme")
-	lome = l.read(u"melin lóme")[0].subtree(('nucleus', 'Vs O', 'O', 'noun-phrase,Nom', 'noun-phrase,s,Nom', 'n'))
-	for i in lome.iter_items():
-		print i.form
-	for w in l.lexicon.find_words(None, (u"lasse",1), (CategoryFilter("in",("s","pl")), None, "0")):
-		print " ".join(w.categories),":", w.form
+	show(u"melin lóme")
+	show(u"lantar laurie lassi þúrinen")
+	#lome = l.read(u"melin lóme")[0].subtree(('nucleus', 'Vs O', 'O', 'noun-phrase,Nom', 'noun-phrase,s,Nom', 'n'))
+	#for i in lome.iter_items():
+	#	print i.form
+	#for w in l.lexicon.find_words(None, (u"lasse",1), (CategoryFilter("in",("s","pl")), None, "0")):
+	#	print " ".join(w.categories),":", w.form
+	
 
 if __name__ == "__main__":
 	run()
+
 

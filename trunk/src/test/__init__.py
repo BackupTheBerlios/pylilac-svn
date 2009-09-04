@@ -15,6 +15,6 @@ import latejami as ltq
 import tokipona as tko
 
 def run():
-	ltq.run()
+	#ltq.run()
 	qya.run()
-	tko.run()
+	#tko.run()
