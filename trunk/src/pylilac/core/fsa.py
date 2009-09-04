@@ -488,41 +488,60 @@ class FSA(object):
 		@rtype: FSA
 		"""
 		#Label, State, Tag.__hash__ + __eq__
-		EXIT = None
-		start_dict = {}
-		for start, transitions in self.__transitions.iteritems():
-			start_dict[start] = transitions[:]
-		for state in self.__final_states:
-			start_dict[state].append(EXIT)
-
-		# freeze it
-		# start_dict == {0: frozenset([('a', 1)]), 1: frozenset([('b', 2), ('a', 1)]), 2: frozenset([EXIT])}
-		for k, v in start_dict.iteritems():
-			start_dict[k] = frozenset(v)
 		
-		adj_dict = {} # a dictionary associating all adjacencies set to the states that have them
-		# adj_dict == {frozenset([('a', 1)]): [0], frozenset([('b', 2), ('a', 1)]): [1], frozenset([EXIT]): 2}
-		for start, adj in start_dict.iteritems():
-			adj_dict.setdefault(adj, []).append(start)
+		EXIT = (None,  None,  None)
+		
+		
+		current_initial_state = self.__initial_state
+		current_final_states = self.__final_states
+		current_states = self.__states
+		current_transitions = self.__transitions
+		
+		was_minimized = False
+		while not was_minimized:
+			start_dict = {} #dictionary of transitions
+			for start, transitions in current_transitions.iteritems():
+				if start in current_final_states:
+					start_dict[start] = frozenset(transitions + [EXIT])
+				else:
+					start_dict[start] = frozenset(transitions)
+			
+			adj_dict = {} # a dictionary associating all adjacencies and the states that have them
+			for start, adj in start_dict.iteritems():
+				adj_dict.setdefault(adj, []).append(start)
 
-		eq_dict = {}
-		# eq_dict == {0: 0, 1: 1, 2: 2}
-		for eq_set in adj_dict.values():
-			class_leader = eq_set[0]
-			for sec in eq_set:
-				eq_dict[sec] = class_leader
-
-
-		mfa = self.__instance()
-		mfa.__initial_state = eq_dict.get(self.__initial_state, self.__initial_state)
-		mfa.__final_states = set([eq_dict.get(f,f) for f in self.__final_states])
-		mfa.__states = set([eq_dict.get(f,f) for f in self.__states])
-		for start in mfa.__states:
-			z = []
-			for label, end, tag in self.__transitions[start]:
-				z.append((label, eq_dict.get(end, end), tag))
-			mfa.__transitions[start] = z
-		return mfa
+			eq_dict = {} # a dictionary for equivalence classes
+			was_minimal = True
+			# eq_dict == {0: 0, 1: 1, 2: 2}
+			for eq_set in adj_dict.values():
+				class_leader = eq_set[0]
+				if len(eq_set)>1: #the FSA was not minimal
+					was_minimal = False
+				for sec in eq_set:
+					eq_dict[sec] = class_leader
+					
+					
+			#get(x,x) for disconnected states
+			last_final_states = set([eq_dict.get(f,f) for f in current_final_states])
+			last_initial_state = eq_dict.get(current_initial_state, current_initial_state)
+			last_states = set([eq_dict.get(f,f) for f in current_states])
+			last_transitions = {}
+			for start in last_states:
+				last_transitions[start] = [(label, eq_dict.get(end, end), tag) for label, end, tag in current_transitions[start]]
+				
+			if was_minimal:
+				mfa = self.__instance()
+				mfa.__initial_state = last_initial_state
+				mfa.__final_states = last_final_states
+				mfa.__states = last_states
+				mfa.__transitions = last_transitions
+				return mfa
+			else:
+				current_initial_state = last_initial_state
+				current_final_states = last_final_states
+				current_states = last_states
+				current_transitions = last_transitions
+			
 
 	def copy(self):
 		"""
@@ -584,8 +603,14 @@ class Parser(object):
 		@type fsa: FSA
 		@raise ValueError: Fired if the FSA is not deterministic.
 		"""
-		if not fsa.is_reduced() or not fsa.is_minimized():
-			raise ValueError("FSA is not deterministic.")
+		rm = 0
+		if not fsa.is_reduced():
+			rm = 1
+		if not fsa.is_minimized():
+			rm += 2
+		if rm>0:
+			err_str = ("not reduced", "not minimized", "neither reduced nor minimized")
+			raise ValueError("FSA is not deterministic: it is %s." % err_str[rm-1])
 		self.__fsa = fsa
 
 	def __call__(self, tokens):
@@ -713,10 +738,6 @@ def __test():
 	print td
 	print td.reduced()
 	print td.reduced().minimized()
-	print "Td is min", td.is_minimized()
-	print "Td is red", td.is_reduced()
-	print "Td.rm is red", td.reduced().minimized().is_reduced()
-	print "Td.rm is min", td.reduced().minimized().is_minimized()
 
 	f = FSA() #vi, vivo, vi do
 	f.add_state("")
@@ -738,6 +759,46 @@ def __test():
 	print tokenize(p, d, "vi do")
 	
 	k = r.copy()
+	
+	#Quenya Locative bug ()
+	"""
+	FSA{
+	>0, 1>, 2, 3, 4, 5.
+	0 -> 2 'Noun' ();
+	0 -> 4 'Pronoun' ();
+	2 -> 3 'Verb' ('VO',);
+	3 -> 1 'Object' ('VO',);
+	4 -> 5 'Verb' ('VO',);
+	5 -> 1 'Object' ('VO',)
+	}
+	
+	Adjacency dict:
+	[('Pronoun', 4, ()), ('Noun', 2, ())]: [0]
+	[('Object', 1, ('VO',))]: [3, 5]
+	[('Verb', 5, ('VO',))]: [4]
+	[('Verb', 3, ('VO',))]: [2]
+	[EXIT] : [1]
+	CORRECT
+	
+	Class leaders: 0, 3, 4, 2, 1
+	CORRECT
+	
+	initial state: 0
+	
+	"""
+	loc = FSA()
+	loc.add_state(0)
+	loc.set_initial(0)
+	loc.add_transition(0, "Noun", 2,  ( ))
+	loc.add_transition(0, "Pronoun", 4,  ( ))
+	loc.add_transition(2, "Verb", 3,  ("VO", ))
+	loc.add_transition(3, "Object", 1,  ("VO", ))
+	loc.add_transition(4, "Verb", 5,  ("VO", ))
+	loc.add_transition(5, "Object", 1, ("VO", ))
+	loc.set_final(1)
+	print loc.minimized()
+	assert loc.minimized().is_minimized(),  "Locative bug"
+	
 
 
 if __name__ == "__main__":

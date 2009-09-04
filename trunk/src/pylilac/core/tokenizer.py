@@ -123,7 +123,7 @@ def __test():
 	print c
 	t2 = Tokenizer({"ala": ["ALA"], "mi": ["MI"], "pona": ["PONA","BENE"], "mi ala": ["MIALA"]}, {"separator": " "})
 	print t2("mi ala pona")
-	t3 = Tokenizer({"a": ["1"], "bb": ["2"]}, {"separator": ""})
+	t3 = Tokenizer({"a": ["*a*"], "bb": ["*bb*"], "b": ["*b*"]}, {"separator": ""})
 	c3 = t3("abba")
 	print c3
 

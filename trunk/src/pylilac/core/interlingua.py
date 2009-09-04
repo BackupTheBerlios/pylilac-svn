@@ -75,15 +75,15 @@ class Interlingua(object):
 		name = reader.next()[0]
 		p_o_s = list(reader.next())
 		arg_struct = list(reader.next())
-		taxonomy = Taxonomy()
+		self.taxonomy.clear()
 		for (i, p, a, m, b, d, n, r) in reader:
 			if b == "":
 				b = None
 			c = Concept(i, p, a, m, b, d)
 			c.notes = n
 			c.reference = r
-			taxonomy.set(c)
-		self.name, self.p_o_s, self.arg_struct, self.taxonomy = name, p_o_s,  arg_struct, taxonomy
+			self.taxonomy.set(c)
+		self.name, self.p_o_s, self.arg_struct = name, p_o_s, arg_struct
 		
 
 class Concept(object):
@@ -242,12 +242,22 @@ class Taxonomy(object):
 		for r in self.__tree[None].values():
 			add_node(r)
 		return iter(sequencing)
+		
+	def clear(self):
+		"""
+		Empty the taxonomy.
+		"""
+		self.__nodes = {}
+		self.__tree = {None: {}}
 
 	def __repr__(self):
 		return `self.__tree`
 		
 def _test():
-	pass
+	il = Interlingua("../../data/Latejami.csv")
+	il.load()
+	tx = il.taxonomy
+	print tx.get("byukigi")
 
 
 if __name__ == "__main__":

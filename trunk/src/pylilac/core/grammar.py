@@ -61,7 +61,7 @@ class Grammar(object):
 		Create a Grammar with the given name.
 		"""
 		self.name = name
-		self.starting = None
+		self.start = None
 		self.__symbols = []
 		self.__rules = {}
 		self.ignore_recursion = False
@@ -86,8 +86,8 @@ class Grammar(object):
 		else:
 			self.__rules[symbol] = rhs.to_expression()
 			self.__symbols.append(symbol)
-		if self.starting is None:
-			self.starting = symbol
+		if self.start is None:
+			self.start = symbol
 
 	def __getitem__(self, symbol):
 		"""
@@ -109,11 +109,11 @@ class Grammar(object):
 		"""
 		del self.__rules[symbol]
 		self.__symbols.remove(symbol)
-		if self.starting == symbol:
+		if self.start == symbol:
 			if len(self.__symbols) == 0:
-				self.starting = None
+				self.start = None
 			else:
-				self.starting = self.__symbols[0]
+				self.start = self.__symbols[0]
 
 	def __contains__(self, symbol):
 		"""
@@ -132,11 +132,11 @@ class Grammar(object):
 		"""
 		representation = []
 		for symbol in self.__symbols:
-			if symbol == self.starting:
-				is_starting = "^"
+			if symbol == self.start:
+				is_start = "^"
 			else:
-				is_starting = ""
-			representation.append("%s<%s>" % (is_starting, symbol))
+				is_start = ""
+			representation.append("%s<%s>" % (is_start, symbol))
 		return "<" + ", ".join(representation) + ">"
 
 
@@ -147,11 +147,11 @@ class Grammar(object):
 		"""
 		representation = []
 		for symbol in self.__symbols:
-			if symbol == self.starting:
-				is_starting = "^"
+			if symbol == self.start:
+				is_start = "^"
 			else:
-				is_starting = ""
-			representation.append("%s<%s> ::= %s" % (is_starting, symbol, repr(self.__rules[symbol])))
+				is_start = ""
+			representation.append("%s<%s> ::= %s" % (is_start, symbol, repr(self.__rules[symbol])))
 		return "\n".join(representation)
 
 		
@@ -161,7 +161,7 @@ class Grammar(object):
 		Check the grammar for anomalies.
 		These anomalies will trigger an error:
 
-			- No starting symbol defined
+			- No start symbol defined
 			- Unresolved references
 			- Cyclic references (if the grammar does not ignore recursion)
 		
@@ -188,9 +188,9 @@ class Grammar(object):
 					max_depth = d
 			return max_depth
 
-		if self.starting is None:
-			raise GrammarError("No starting symbol defined")
-		return descend(self.starting)
+		if self.start is None:
+			raise GrammarError("No start symbol defined")
+		return descend(self.start)
 
 	def compile(self, force = False):
 		"""
@@ -229,7 +229,7 @@ class Grammar(object):
 			final = nfa.add_state()
 			nfa.set_final(final)
 			
-			s = self.__rules[self.starting]
+			s = self.__rules[self.start]
 			s.insert_transitions(self, nfa, initial, final, (), max_levels)
 			#rewriting to save memory
 			nfa = nfa.reduced()

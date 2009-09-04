@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -82,7 +82,7 @@ __docformat__ = "epytext en"
 
 import re
 from lexicon import Word, Lexicon, CategoryFilter, DEFECTIVE
-from utilities import SortedDict
+from utilities import SortedDict, Utilities
 
 BASED_ON_ENTRY_FORM = "-"
 """
