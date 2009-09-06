@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>pylilac</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th bgcolor="#70b0f0" class="navbar-select"
+          >&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://pylilac.berlios.de">pylilac</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Package&nbsp;pylilac
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="pylilac-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== PACKAGE DESCRIPTION ==================== -->
+<h1 class="epydoc">Package pylilac</h1><br /><br />
+The PYthon LInguistic Laboratory (pylilac) is a Python library and a 
+  set of tools to help in studying, analyzing and engineering languages. In
+  the initial study of a natural or constructed language, the need for a 
+  framework to store the language characteristics may rise. In particular 
+  when studying several languages, it can be useful a tool to bring the 
+  study to a <i>normalized</i> form, to highlight the things in common with
+  other languages. PyLilac wants to provide a library and a set of tools to
+  study, analyze and engineer languages as composed by:
+  <ul>
+    <li>
+      A lexicon
+    </li>
+    <li>
+      An inflective system
+    </li>
+    <li>
+      A grammar
+    </li>
+  </ul>
+  When exposed to a new language, the user will be able to describe it 
+  and, later on, he will be able to browse through the schema they have 
+  built. On the other hand, another user will be able to open the same file
+  and to explore the language prepared by someone else. They both will be 
+  going to use a graphical interface tool to work with the data. 
+  Eventually, a third user might want to develop a linguistic software (for
+  training purpose, documentation, study and so on) and he will be going to
+  use the library directly.
+  <h1 class="heading">Structure</h1>
+  <p><center><table border="0" cellpadding="0" cellspacing="0" class="graph">
+  <tr><td align="center">
+  <map id="import_graph" name="import_graph">
+<area shape="rect" id="node6" href="pylilac-module.html" title="pylilac" alt="" coords="17,389,59,405"/>
+<area shape="rect" id="node7" href="pylilac-module.html" title="pylilac" alt="" coords="7,371,68,410"/>
+<area shape="rect" id="node8" href="pylilac.core.bnf-module.html" title="pylilac.core.bnf" alt="" coords="879,472,901,488"/>
+<area shape="rect" id="node9" href="pylilac.core.bnf-module.html" title="bnf" alt="" coords="868,454,911,493"/>
+<area shape="rect" id="node15" href="pylilac.core.lexicon-module.html" title="pylilac.core.lexicon" alt="" coords="525,411,571,427"/>
+<area shape="rect" id="node16" href="pylilac.core.lexicon-module.html" title="lexicon" alt="" coords="515,393,581,431"/>
+<area shape="rect" id="node9" href="pylilac.core.expression-module.html" title="pylilac.core.expression" alt="" coords="627,155,693,171"/>
+<area shape="rect" id="node10" href="pylilac.core.expression-module.html" title="expression" alt="" coords="616,137,704,175"/>
+<area shape="rect" id="node14" href="pylilac.core.lect-module.html" title="pylilac.core.lect" alt="" coords="337,261,363,277"/>
+<area shape="rect" id="node15" href="pylilac.core.lect-module.html" title="lect" alt="" coords="327,243,372,282"/>
+<area shape="rect" id="node10" href="pylilac.core.fsa-module.html" title="pylilac.core.fsa" alt="" coords="765,221,788,237"/>
+<area shape="rect" id="node11" href="pylilac.core.fsa-module.html" title="fsa" alt="" coords="755,203,797,242"/>
+<area shape="rect" id="node11" href="pylilac.core.grammar-module.html" title="pylilac.core.grammar" alt="" coords="521,225,576,241"/>
+<area shape="rect" id="node12" href="pylilac.core.grammar-module.html" title="grammar" alt="" coords="511,207,585,246"/>
+<area shape="rect" id="node17" href="pylilac.core.tokenizer-module.html" title="pylilac.core.tokenizer" alt="" coords="632,283,689,299"/>
+<area shape="rect" id="node18" href="pylilac.core.tokenizer-module.html" title="tokenizer" alt="" coords="621,265,699,303"/>
+<area shape="rect" id="node12" href="pylilac.core.inflection-module.html" title="pylilac.core.inflection" alt="" coords="415,296,469,312"/>
+<area shape="rect" id="node13" href="pylilac.core.inflection-module.html" title="inflection" alt="" coords="404,278,479,317"/>
+<area shape="rect" id="node13" href="pylilac.core.interlingua-module.html" title="pylilac.core.interlingua" alt="" coords="745,23,808,39"/>
+<area shape="rect" id="node14" href="pylilac.core.interlingua-module.html" title="interlingua" alt="" coords="735,5,817,43"/>
+<area shape="rect" id="node22" href="pylilac.ui.lacodebehind-module.html" title="pylilac.ui.lacodebehind" alt="" coords="191,356,285,372"/>
+<area shape="rect" id="node23" href="pylilac.ui.lacodebehind-module.html" title="ui.lacodebehind" alt="" coords="180,338,295,377"/>
+<area shape="rect" id="node16" href="pylilac.core.optiontree-module.html" title="pylilac.core.optiontree" alt="" coords="859,279,920,295"/>
+<area shape="rect" id="node17" href="pylilac.core.optiontree-module.html" title="optiontree" alt="" coords="848,261,931,299"/>
+<area shape="rect" id="node18" href="pylilac.core.utilities-module.html" title="pylilac.core.utilities" alt="" coords="1061,309,1107,325"/>
+<area shape="rect" id="node19" href="pylilac.core.utilities-module.html" title="utilities" alt="" coords="1051,291,1117,330"/>
+<area shape="rect" id="node21" href="pylilac.ui.la-module.html" title="pylilac.ui.la" alt="" coords="111,389,139,405"/>
+<area shape="rect" id="node22" href="pylilac.ui.la-module.html" title="ui.la" alt="" coords="100,371,148,410"/>
+<area shape="rect" id="node23" href="pylilac.ui.lawidgets-module.html" title="pylilac.ui.lawidgets" alt="" coords="201,423,273,439"/>
+<area shape="rect" id="node24" href="pylilac.ui.lawidgets-module.html" title="ui.lawidgets" alt="" coords="191,405,284,443"/>
+</map>
+  <img src="import_graph.gif" alt='Import Graph' usemap="#import_graph" ismap="ismap" class="graph-with-title" />
+  </td></tr>
+  <tr><td align='center'>
+<span class="graph-title">Import Graph</span>
+  </td></tr>
+</table><br /></center></p>
+  <p></p>
+    <p><center><table border="0" cellpadding="0" cellspacing="0" 
+    class="graph">
+      <tr><td align="center">
+      <map id="package_tree_for_pylilac" name="package_tree_for_pylilac">
+    <area shape="rect" href="pylilac.core.bnf&#45;module.html" 
+    title="pylilac.core.bnf" alt="" coords="35,88,61,110"/>
+    <area shape="rect" href="pylilac.core.expression&#45;module.html" 
+    title="pylilac.core.expression" alt="" coords="69,88,140,110"/>
+    <area shape="rect" href="pylilac.core.fsa&#45;module.html" 
+    title="pylilac.core.fsa" alt="" coords="148,88,175,110"/>
+    <area shape="rect" href="pylilac.core.grammar&#45;module.html" 
+    title="pylilac.core.grammar" alt="" coords="183,88,241,110"/>
+    <area shape="rect" href="pylilac.core.inflection&#45;module.html" 
+    title="pylilac.core.inflection" alt="" coords="249,88,308,110"/>
+    <area shape="rect" href="pylilac.core.interlingua&#45;module.html" 
+    title="pylilac.core.interlingua" alt="" coords="316,88,383,110"/>
+    <area shape="rect" href="pylilac.core.lect&#45;module.html" 
+    title="pylilac.core.lect" alt="" coords="391,88,419,110"/>
+    <area shape="rect" href="pylilac.core.lexicon&#45;module.html" 
+    title="pylilac.core.lexicon" alt="" coords="427,88,475,110"/>
+    <area shape="rect" href="pylilac.core.optiontree&#45;module.html" 
+    title="pylilac.core.optiontree" alt="" coords="35,131,183,152"/>
+    <area shape="rect" href="pylilac.core.tokenizer&#45;module.html" 
+    title="pylilac.core.tokenizer" alt="" coords="191,131,335,152"/>
+    <area shape="rect" href="pylilac.core.utilities&#45;module.html" 
+    title="pylilac.core.utilities" alt="" coords="343,131,475,152"/>
+    <area shape="rect" href="pylilac.core&#45;module.html" 
+    title="pylilac.core" alt="" coords="25,55,484,162"/>
+    <area shape="rect" href="pylilac.ui.graphics&#45;module.html" 
+    title="pylilac.ui.graphics" alt="" coords="35,216,139,238"/>
+    <area shape="rect" href="pylilac.ui.la&#45;module.html" 
+    title="pylilac.ui.la" alt="" coords="147,216,220,238"/>
+    <area shape="rect" href="pylilac.ui.lacodebehind&#45;module.html" 
+    title="pylilac.ui.lacodebehind" alt="" coords="228,216,359,238"/>
+    <area shape="rect" href="pylilac.ui.lawidgets&#45;module.html" 
+    title="pylilac.ui.lawidgets" alt="" coords="367,216,475,238"/>
+    <area shape="rect" href="pylilac.ui&#45;module.html" title="pylilac.ui"
+    alt="" coords="25,183,484,247"/>
+    <area shape="rect" href="pylilac&#45;module.html" title="pylilac" 
+    alt="" coords="16,22,493,256"/>
+    <area shape="rect" href="pylilac&#45;module.html" title="pylilac" 
+    alt="" coords="16,11,493,256"/>
+    </map>
+      <img src="package_tree_for_pylilac.gif" alt='Package Tree for 
+    pylilac' usemap="#package_tree_for_pylilac" ismap="ismap" 
+    class="graph-with-title" />
+      </td></tr>
+      <tr><td align='center'>
+    <span class="graph-title">Package Tree for pylilac</span>
+      </td></tr>
+    </table><br/></center></p>
+    The library is contained in the <a href="pylilac.core-module.html" 
+    class="link">pylilac.core</a> package, while the implementation of 
+    tools is in the <a href="pylilac.ui-module.html" 
+    class="link">pylilac.ui</a><br /><br />
+
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        <a href="http://pylilac.berlios.de" target="_top">BerliOS</a> 
+        project site.
+      </p>
+      <p><strong>Author:</strong>
+        Paolo Olmino
+      </p>
+      <p><strong>License:</strong>
+        <a href="http://www.gnu.org/licenses/gpl.html" target="_top">GNU
+        GPL GNU General Public License</a>
+      </p>
+      <p><strong>Version:</strong>
+        Alpha 0.1.5
+      </p>
+</div><!-- ==================== SUBMODULES ==================== -->
+<a name="section-Submodules"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Submodules</span></td>
+</tr>
+  <tr><td class="summary">
+  <ul class="nomargin">
+    <li> <strong class="uidlink"><a href="pylilac.core-module.html">pylilac.core</a></strong>: <em class="summary">Core library module for pylilac</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="pylilac.core.bnf-module.html">pylilac.core.bnf</a></strong>: <em class="summary">A module to build expressions in the Extended Backus-Naur Form 
+        (EBNF).</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.core.expression-module.html">pylilac.core.expression</a></strong>: <em class="summary">A module for expression management.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.core.fsa-module.html">pylilac.core.fsa</a></strong>: <em class="summary">A module for grammar compiling and for parsing.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.core.grammar-module.html">pylilac.core.grammar</a></strong>: <em class="summary">A module to define and manage grammar rules.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.core.inflection-module.html">pylilac.core.inflection</a></strong>: <em class="summary">A module for the generation of inflected forms.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.core.interlingua-module.html">pylilac.core.interlingua</a></strong>: <em class="summary">A module to manage the <i>machine interlingua</i> used to 
+        express universal concepts.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.core.lect-module.html">pylilac.core.lect</a></strong>: <em class="summary">A module for serialization and management of a language 
+        variety.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.core.lexicon-module.html">pylilac.core.lexicon</a></strong>: <em class="summary">A module for lexicon management: Word and Lemma.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.core.optiontree-module.html">pylilac.core.optiontree</a></strong>: <em class="summary">A module for the OptionTree utility class.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.core.tokenizer-module.html">pylilac.core.tokenizer</a></strong>: <em class="summary">A specialized parser for expressions.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.core.utilities-module.html">pylilac.core.utilities</a></strong>: <em class="summary">Common utilities functions.</em>    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="pylilac.ui-module.html">pylilac.ui</a></strong>: <em class="summary">Module for the graphic user interface.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="pylilac.ui.graphics-module.html">pylilac.ui.graphics</a></strong>: <em class="summary">A module to wrap the images used in wx graphical interface.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.ui.la-module.html">pylilac.ui.la</a></strong>: <em class="summary">A module for the wx frames in the Language Architect.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.ui.lacodebehind-module.html">pylilac.ui.lacodebehind</a></strong>: <em class="summary">Code behind for the Language Laboratory.</em>    </li>
+    <li> <strong class="uidlink"><a href="pylilac.ui.lawidgets-module.html">pylilac.ui.lawidgets</a></strong>: <em class="summary">A module for the wx widgets used in the Language Architect.</em>    </li>
+    </ul>
+    </li>
+  </ul></td></tr>
+</table>
+
+<br />
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Functions</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pylilac-module.html#run_la" class="summary-sig-name">run_la</a>()</span><br />
+      Run the Language Architect GUI.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<p class="indent-wrapped-lines"><b>Imports:</b>
+  <a href="pylilac.ui.la.LAApp-class.html">pylilac.ui.la.LAApp</a>,
+  <a href="pylilac.core-module.html">pylilac.core</a>,
+  <a href="pylilac.ui-module.html">pylilac.ui</a>
+</p><br />
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Function Details</span></td>
+</tr>
+</table>
+<a name="run_la"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">run_la</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </table>
+  
+  Run the Language Architect GUI.
+  <dl class="fields">
+  </dl>
+<div class="fields">      <p><strong>See Also:</strong>
+        <code class="link">Graphical User documentation</code>.
+      </p>
+</div></td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th bgcolor="#70b0f0" class="navbar-select"
+          >&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://pylilac.berlios.de">pylilac</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0beta1 on Thu Aug 27 20:13:34 2009
+    </td>
+    <td align="right" class="footer">
+      <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie()
+  // -->
+</script>
+  
+</body>
+</html>
