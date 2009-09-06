@@ -37,7 +37,7 @@ from ui.la import LAApp
 def run_la():
 	"""
 	Run the Language Architect GUI.
-	@see: L{Graphical User documentation<Tools.LanguageArchitect>}.
+	@see: U{Graphical User documentation<http://pylilac.berlios.de/doc/Tools.Language_Architect-module.html>}.
 	"""
 	app = LAApp(0)
 	app.MainLoop()
