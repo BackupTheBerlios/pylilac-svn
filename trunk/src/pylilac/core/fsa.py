@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -7,7 +7,7 @@ Parsing is meant as traversing and tagging token sequences using a compiled gram
 The L{Finite State Automaton<FSA>} class is used to compile grammars and the L{Parser} class to parse token streams.
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"
@@ -34,7 +34,7 @@ The I{null} label.
 class FSA(object):
 	"""
 	A Finite-state Automaton, or Finite-state Machine (FSA) used for compiling natural languages grammars.
-	
+
 	A compiled grammar consists of a tuple M{(S, S{Lambda}, s, F, S{delta})} where
 
 		- M{S}, a finite set of states
@@ -44,8 +44,8 @@ class FSA(object):
 		- M{s S{isin} S}, the start state
 		- M{F S{sube} S}, the set of final states
 		  - M{S{delta}: S S{times} (S{Lambda}S{cup}{S{epsilon}}) S{->} S*}, transition function
-	
-	
+
+
 	Implementation of M{S}, S{Lambda}
 	=================================
 
@@ -62,7 +62,7 @@ class FSA(object):
 
 	Tags
 	====
-	
+
 	The use of tags is intended to extend the classical FSA.
 
 	Tags can be used to distinguish between transitions having the same labels: the L{reduction operation<reduced>}
@@ -77,7 +77,7 @@ class FSA(object):
 
 	Paths
 	=====
-	A path on a FSA with tags is a sequence of tuples M{(S{lambda}, t) S{isin} S{Lambda}} that can 
+	A path on a FSA with tags is a sequence of tuples M{(S{lambda}, t) S{isin} S{Lambda}} that can
 	be collected while traversing the FSA from the initial state to any of the final states.
 
 	The set of all the paths of a FSA (M{S{Pi}}) can be non-finite.
@@ -115,7 +115,7 @@ class FSA(object):
 	def _get_next_available_state(self):
 		"""
 		If the states are integers, return the next available state number.
-		
+
 		@return: Next available state.
 		@rtype: int
 		"""
@@ -136,7 +136,7 @@ class FSA(object):
 		@type state: hashable
 		@raise StateError: Fired if the state already belongs to M{S}.
 		@raise TypeError: Fired if the state was not provided and existing maximum state is not an integer.
-		
+
 		@return: The state provided or automatically generated.
 		@rtype: hashable
 		"""
@@ -169,7 +169,7 @@ class FSA(object):
 
 		If the state is initial, another state is set to initial.
 
-		@param state: An existing state. 
+		@param state: An existing state.
 		@type state: hashable
 		@raise StateError: Fired if the state does not exist.
 		"""
@@ -192,7 +192,7 @@ class FSA(object):
 	def get_initial(self):
 		"""
 		Return the initial state M{s}.
-		
+
 		@rtype: hashable
 		"""
 		return self.__initial_state
@@ -200,7 +200,7 @@ class FSA(object):
 	def get_final(self):
 		"""
 		Return the sets of final states M{F}.
-		
+
 		@rtype: set of hashable
 		"""
 		return self.__final_states
@@ -209,7 +209,7 @@ class FSA(object):
 		"""
 		Set the initial state M{s}.
 
-		@param state: An existing state. 
+		@param state: An existing state.
 		@type state: hashable
 		@raise StateError: Fired if the state does not exist.
 		"""
@@ -221,7 +221,7 @@ class FSA(object):
 		"""
 		Add a state to the set of final states M{F}.
 
-		@param state: An existing state. 
+		@param state: An existing state.
 		@type state: hashable
 		@raise StateError: Fired if the state does not exist.
 		"""
@@ -233,7 +233,7 @@ class FSA(object):
 		"""
 		Remove a state from the set of final states M{F}.
 
-		@param state: An existing state. 
+		@param state: An existing state.
 		@type state: hashable
 		@raise StateError: Fired if the state does not exist.
 		"""
@@ -244,12 +244,12 @@ class FSA(object):
 	#}
 
 	#{ Methods for manipulating transitions
-	  
+
 	def transitions_from(self, start):
 		"""
 		Return M{(S{lambda}(1), e, S{lambda}(2))} where M{e S{isin} S{delta}(C{start}, S{lambda})}
 
-		@param start: An existing state. 
+		@param start: An existing state.
 		@type start: hashable
 		@return: a list of transitions
 		@rtype: list of C{(label, tag)} tuples
@@ -264,11 +264,11 @@ class FSA(object):
 		"""
 		Define a new association M{S{delta}(C{start}, C{(label, tag)}) S{->} C{end}}.
 
-		@param start: The start state of the transitions to add. 
+		@param start: The start state of the transitions to add.
 		@type start: hashable
 		@param label: The label of the transitions to add.
 		@type label: hashable
-		@param end: The end state of the transitions to add. 
+		@param end: The end state of the transitions to add.
 		@type end: hashable
 		"""
 		if self.__initial_state is None:
@@ -285,11 +285,11 @@ class FSA(object):
 		"""
 		Remove all existing associations between M{S{delta}(C{start}, S{lambda}) S{->} C{end}, S{lambda}(1) = C{label}}.
 
-		@param start: The start state of the transitions to remove.  
+		@param start: The start state of the transitions to remove.
 		@type start: hashable
-		@param label: The label of the transitions to remove. 
+		@param label: The label of the transitions to remove.
 		@type label: hashable
-		@param end: The end state of the transitions to remove.  
+		@param end: The end state of the transitions to remove.
 		@type end: hashable
 		@raise StateError: Fired if the state does not exist.
 		@raise TransitionError: Fired if the label does not connect to any state.
@@ -320,9 +320,9 @@ class FSA(object):
 		for state, transitions in self.__transitions.iteritems():
 			for transition in transitions:
 				yield (state, transition[0], transition[1], transition[2])
-		
+
 	#}
-	
+
 	def __repr__(self):
 		"""
 		Represent the FSA, as a colection of states and transitions.
@@ -395,19 +395,19 @@ class FSA(object):
 		for transitions in self.__transitions.itervalues():
 			t = set()
 			for label, e, tag in transitions:
-				if label == EPSILON: 
+				if label == EPSILON:
 					return False
-				if (label, tag) in t: 
+				if (label, tag) in t:
 					return False
 				else:
-					t.add((label, tag)) 
+					t.add((label, tag))
 		return True
 
 	def is_minimized(self):
 		"""
 		Evaluate if the FSA is I{minimized}.
 		A minimized FSA is characterized by unique states.
-		Two states are reduplicated when all departing transitions are identical. 
+		Two states are reduplicated when all departing transitions are identical.
 
 		@return: True if the FSA is minimized.
 		@rtype: bool
@@ -426,13 +426,13 @@ class FSA(object):
 				return False
 			else:
 				t.add(fv)
-		
+
 		return True
 
 	def reduced(self):
 		"""
 		Return an FSA I{equivalent} to the current, having no S{epsilon} or reduplicated transitions.
-		
+
 		@return: The reduced equivalent FSA.
 		@rtype: FSA
 		"""
@@ -450,7 +450,7 @@ class FSA(object):
 					if label != EPSILON:
 						d.add((label, tag))
 			return d
-		
+
 		dfa = self.__instance()
 		dfa.add_state(0)
 		dfa.set_initial(0)
@@ -459,7 +459,7 @@ class FSA(object):
 		groupings = {e0: 0}
 		nfa_states = [(0, e0)]
 		index = 0
-		
+
 		while index < len(nfa_states):
 			dfa_state, nfas = nfa_states[index]
 			for exit, tag in tr_from(nfas):
@@ -482,21 +482,21 @@ class FSA(object):
 		"""
 		Return an FSA I{equivalent} to the current, having no reduplicated states.
 
-		Two states are reduplicated when all departing transitions are identical. 
-		
+		Two states are reduplicated when all departing transitions are identical.
+
 		@return: The minimized equivalent FSA.
 		@rtype: FSA
 		"""
 		#Label, State, Tag.__hash__ + __eq__
-		
+
 		EXIT = (None,  None,  None)
-		
-		
+
+
 		current_initial_state = self.__initial_state
 		current_final_states = self.__final_states
 		current_states = self.__states
 		current_transitions = self.__transitions
-		
+
 		was_minimized = False
 		while not was_minimized:
 			start_dict = {} #dictionary of transitions
@@ -505,7 +505,7 @@ class FSA(object):
 					start_dict[start] = frozenset(transitions + [EXIT])
 				else:
 					start_dict[start] = frozenset(transitions)
-			
+
 			adj_dict = {} # a dictionary associating all adjacencies and the states that have them
 			for start, adj in start_dict.iteritems():
 				adj_dict.setdefault(adj, []).append(start)
@@ -519,8 +519,8 @@ class FSA(object):
 					was_minimal = False
 				for sec in eq_set:
 					eq_dict[sec] = class_leader
-					
-					
+
+
 			#get(x,x) for disconnected states
 			last_final_states = set([eq_dict.get(f,f) for f in current_final_states])
 			last_initial_state = eq_dict.get(current_initial_state, current_initial_state)
@@ -528,7 +528,7 @@ class FSA(object):
 			last_transitions = {}
 			for start in last_states:
 				last_transitions[start] = [(label, eq_dict.get(end, end), tag) for label, end, tag in current_transitions[start]]
-				
+
 			if was_minimal:
 				mfa = self.__instance()
 				mfa.__initial_state = last_initial_state
@@ -541,12 +541,12 @@ class FSA(object):
 				current_final_states = last_final_states
 				current_states = last_states
 				current_transitions = last_transitions
-			
+
 
 	def copy(self):
 		"""
 		Create a copy of the FSA.
-		
+
 		@return: A (shallow) copy of the FSA.
 		@rtype: FSA
 		"""
@@ -637,11 +637,11 @@ class Parser(object):
 			matching = [(label, end, tag) for label, end, tag in transitions if self.match(label, token)]
 			if len(matching) == 0:
 				raise ParseError(tokens[:index+1], state)
-			
+
 			m_pe = None
 			for label, end, tag in matching:
 				try:
-					following = parse_from(fsa, tokens, index + 1, end) 
+					following = parse_from(fsa, tokens, index + 1, end)
 					following.element = (self.process(label, token), tag)
 					output.append(following)
 				except ParseError, pe:
@@ -655,7 +655,7 @@ class Parser(object):
 			return output
 
 		return parse_from(self.__fsa, tokens, 0, self.__fsa.get_initial())
-	
+
 	def match(self, label, token):
 		"""
 		Verify if a label in the FSA matches a token.
@@ -670,136 +670,8 @@ class Parser(object):
 		"""
 		Process a token, returning the tag to append to the parsing result.
 		Override this method to implement specialized behaviors.
-		
+
 		@return: The token.
 		@rtype: tag
 		"""
 		return token
-	
-
-def __test():
-	def add_token(fsa, str):
-		s = str + " "
-		for i, c in enumerate(s):
-			if i == len(s) - 1:
-				fsa.add_transition(s[:i], c, fsa.get_initial(), str)
-				break
-			else:
-				fsa.add_transition(s[:i], c, s[:i+1])
-
-	def tokenize(parser, dict, stream):
-		def explode_list(dict, lst, pos):
-			t = OptionTree()
-			if pos < len(lst):
-				for obj in dict[lst[pos]]:
-					c = explode_list(dict, lst, pos + 1)		
-					c.element = obj
-					t.append(c)
-			return t
-		p = parser(stream + " ")
-		ot = OptionTree()
-		for u in p.expand():
-			ot.append(explode_list(dict, [y[1] for y in u if y[1] is not None], 0))
-		return ot
-		
-
-	#accepts e|a(a|b)*b
-	eaabb = FSA()
-	eaabb.add_transition(0, EPSILON, 2, None)
-	eaabb.set_final(2)
-	eaabb.add_transition(0, 'a', 1, None)
-	eaabb.add_transition(1, 'a', 1, None)
-	eaabb.add_transition(1, EPSILON, 3, None)
-	eaabb.add_transition(3, 'b', 1, None)
-	eaabb.add_transition(3, 'b', 2, None)
-	print eaabb
-	print eaabb.reduced()
-	print eaabb.reduced().minimized()
-	
-	d = {"a": ["A"], "b": ["B"], "ab": ["AB"], "cab": ["CAB"]}	
-	td = FSA()
-	td.add_state("")
-	td.set_initial("")
-	td.add_transition("", "a", "a")
-	td.add_transition("a", EPSILON, "a*", "a")
-	td.set_final("a*")
-	td.add_transition("", "b", "b")
-	td.add_transition("b", EPSILON, "b*", "b")
-	td.set_final("b*")
-	td.add_transition("", "a", "a")
-	td.add_transition("a", "b", "ab")
-	td.add_transition("ab", EPSILON, "ab*", "ab")
-	td.set_final("ab*")
-	td.add_transition("", "c", "c")
-	td.add_transition("c", "a", "ca")
-	td.add_transition("ca", "b", "cab")
-	td.add_transition("cab", EPSILON, "cab*", "cab")
-	td.set_final("cab*")
-	print td
-	print td.reduced()
-	print td.reduced().minimized()
-
-	f = FSA() #vi, vivo, vi do
-	f.add_state("")
-	f.set_initial("")
-	f.set_final("")
-
-
-	add_token(f, "vi")
-	add_token(f, "vivo")
-
-	add_token(f, "do")
-	add_token(f, "vi do")
-
-	r = f.reduced()
-	p = Parser(r)
-
-	d = {"vi":["vi1", "vi2"], "do":["do1","do2","do3"], "vi do": ["vi do"]}
-
-	print tokenize(p, d, "vi do")
-	
-	k = r.copy()
-	
-	#Quenya Locative bug ()
-	"""
-	FSA{
-	>0, 1>, 2, 3, 4, 5.
-	0 -> 2 'Noun' ();
-	0 -> 4 'Pronoun' ();
-	2 -> 3 'Verb' ('VO',);
-	3 -> 1 'Object' ('VO',);
-	4 -> 5 'Verb' ('VO',);
-	5 -> 1 'Object' ('VO',)
-	}
-	
-	Adjacency dict:
-	[('Pronoun', 4, ()), ('Noun', 2, ())]: [0]
-	[('Object', 1, ('VO',))]: [3, 5]
-	[('Verb', 5, ('VO',))]: [4]
-	[('Verb', 3, ('VO',))]: [2]
-	[EXIT] : [1]
-	CORRECT
-	
-	Class leaders: 0, 3, 4, 2, 1
-	CORRECT
-	
-	initial state: 0
-	
-	"""
-	loc = FSA()
-	loc.add_state(0)
-	loc.set_initial(0)
-	loc.add_transition(0, "Noun", 2,  ( ))
-	loc.add_transition(0, "Pronoun", 4,  ( ))
-	loc.add_transition(2, "Verb", 3,  ("VO", ))
-	loc.add_transition(3, "Object", 1,  ("VO", ))
-	loc.add_transition(4, "Verb", 5,  ("VO", ))
-	loc.add_transition(5, "Object", 1, ("VO", ))
-	loc.set_final(1)
-	print loc.minimized()
-	assert loc.minimized().is_minimized(),  "Locative bug"
-	
-
-
-if __name__ == "__main__":
-	__test()

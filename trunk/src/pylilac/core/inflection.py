@@ -19,14 +19,14 @@ Inflections
 	Example of inflexions can be:
 		- the Quenya noun declension
 		- the Latin I (or I{a}) declension, to which I{"folia"} belongs
-	
+
 	While modeling languages, one of two apporaches may be chosen to model inflection:
 		- One inflection for all, with dedicated transforms on occasion.
 		- Several inflections with transforms usually different.
-	
+
 		For languages where inflection is more analytic, usually the former fits better; it is the case of Quenya noun declensions.
 		When inflection is more syntetic and varies throughout the forms for different classes of words, the latter is easier; this is the case of Latin.
-	
+
 		For instance, while the genitive forms I{"lasseo"} and I{"aldo"} end in I{"-o"} for both Quenya I{"lasse"} and I{"alda"} and only need a slight adjustment; in Latin the genitive forms I{"foliae"} and I{"arboris"} are systematically different, and must be separed at inflection level.
 
 Transforms
@@ -44,21 +44,21 @@ Transforms
 
 Mutation steps
 --------------
-	Mutation steps define the steps in transforms. 
-	
+	Mutation steps define the steps in transforms.
+
 	Steps are tuples:
 		>>> (search, substitution, mandatory)
-	
+
 	Search and substitution strings are U{regular expressions<http://www.regular-expressions.info>}.
-	
+
 	All the occurrences of the C{search} string in the base form are replace with the C{substitution}.
 	If C{mandatory} is C{True} and there are no occurrences of the C{search} string the operation will abort.
 	See the L{call<Inflections.__call__>} method for details on execution.
-	
+
 	In the example above, the steps from I{"cava"} to I{"cávea"} can be seen as follows:
 		1. C{a(?=[^aeiouáíéóú][yw]?[au]?$)} S{->} C{á}
 		2. C{a$} S{->} C{e}
-	
+
 Complete example
 ----------------
 
@@ -75,7 +75,7 @@ Complete example
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"
@@ -93,7 +93,7 @@ It is used for the C{based_on} parameter in L{Inflection.create_transform}.
 class TransformSyntaxError(ValueError):
 	"""
 	Exception to indicate that the definition of a transform is syntactically malformed and can not be compiled.
-	
+
 	@see: L{Regular Expressions <re>}
 	"""
 	pass
@@ -102,8 +102,8 @@ class InflectionError(RuntimeError):
 	Exception to indicate that no definitions suit the given form.
 	"""
 	pass
-	
-	
+
+
 
 class Inflections(object):
 	"""
@@ -119,7 +119,7 @@ class Inflections(object):
 	def create_inflection(self, p_o_s, condition = None, lemma_categories = None):
 		"""
 		Create a new instance of L{Inflection} and append it.
-		
+
 		@param p_o_s: The part of speech accepted by the inflection.
 		@type p_o_s: str
 		@param condition: The regular expression filtering the entry forms accepted by the inflection.
@@ -133,11 +133,11 @@ class Inflections(object):
 		inflection = Inflection(p_o_s, condition, lemma_categories)
 		self.__inflections.append(inflection)
 		return inflection
-	
+
 	def __call__(self, lemma, words = ()):
 		"""
 		Find a suitable L{Inflection} and call it, generating the inflection table for the lemma, preserving the given words.
-	
+
 		@param lemma: The lemma to inflect.
 		@type lemma: Lemma
 		@param words: The inflected forms (usually a list of irregular forms).
@@ -150,7 +150,7 @@ class Inflections(object):
 		for inflection in self.__inflections:
 			if inflection.accept(lemma):
 				return inflection(lemma, words)
-		raise InflectionError("can not inflect %s" % `lemma`)	
+		raise InflectionError("can not inflect %s" % `lemma`)
 
 class Inflection(object):
 	"""
@@ -159,7 +159,7 @@ class Inflection(object):
 	def __init__(self, p_o_s, condition, lemma_categories):
 		"""
 		Create a new instance of inflection.
-		
+
 		@param p_o_s: The part of speech accepted by the inflection.
 		@type p_o_s: str
 		@param condition: The regular expression filtering the entry forms accepted by the inflection.
@@ -167,7 +167,7 @@ class Inflection(object):
 		@param lemma_categories: The categories of the lemmas accepted by the inflection.
 		@type lemma_categories: tuple of str/CategoryFilter
 		@raise TransformSyntaxError: If the condition can not be compiled.
-		@note: In the process of modeling inflections, use the L{Inflections.create_inflection} method instead. 
+		@note: In the process of modeling inflections, use the L{Inflections.create_inflection} method instead.
 		"""
 		self.p_o_s = p_o_s
 		if condition == u".":
@@ -175,7 +175,7 @@ class Inflection(object):
 		cco = None
 		if condition:
 			if not isinstance(condition, unicode):
-				raise TypeError("%s is not Unicode" % repr(condition))		
+				raise TypeError("%s is not Unicode" % repr(condition))
 			try:
 				cco = re.compile(condition, re.IGNORECASE)
 			except Exception, e:
@@ -230,7 +230,7 @@ class Inflection(object):
 		"""
 		Generate the specified inflected form for the lemma, preserving the given words.
 		When a word form is provided, it is returned; when not, it is generated applying the appropriate inflection form.
-	
+
 		@param lemma: The lemma to inflect.
 		@type lemma: Lemma
 		@param categories: The categories of the word to generate.
@@ -265,7 +265,7 @@ class Inflection(object):
 	def accept(self, lemma):
 		"""
 		Verify if the inflection accepts a lemma.
-	
+
 		@param lemma: The lemma to verify.
 		@type lemma: Lemma
 		@return: True if the inflection can accept the lemma.
@@ -282,7 +282,7 @@ class Inflection(object):
 		Generate the inflection table for the lemma, preserving the given words.
 		When a word form is provided, it is used; when not, it is generated applying the appropriate inflection form.
 		For each inflection form, if it is not defective, a word is generated and appended.
-	
+
 		@see: do_form
 		@param lemma: The lemma to inflect.
 		@type lemma: Lemma
@@ -291,7 +291,7 @@ class Inflection(object):
 		@return: The inflection table of the lemma.
 		@rtype: utilities.SortedDict
 		@raise InflectionError: If any inflection forms can not accept the lemma respecting mandatory steps.
-		@raise TransformSyntaxError: If the substitution pattern in some step can not be compiled.		
+		@raise TransformSyntaxError: If the substitution pattern in some step can not be compiled.
 		"""
 		table = SortedDict()
 		for categories in self.__forms.iterkeys():
@@ -299,11 +299,11 @@ class Inflection(object):
 			if word.form <> DEFECTIVE:
 				table[word.categories] = word
 		return table
-		
+
 	def __str__(self):
 		"""
 		Return a short string representation.
-		
+
 		@rtype: str
 		"""
 		s = [self.p_o_s]
@@ -319,13 +319,13 @@ class Transform(object):
 	A class to define the creation of an inflected forms for a class of base forms.
 
 	A transform is a sequence of mutation steps.
-	
+
 	Mutation steps
 	==============
-	
+
 	Steps are modeled as tuple:
 		>>> (search, substitution, mandatory)
-	
+
 	All the occurrences of the C{search} string in the base form are replace with the C{substitution}.
 	If C{mandatory} is C{True} and there are no occurrences of the C{search} string the operation will abort.
 	See the L{call<__call__>} method for details on execution.
@@ -348,10 +348,10 @@ class Transform(object):
 		@param steps: The steps to append at the beginning of the transform.
 		@type steps: sequence of C{(search, substitution, mandatory)} tuples
 		@raise TransformSyntaxError: If the condition can not be compiled.
-		@note: For internal use only. Use the L{Inflection.create_transform} method instead. 
+		@note: For internal use only. Use the L{Inflection.create_transform} method instead.
 		"""
 		if not isinstance(condition, unicode):
-			raise TypeError("%s is not Unicode" % repr(condition))		
+			raise TypeError("%s is not Unicode" % repr(condition))
 		self.__parent = parent_inflection
 
 		self.based_on = based_on
@@ -372,7 +372,7 @@ class Transform(object):
 	def append_step(self, search, substitution, mandatory = False):
 		"""
 		Append a step.
-		
+
 		@see: Substitution in regular expressions.
 		@param search: The regular expression that the step search for.
 		@type search: unicode
@@ -391,7 +391,7 @@ class Transform(object):
 		except Exception, e:
 			raise TransformSyntaxError("can not compile %s for %s: %s" % (`substitution`, `search`, e.message))
 		self.__steps.append((search, cre, substitution, mandatory))
-		
+
 	def iter_steps(self):
 		"""
 		Return an iterator over the steps.
@@ -399,13 +399,13 @@ class Transform(object):
 		"""
 		for search, cre, substitution, mandatory in self.__steps:
 			yield (search, substitution, mandatory)
-	
+
 	def __call__(self, lemma, words = ()):
 		"""
 		Apply the transform to the lemma, preserving the given words.
 		When a word form is provided, it is returned; when not, it is generated applying the appropriate inflection form.
 		If the transform does not accept the lemma or violates any mandatory step, nothing is returned.
-	
+
 		@param lemma: The lemma to inflect.
 		@type lemma: Lemma
 		@param words: The inflected forms (usually a list of irregular forms).
@@ -442,105 +442,3 @@ class Transform(object):
 			elif mandatory:
 				return None
 		return s
-
-	
-
-
-def __test():
-	from lexicon import Lexeme
-
-	print "QUENYA"
-	
-	qya = Lexicon()
-	telcu = Lexeme(u"telcu", 1, "n", ("0",), "jicesi")
-	qya.add_word(Word(u"telco", telcu, ("s","N")))
-	maama = Lexeme(u"roccie", 1, "n", (), "zunbe")
-	qya.add_word(Word(u"roccie", maama, ("s","N")))
-	nis = Lexeme(u"niss", 1, "n", (), "dona")
-	qya.add_word(Word(u"nís", nis, ("s","N")))
-	z = Inflections()
-	f = z.create_inflection("n", None, ("0",))
-	
-	f.create_transform(("s","N"), BASED_ON_ENTRY_FORM)
-	
-	c = f.create_transform(("s","G"))
-	c.append_step(u"ie$", u"ié")
-	c.append_step(u"cu$", u"qu")
-	c.append_step(u"[ao]?$", u"o") 
-	
-	c = f.create_transform(("s","D"), ("s","N"), u"[^aeiouáéíóú]$")
-	c.append_step(u"$", u"en")
-	c = f.create_transform(("s","D"), ("s","N"), u"[aeiouáéíóú]$")
-	c.append_step(u"$", u"n")
-	
-		
-	c = f.create_transform(("s","P"), BASED_ON_ENTRY_FORM, u"[iu]$")
-	c.append_step(u"$", u"va")
-	c = f.create_transform(("s","P"),BASED_ON_ENTRY_FORM, u"ss$")
-	c.append_step(u"$", u"eva")
-	c = f.create_transform(("s","P"),BASED_ON_ENTRY_FORM, u"c$")
-	c.append_step(u"$", u"qua")
-	c = f.create_transform(("s","P"),BASED_ON_ENTRY_FORM, u"[^aeiouáéíóú]$")
-	c.append_step(u"$", u"wa")
-	c = f.create_transform(("s","P"),BASED_ON_ENTRY_FORM, u"[aeiouáéíóú]$")
-	c.append_step(u"$", u"va")
-	
-
-
-	c = f.create_transform(("s","I"), ("s","D"))
-	c.append_step(u"$", u"en")
-	
-	print f(telcu, qya.retrieve_words(telcu.key()))
-	print f(maama, qya.retrieve_words(maama.key()))
-	print f(nis, qya.retrieve_words(nis.key()))
-
-	
-	
-	#all_niss = f(u"niss", 1) #inflection table: paradigm = (..), dictionary of generated with none for defective, iterable over words
-	#print all_niss
-	#(niss, niis): [niis, nisso, nissen,...]
-	
-	print "LATIN"
-	
-	lat = Lexicon()
-	rosa = Lexeme(u"rosa", 1, "n", ("f",), "rose")
-	lupo = Lexeme(u"luːpo", 1, "n", ("m",), "wolf")
-	mar = Lexeme(u"maːr", 1, "n", ("n",), "sea")
-	lat.add_word(Word(u"maːre", mar, ("s","N")))
-	mar2 = Lexeme(u"maːr", 2, "n", ("m",), "male")
-	lat.add_word(Word(u"maːr", mar2, ("s","N")))
-	urb = Lexeme(u"urb", 1, "n", ("f",), "town")
-	lat.add_word(Word(u"urps", urb, ("s","N")))
-	nomin = Lexeme(u"noːmin", 1, "n", ("m",), "name")
-	
-	decl = Inflections()
-	
-	decl1 = decl.create_inflection("n", u"a$")
-	decl1N = decl1.create_transform(("s","N"), BASED_ON_ENTRY_FORM)
-
-	decl1G = decl1.create_transform(("s","G"))
-	decl1G.append_step(u"a$", u"ae", True)
-
-	decl2 = decl.create_inflection("n", u"o$")
-	decl2N = decl2.create_transform(("s","N"))
-	decl2N.append_step(u"o$", u"us", True)
-	
-	decl2G = decl2.create_transform(("s","G"))
-	decl2G.append_step(u"o$", u"iː", True)
-	
-	decl3 = decl.create_inflection("n")
-	
-	decl3N = decl3.create_transform(("s","N"), BASED_ON_ENTRY_FORM, u"in", ("m",))
-	decl3N.append_step(u"in$", u"en")
-	decl3N = decl3.create_transform(("s","N"), BASED_ON_ENTRY_FORM, u"in", ("n",))
-	decl3N.append_step(u"in$", u"o")
-	 
-	decl3G = decl3.create_transform(("s","G"))
-	decl3G.append_step(u"$", u"iːs", True)
-	
-	print decl(lupo, lat.retrieve_words(lupo.key()))
-	print decl(nomin, lat.retrieve_words(nomin.key()))
-	print decl(rosa, lat.retrieve_words(rosa.key()))
-
-if __name__ == "__main__":
-	__test()

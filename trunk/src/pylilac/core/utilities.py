@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -9,7 +9,7 @@ In that case, a pure-Python plugin for some classes and funcions must implemente
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"
@@ -184,15 +184,3 @@ class Csv(object):
 		"""
 		return reader(file)
  
-
-def __test():
-	a = None
-	print Utilities.nvl(a, "NULL")
-	w = u"lómi"
-	v = Utilities.unidecode(w)
-	print v
-	
- 
-
-if __name__ == "__main__":
-	__test()

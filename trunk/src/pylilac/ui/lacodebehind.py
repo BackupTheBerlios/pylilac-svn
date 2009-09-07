@@ -7,7 +7,7 @@ A module to decouple the active code of the Language Laboratory from the definit
 @summary: Code behind for the Language Laboratory.
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"

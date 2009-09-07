@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -16,7 +16,7 @@ For an example of machine interlingua, see U{The Lexical Semantics of a Machine 
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"
@@ -84,7 +84,7 @@ class Interlingua(object):
 			c.reference = r
 			self.taxonomy.set(c)
 		self.name, self.p_o_s, self.arg_struct = name, p_o_s, arg_struct
-		
+
 
 class Concept(object):
 	"""
@@ -130,10 +130,10 @@ class Concept(object):
 
 	def __repr__(self):
 		return "%s (%s, %s): %s"%(self.interlingua, self.p_o_s, self.arg_struct, self.meaning)
-	
+
 	def __str__(self):
 		return self.interlingua
-	
+
 
 class Taxonomy(object):
 	"""
@@ -187,7 +187,7 @@ class Taxonomy(object):
 			del old_siblings[key]
 			siblings[key] = concept
 		return mode
-	
+
 	def remove(self, key):
 		"""
 		Remove a concept and its subconcepts from the taxonomy.
@@ -242,7 +242,7 @@ class Taxonomy(object):
 		for r in self.__tree[None].values():
 			add_node(r)
 		return iter(sequencing)
-		
+
 	def clear(self):
 		"""
 		Empty the taxonomy.
@@ -252,13 +252,3 @@ class Taxonomy(object):
 
 	def __repr__(self):
 		return `self.__tree`
-		
-def _test():
-	il = Interlingua("../../data/Latejami.csv")
-	il.load()
-	tx = il.taxonomy
-	print tx.get("byukigi")
-
-
-if __name__ == "__main__":
-	_test()

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -9,7 +9,7 @@ The module offers the high-level interfaces to internal structures.
 @summary: A module for expression management.
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"
@@ -38,11 +38,11 @@ class ExpressionParseError(StandardError):
 			return 0
 		else:
 			return len(self.parse_error)
-		
+
 	def include(self, parse_error):
 		"""
 		Append a parse exceptions to internal collection.
-		
+
 		@param parse_error: The parse error to include
 		@type parse_error: L{ParseError<fsa.ParseError>}
 		@see: L{ParseError<parser.ParseError>}
@@ -61,7 +61,7 @@ class ExpressionParseError(StandardError):
 		@rtype: str
 		"""
 		return str(self.parse_error) + "*" + str(self.__cardinality)
-		
+
 class ExpressionReader(object):
 	"""
 	An expression reader, combining a L{tokenizer<tokenizer.Tokenizer>} and a L{parser<fsa.Parser>}.
@@ -109,7 +109,7 @@ class ExpressionReader(object):
 class ParseTree(object):
 	"""
 	A parse tree to model an expression parsing.
-	
+
 	It is returned by the L{read<lect.Lect.read>} method of class C{Lect}.
 	"""
 	def __init__(self):
@@ -122,7 +122,7 @@ class ParseTree(object):
 	def add_recognition(self, recognition):
 		"""
 		Add a list of expression parsings to the tree, calling the L{add} method.
-		
+
 		@param recognition: A list of expression parsings.
 		@type recognition: list of C{(item, path)} tuples
 		"""
@@ -132,10 +132,10 @@ class ParseTree(object):
 	def iter_children(self, path):
 		"""
 		Return an iterator to the subtrees below a given position.
-		
+
 		@param path: A tree path.
 		@type path: list of str
-		
+
 		@return: The child trees below a given position.
 		@rtype: iterator of ParseTree
 		"""
@@ -144,10 +144,10 @@ class ParseTree(object):
 	def subtree(self, path):
 		"""
 		Return the subtree at a given position.
-		
+
 		@param path: A tree path.
 		@type path: list of str
-		
+
 		@return: The child tree at given position.
 		@rtype: ParseTree
 		"""
@@ -159,18 +159,18 @@ class ParseTree(object):
 	def iter_items(self):
 		"""
 		Return an iterator to the items.
-				
+
 		@rtype: iterator of items
 		"""
 		for i in self.__contents:
 			yield i
-					
+
 	def add(self, item, path):
 		"""
 		Add an expression parsing to the tree.
-		
+
 		If another item exists at the given position, the new item is appended, otherwise the new position is created with the item only.
-		
+
 		@param item: An expression parsing.
 		@type item: C{(item, path)} tuples
 		@param path: A tree path.
@@ -203,10 +203,3 @@ class ParseTree(object):
 		if self.__contents:
 			s.append(str(self.__contents))
 		return " = ".join(s)
-		
-
-def __test():
-	pass
-
-if __name__ == "__main__":
-	__test()

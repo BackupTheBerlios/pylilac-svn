@@ -1,10 +1,12 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 """
 A module for serialization and management of a language variety.
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"
@@ -22,9 +24,9 @@ class Lect(object):
 		"""
 		Create a lect object.
 		A I{lect} is language variety; it can either be a spoken or a written form, and a colloquial, mediatic or standard form, and so on.
-		
+
 		It wraps serialization and high-level features.
-		
+
 		It contains three independent internal members:
 			- L{lexicon<lexicon>}
 			- L{grammar<grammar>}
@@ -35,7 +37,7 @@ class Lect(object):
 			A language code according to U{ISO<http://www.iso.org>} standard.
 
 			For the language codes, refer to 639-3 specifications.
-			
+
 			A country/variety code and a representation system might be added: C{eng-US}, C{esp:ERG}, C{por-BR:IPA}
 		"""
 		self.code = code
@@ -57,7 +59,7 @@ class Lect(object):
 		return self.__lexicon
 	def __get_inflections(self):
 		return self.__inflections
-	
+
 	def __tuple(self):
 		return (self.code, self.name, self.english_name, self.properties, self.__p_o_s, self.__lemma_categories, self.__categories, self.grammar, self.lexicon, self.inflections)
 
@@ -65,13 +67,13 @@ class Lect(object):
 		"""
 		Save the lect on the file system.
 		The format is a Python I{pickle} file compressed using the GZip algorithm at a medium compression.
-		
+
 		@param reset: If True, resets the lect, stripping out the compilation result of lexicon and grammar.
 			In particular, resetting before saving can be beneficial for lects with large lexica.
 			The default value is False and the lect is saved in its current status.
 		@type reset: bool
 		@param filename: The name of the file to generate.
-		@type filename: str			
+		@type filename: str
 		"""
 		f = utilities.ZipFile(filename, "wb", 5)
 		if reset:
@@ -84,9 +86,9 @@ class Lect(object):
 		"""
 		Load the lect from the file system.
 		The format is a Python I{pickle} file compressed using the GZip algorithm.
-		
+
 		@param filename: The name of the file to load.
-		@type filename: str	
+		@type filename: str
 		"""
 		f = utilities.ZipFile(filename, "rb")
 		tuple = pickle.load(f)
@@ -96,7 +98,7 @@ class Lect(object):
 	def append_p_o_s(self, name, lemma_categories = (), categories = ()):
 		"""
 		Append a part of speech, defined by its name and the categories of lemmas and words belonging to it.
-		
+
 		@param name: The name of the part of speech.
 		@type name: str
 		@param lemma_categories: The categories of lemmas belonging to the part of speech. Optional.
@@ -113,7 +115,7 @@ class Lect(object):
 	def get_p_o_s_names(self):
 		"""
 		Return the names of the parts of speech.
-		
+
 		@rtype: tuple of str
 		"""
 		return self.__p_o_s
@@ -124,7 +126,7 @@ class Lect(object):
 
 		@param name: The name of the part of speech.
 		@type name: str
-				
+
 		@rtype: tuple of tuple of str
 		@return: A tuple where the first element is a tuple containing the lemma categories and the second contains the word categories.
 		"""
@@ -138,18 +140,18 @@ class Lect(object):
 
 		@param expression: The expression to read.
 		@type expression: C{str}
-		
+
 		@raise fsa.ParseError: If the grammar can not parse the expression.
 		@raise expression.ExpressionParseError: If no syntax tree could be constructed.
 		@raise tokenizer.UnknownTokenException: If an unexpected token is encountered.
-		
+
 		@return: The list of possible interpretations.
 		@rtype: list of ParseTree
 		"""
-		
+
 		if not isinstance(expression, unicode):
 			raise TypeError("%s is not Unicode" % repr(expression))
-				
+
 		tokenizer = self.lexicon.compile(self.properties, False)
 		parser = self.grammar.compile(False)
 		er = ExpressionReader(tokenizer, parser)
@@ -173,12 +175,3 @@ class Lect(object):
 		"""
 		self.lexicon.reset()
 		self.grammar.reset()
-
-
-def _test():
-	pass
-
-
-if __name__ == "__main__":
-	_test()
-

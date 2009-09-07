@@ -1,16 +1,16 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 """
 A module for the OptionTree utility class.
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"
 
-from utilities import Utilities
 
 class OptionTree(object):
 	"""
@@ -18,14 +18,14 @@ class OptionTree(object):
 	It can be populated recursively.
 	The option tree:
 		>>>	A B C [DE, D [E1, E2]]
-		
+
 	Can be exploded into the sequences:
 		>>> [A, B, C, DE]
 		>>> [A, B, C, D, E1]
 		>>> [A, B, C, D, E2]
-	
+
 	"""
-	def __init__(self, element = None, successors = []):
+	def __init__(self, element=None, successors=[]):
 		"""
 		Create an option tree containing the given element followed by the give successors.
 		@param element: The sequence element.
@@ -42,7 +42,7 @@ class OptionTree(object):
 	def append(self, successor):
 		"""
 		Append a possible successor.
-		
+
 		@param successor: A possible following option tree.
 		@type successor: OptionTree
 		@return: The same option tree for recursive use.
@@ -62,9 +62,9 @@ class OptionTree(object):
 		e = []
 		if self.element:
 			e.append(`self.element`)
-		if len(self.__successors)==0:
+		if len(self.__successors) == 0:
 			pass
-		elif len(self.__successors)==1:
+		elif len(self.__successors) == 1:
 			e.append(`self.__successors[0]`)
 		else:
 			e.append(`self.__successors`)
@@ -97,18 +97,3 @@ class OptionTree(object):
 			return [head + x for x in reduce(list.__add__, [successor.expand() for successor in self.__successors])]
 		else:
 			return [head]
-
-
-def _test():
-	_iam = OptionTree(None)
-	_the = _iam.append(OptionTree("the"))
-	_queen = _the.append(OptionTree("queen"))
-	_queen.append(OptionTree("of",[OptionTree("hearts"), OptionTree("hearts-2")]))
-	_qoh = _the.append(OptionTree("queen of hearts"))
-	print _iam
-	print "\n"
-	print _iam.expand()
-	print not not _iam
-
-if __name__ == "__main__":
-	_test()

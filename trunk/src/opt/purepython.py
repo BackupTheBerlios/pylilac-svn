@@ -10,7 +10,7 @@ The module has not been implemented, but only these specifications are released 
 @summary: Code behind for the Language Laboratory.
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"
@@ -20,9 +20,9 @@ import re
 def reader(file):
 	"""
 	Create a CSV reader function from a file.
-	
+
 	At each iteration, C{next} returns the comma separated values.
-	
+
 	@param file: A binary readable (C{"rb"}) file object.
 	@type file: file
 	@return: A reader functions
@@ -33,9 +33,9 @@ def reader(file):
 def writer(file):
 	"""
 	Create a CSV writer function from a file.
-	
+
 	At each iteration, the method C{writerow} accepts the comma separated values and writes it.
-	
+
 	@param file: A binary writable (C{"wb"}) file object.
 	@type file: file
 	@return: A writer functions
@@ -72,16 +72,3 @@ class GzipFile(file):
 	A file class implementing GZ compression.
 	"""
 	pass
-
-
-def __test():
-	f = open("..\\data\\Latejami.csv", "rb")
-	rd = _CsvReader(f)
-	print rd.next()[0]
-	print list(rd.next())
-	print list(rd.next())
-	for (i, p, a, m, b, d, n, r) in rd:
-		print i, p, a, m, b, d, n, r
-
-if __name__ == "__main__":
-	__test()

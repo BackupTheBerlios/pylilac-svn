@@ -62,7 +62,7 @@ To change minimum or maximum occurrences for a reference, these closures can be 
 	- L{Positive or multiple closure<POSITIVE_CLOSURE>}, "C{+}"
 
 	- L{Kleene closure<KLEENE_CLOSURE>}, "C{+}"
-	
+
 
 Use of closures
 ---------------
@@ -83,26 +83,26 @@ Resolving cyclic references
 	The translation into closures is more evident when rules are unrolled.
 
 	For example the rules::
-	
+
 		A ::= A1 C A2 | B
 		C ::= C1 A C2
-		
+
 	correspond to::
-	
+
 		A ::= (A1 C1)* B (C2 A2)*
-		
+
 	thus, they can be converted into::
-	
+
 		A ::= B1* B B2*
 		B1 ::= A1 C1
 		B2 ::= C2 A2
 
 	Again, the rule::
-	
+
 		X ::= X | Y
-		
+
 	is equivalent to::
-	
+
 		X ::= Y+
 
 
@@ -136,7 +136,7 @@ The following statements using operators can be used:
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 
 @todo: an unordered concatenation operation M{&}
 
@@ -155,9 +155,9 @@ class NormalExpression(object):
 		"""
 		Prevent the class from being instantiated.
 		To build an expression, the subclasses must be combined using operators.
-		"""	
+		"""
 		if self.__class__ is NormalExpression: raise TypeError("NormalExpression is abstract and can not be instantiated.")
-		
+
 	def to_expression(self):
 		"""
 		Internally simplify the expression into an I{alternative} of I{concatenations}.
@@ -165,7 +165,7 @@ class NormalExpression(object):
 		@rtype: NormalExpression
 		"""
 		return _ParallelExpression([[self]])
-		
+
 	def __add__(self, b):
 		"""
 		Concatenate with another expression.
@@ -173,8 +173,8 @@ class NormalExpression(object):
 		M{A + (X|YZ) S{hArr} A + X | A + YZ S{equiv} AX | AYZ}
 
 		@param b: The expression to concatenate.
-		@type b: NormalExpression		
-		@rtype: NormalExpression		
+		@type b: NormalExpression
+		@rtype: NormalExpression
 		"""
 		if not b: #espilon or None
 			return _ParallelExpression([(self,)])
@@ -188,7 +188,7 @@ class NormalExpression(object):
 		M{A | (X|YZ) S{hArr} A | X | YZ S{equiv} X | YZ | A}
 
 		@param b: The expression to alternate.
-		@type b: NormalExpression	
+		@type b: NormalExpression
 		@rtype: NormalExpression
 		"""
 		c = [conc for conc in b.to_expression()]
@@ -206,12 +206,12 @@ class NormalExpression(object):
 			- M{S{epsilon}} is the identity respect to M{|} and M{+}
 
 		@param other: The expression to compare.
-		@type other: NormalExpression	
+		@type other: NormalExpression
 		@rtype: bool
-		@return: True if two expressions are equivalent			   
+		@return: True if two expressions are equivalent
 		"""
 		if isinstance(other, NormalExpression):
-			return self.to_expression() == other.to_expression()	
+			return self.to_expression() == other.to_expression()
 		elif other is None:
 			return False
 		else:
@@ -225,7 +225,7 @@ class NormalExpression(object):
 		@type other: NormalExpression
 		@rtype: bool
 		@return: True if two expressions are not equivalent
-		"""	
+		"""
 		return not self.__eq__(other)
 
 	def __hash__(self):
@@ -233,7 +233,7 @@ class NormalExpression(object):
 		Generate a hash code.
 
 		@rtype: int
-		"""	
+		"""
 		return hash(self.__class__)
 
 	def __repr__(self):
@@ -277,7 +277,7 @@ class NormalExpression(object):
 
 		@rtype: bool
 		@return: False if S{epsilon}
-		"""	
+		"""
 		return True
 
 	def __mul__(self, closure):
@@ -287,7 +287,7 @@ class NormalExpression(object):
 		@param closure: The closure to apply.
 		@type closure: Closure constant
 		@rtype: NormalExpression
-		"""	
+		"""
 		raise TypeError("NormalExpression is abstract and does not support closures")
 
 class Reference(NormalExpression):
@@ -301,7 +301,7 @@ class Reference(NormalExpression):
 		"""
 		Create a non-terminal symbol.
 		It contains a link to a symbol defined somewhere else.
-		
+
 		@param reference: The link to the symbol.
 		@type reference: str
 		"""
@@ -310,9 +310,9 @@ class Reference(NormalExpression):
 	def __eq__(self, other):
 		"""
 		Compare a non-terminal to another.
-		
+
 		@param other: The non-terminal symbol to compare.
-		@type other: Reference	
+		@type other: Reference
 		@rtype: bool
 		@return: True if the two links are the same.
 		"""
@@ -322,7 +322,7 @@ class Reference(NormalExpression):
 			return False
 		else:
 			return NotImplemented
-	
+
 	def __hash__(self):
 		return hash(self.__class__) ^ hash(self.reference)
 
@@ -350,7 +350,7 @@ class Literal(NormalExpression):
 	It is not possible to express a literal in terms of other literals or references.
 
 	During token parsing, the methods L{match} and L{process} are called.
-	
+
 	@see: Reference
 	"""
 	def __init__(self, content):
@@ -364,7 +364,7 @@ class Literal(NormalExpression):
 	def __eq__(self, other):
 		"""
 		Compare a terminal to another.
-		
+
 		@param other: The literal to compare.
 		@type other: Literal
 		@rtype: bool
@@ -388,7 +388,7 @@ class Literal(NormalExpression):
 		Verify that a token can be pocessed.
 		It is used in parsing.
 		It is often overridden for specialized behavior.
-		
+
 		@see: fsa.Parse
 		@param token: The object to check.
 		@type token: object
@@ -402,7 +402,7 @@ class Literal(NormalExpression):
 		Process the token and return the appropriate tag.
 		It is used in parsing.
 		It is often overridden for specialized behavior.
-		
+
 		@see: fsa.Parse
 		@param token: The object to process.
 		@type token: object
@@ -426,7 +426,7 @@ class _ParallelExpression(NormalExpression):
 		M{(A1+A2+...)|(B1+B2+...)|...}
 		@note: For internal use only.
 		@param double_iterable: A matrix of literals.
-		
+
 		"""
 		self.__fsot = frozenset([tuple(conc) for conc in double_iterable])
 
@@ -485,7 +485,7 @@ class _ParallelExpression(NormalExpression):
 					next = fsa.add_state()
 				symbol.insert_transitions(grammar, fsa, prev, next, tag, max_levels - 1)
 				prev = next
-				
+
 		if max_levels == 0: return
 		tag = Utilities.nvl(tag, ())
 		for concatenation in self.__fsot:
@@ -497,22 +497,22 @@ class _Closure(Reference):
 
 	Closures can be accessed by the C{*} operator;
 	for example, the code to represent M{Z ::= (X Y)*} is:
-	
+
 		>>> g["Z"] = Reference("XY") * KLEENE_CLOSURE
 		>>> g["XY"] = Reference("X") + Reference("Y")
 	"""
 	def __init__(self, expression, forward_back):
 		"""
 		Create a closure.
-		
+
 		The closure are depicted by using alternative S{epsilon} transitions in parallel::
-		
+
 				 Forward  Backward
-			()!                    
-			()?     Y              
-			()+               Y    
-			()*     Y         Y    
-		
+			()!
+			()?     Y
+			()+               Y
+			()*     Y         Y
+
 		@param expression: The expression to apply the closure to.
 		@type expression: Literal
 		@param forward_back: Two booleans to indicate if the closure adds an S{epsilon} transition in parallel
@@ -525,12 +525,12 @@ class _Closure(Reference):
 	def insert_transitions(self, grammar, fsa, initial, final, tag, max_levels):
 		def build_reference(grammar, fsa, initial_node, final_node, tag, max_levels):
 			Reference.insert_transitions(self, grammar, fsa, initial_node, final_node, tag, max_levels)
-			
+
 		def insert_back():
 			# initial -> b super;
 			# b -> initial epsilon;
 			# b -> final epsilon
-			
+
 			back_end = fsa.add_state()
 			build_reference(grammar, fsa, initial, back_end, tag, max_levels)
 			fsa.add_transition(back_end, EPSILON_SYMBOL, initial)
@@ -543,7 +543,7 @@ class _Closure(Reference):
 			insert_back()
 		else:
 			build_reference(grammar, fsa, initial, final, tag, max_levels)
-			
+
 	def __repr__(self):
 		index = (self.__back & 1) << 1 | (self.__forward & 1)
 		CHARS = "!?+*"
@@ -557,7 +557,7 @@ OPTIONAL_CLOSURE = (True, False)
 The optional or interrogative closure. (C{?})
 
 The expression is optional.
-	
+
 In other words, its cardinality can be 0 or 1.
 
 @type: tuple of bool
@@ -569,7 +569,7 @@ POSITIVE_CLOSURE = (False, True)
 The positive or multiple closure. (C{+})
 
 The expression is mandatory and can be repeated any number of times.
-	
+
 In other words, its cardinality can be 1 to S{infin}.
 
 @type: tuple of bool
@@ -580,7 +580,7 @@ KLEENE_CLOSURE = (True, True)
 The Kleene closure. (C{*})
 
 The expression is optional and can be repeated any number of times.
-	
+
 In other words, its cardinality can be 0 to S{infin}.
 
 @type: tuple of bool
@@ -599,9 +599,9 @@ class _Epsilon(Literal):
 		"""
 		Concatenate with another expression.
 		The identity is absorbed.
-		
+
 		M{S{epsilon}+(X|YZ) S{hArr} X | YZ}
-		
+
 		@param b: The expression to concatenate.
 		@type b: NormalExpression
 		@rtype: NormalExpression
@@ -616,7 +616,7 @@ class _Epsilon(Literal):
 		Compare to a normal expressions.
 
 		@param other: The expression to compare.
-		@type other: NormalExpression	
+		@type other: NormalExpression
 		@rtype: bool
 		@return: True if the parameter is S{epsilon} or C{None}, False if it is a different normal expression.
 		"""
@@ -644,44 +644,3 @@ The alternative and juxtapositive identity.
 @type: C{_Epsilon}
 
 """
-
-def __test():
-	_if = Literal("if")
-	_condition = Reference("condition")
-	_then = Literal("then")
-	_stmt = Reference("statement")
-	_else = Literal("else")
-	print _if + _then + _else
-	s = _if + _condition + _then + _stmt
-	s |= s + _else + _stmt
-	print s
-	print
-	ns = Literal("north")|Literal("south")
-	print ns+(Literal("east")|Literal("west"))
-	print ns+ns+ns
-	print ns|ns
-	print (Literal("north")|Literal("south"))+Literal("east")
-	print Literal("south")+(Literal("east")|Literal("west"))
-	print EPSILON_SYMBOL
-	print EPSILON_SYMBOL | Literal("a") + Literal("b"), "= ab|0"
-	print Literal("a") + Literal("b") | EPSILON_SYMBOL  , "= ab|0"
-	print Literal("a") + (Literal("b") | Literal("b")) + EPSILON_SYMBOL == Literal("a") + Literal("b")
-	print Literal("a") | Literal("a") | EPSILON_SYMBOL == Literal("a")
-
-	a_k=Reference("a")*KLEENE_CLOSURE
-	print a_k, "*"
-	a_p = Reference("a")*POSITIVE_CLOSURE
-	print a_p, "+"
-	a_o = Reference("a")*OPTIONAL_CLOSURE
-	print a_o, "?"
-
-	print _else.match("else")
-
-	
-	#x = Literal("kk") | Reference("s") + s
-	#x = s | Literal("null")
-	#print x
-	
-if __name__ == "__main__":
-	__test()
-

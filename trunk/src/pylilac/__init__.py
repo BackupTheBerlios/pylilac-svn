@@ -21,13 +21,13 @@ G{packagetree pylilac}
 
 G{importgraph core}
 
-The library is contained in the L{pylilac.core} package, while the implementation of tools is in the L{pylilac.ui} 
+The library is contained in the L{pylilac.core} package, while the implementation of tools is in the L{pylilac.ui}
 
 @summary: The pylilac project.
 @see: U{BerliOS<http://pylilac.berlios.de>} project site.
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"

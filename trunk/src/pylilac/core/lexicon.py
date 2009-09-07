@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -10,7 +10,7 @@ G{classtree Lemma, Word}
 
 @author: Paolo Olmino
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
-@version: Alpha 0.1.5
+@version: Alpha 0.1.6
 """
 
 __docformat__ = "epytext en"
@@ -38,16 +38,16 @@ class ExistingLemmaError(ValueError):
 class Lemma(object):
 	"""
 	A single unit of language, with no functional decoration.
-	
+
 	Usually, lemmas or headwords are the I{entry words} in dictionaries.
-	
+
 	It is an abstrract class and cannot be instantiated.
 	"""
 	def __init__(self, entry_form, id, p_o_s, categories = ()):
 		"""
 		Prepares the base Lemma instance for subclasses.
 		It is an abstrract class and cannot be instantiated.
-		
+
 		@param entry_form: The canonical form of the lemma.
 		@type entry_form: unicode
 		@param id: The progressive number to keep colliding canonical forms separated.
@@ -61,7 +61,7 @@ class Lemma(object):
 		if isinstance(entry_form, unicode):
 			self.__entry_form = entry_form
 		else:
-			raise TypeError("%s is not Unicode" % repr(entry_form))	
+			raise TypeError("%s is not Unicode" % repr(entry_form))
 		self.__id = id
 		self.p_o_s = p_o_s
 		if not isinstance(categories, tuple):
@@ -73,7 +73,7 @@ class Lemma(object):
 		Get the entry form of a lemma.
 		"""
 		return self.__entry_form
-		
+
 	def __get_id(self):
 		"""
 		Get the ID of a lemma.
@@ -81,7 +81,7 @@ class Lemma(object):
 		return self.__id
 
 	def __readonly(self, value = None):
-		raise AttributeError("The attributes 'entry_form' and 'id' are read-only properties.")	
+		raise AttributeError("The attributes 'entry_form' and 'id' are read-only properties.")
 
 	entry_form = property(__get_entry_form, __readonly, __readonly)
 	id = property(__get_id, __readonly, __readonly)
@@ -108,7 +108,7 @@ class Lemma(object):
 			return False
 		else:
 			return NotImplemented
-			
+
 	def __ne__(self, other):
 		"""
 		Compares memberwise two lemmas for inequality.
@@ -141,12 +141,12 @@ class Lemma(object):
 		return self.__entry_form
 
 
-	
+
 
 class Particle(Lemma):
 	"""
 	A lect specific particle.
-	
+
 	Practically, a L{Lemma} with no precise meaning defined.
 	In a dictionary, it can only be described by its use in the lect.
 
@@ -155,7 +155,7 @@ class Particle(Lemma):
 	def __init__(self, entry_form, id, p_o_s, categories = ()):
 		"""
 		Create a particle of a specific lect.
-		
+
 		@param entry_form: The canonical form of the particle.
 		@type entry_form: unicode
 		@param id: The progressive number to keep colliding canonical forms separated.
@@ -171,10 +171,10 @@ class Particle(Lemma):
 class Lexeme(Lemma):
 	"""
 	A single language unit, a basic form, with no functional decoration, but with a definable meaning.
-	
+
 	A stem is a L{Lemma} with a precise meaning.
 	In a dictionary, it can be also be explained by its translations.
-	
+
 	"""
 	def __init__(self, entry_form, id, p_o_s, categories = (), gloss = None):
 		"""
@@ -214,21 +214,21 @@ class Word(object):
 			Word(u"hearts", lemmas("eng", u"heart", 1, "noun"), ("pl"))
 			Word(u"hɑɹts", hw, ("pl"))
 			Word(u"moku", "tko", moku)
-	
+
 		@type form: unicode
 		@param form: The traditional, standard or neutral form of the word, either graphical or phonical.
 		@type lemma:  Lemma
 		@param lemma: The lemma of the word.
 		@type categories: tuple of str
 		@param categories:  The categories of the word. Categories usually indicate word declensions or modifications.
-	
+
 		"""
 		if not isinstance(categories, tuple):
 			raise TypeError(categories)
 		if isinstance(form, unicode):
 			self.__form = form
 		else:
-			raise TypeError("%s is not Unicode" % repr(form))				
+			raise TypeError("%s is not Unicode" % repr(form))
 		self.__lemma = lemma
 		self.categories = categories
 
@@ -237,7 +237,7 @@ class Word(object):
 		Get the form of the word.
 		"""
 		return self.__form
-		
+
 	def __get_lemma(self):
 		"""
 		Get the lemma of the word.
@@ -245,7 +245,7 @@ class Word(object):
 		return self.__lemma
 
 	def __readonly(self, value = None):
-		raise AttributeError("The attributes 'form' and 'lemma' are read-only properties.")	
+		raise AttributeError("The attributes 'form' and 'lemma' are read-only properties.")
 
 	form = property(__get_form, __readonly, __readonly)
 	lemma = property(__get_lemma, __readonly, __readonly)
@@ -262,7 +262,7 @@ class Word(object):
 		if isinstance(other, Word):
 			return self.__form == other.__form and self.__lemma == other.__lemma and self.categories == other.categories
 		elif other is None:
-			return False		
+			return False
 		else:
 			return NotImplemented
 
@@ -282,7 +282,7 @@ class Word(object):
 	def __repr__(self):
 		"""
 		Give a verbose representation for a word in the format <form>@<lemma><categories>, for example: men@man.1('pl',)"
-		
+
 		@rtype: str
 		"""
 		z =  Utilities.unidecode(self.__form) + "@" + `self.__lemma`
@@ -345,7 +345,7 @@ class Lexicon(object):
 		@type force: bool
 		@rtype: tokenizer.Tokenizer
 		@raise tokenizer.UnknownTokenException: If an unknown characters is encountered while precompiling..
-		@raise fsa.ParseError: If unexpected characters or stops are encountered.		
+		@raise fsa.ParseError: If unexpected characters or stops are encountered.
 		"""
 		if force or not self.__valid and self.__compiled is None:
 			self.__valid = False
@@ -390,7 +390,7 @@ class Lexicon(object):
 		self.__indexed_words.setdefault(word.lemma.key(), []).append(word)
 		self.__valid = False
 		return word
-		
+
 	def remove_word(self, word):
 		"""
 		Remove a word from the lexicon.
@@ -408,7 +408,7 @@ class Lexicon(object):
 		"""
 		Search the lexicon for words matching the given conditions.
 		If some fields are irrelevant they must be left C{None}.
-		
+
 		@param form: The form of the words to retrieve.
 		@type form: unicode
 		@param lemma_key: The key of the lemma of the words to retrieve.
@@ -434,7 +434,7 @@ class Lexicon(object):
 				for w in k:
 					yield w
 	#}
-	
+
 	#{Methods for manipulating lemmas
 	def add_lemma(self, lemma):
 		"""
@@ -455,7 +455,7 @@ class Lexicon(object):
 			self.__lemmas[k] = lemma
 		self.__valid = False
 		return lemma
-		
+
 	def remove_lemma_by_key(self, lemma_key):
 		"""
 		Remove the lemma having the given key from the lexicon.
@@ -483,7 +483,7 @@ class Lexicon(object):
 		"""
 		Search the lexicon for lemmas matching the given conditions.
 		If some fields are irrelevant they must be left C{None}.
-		
+
 		@param entry_form: The entry form of the lemmas to retrieve.
 		@type entry_form: unicode
 		@param id: The ID of the lemmas to retrieve.
@@ -513,14 +513,14 @@ class Lexicon(object):
 		@rtype: str
 		"""
 		return "[[%d lemmas, %d words]]" % (len(self.__lemmas), len(self.__words))
-		
+
 	def _check(self, lect, corrective_p_o_s = None):
 		"""
 		Run a diagnostic on the lexicon.
 		These anomalies are detected:
 			- unknown parts of speech (they can be fixed)
 			- wrong number of categories for lemmas and words
-		
+
 		@param corrective_p_o_s:
 			The part of speech to overwrite unknown parts of speech.
 			If no correction is required, leave C{None}.
@@ -536,7 +536,7 @@ class Lexicon(object):
 			if len(w.categories) > len(d[hw.p_o_s][0]):
 				err.add(w)
 				if corr:
-					w.categories = w.categories[0:l]		
+					w.categories = w.categories[0:l]
 		err = set()
 		d = {}
 		for p in lect.get_p_o_s_names():
@@ -559,7 +559,7 @@ class Lexicon(object):
 class WordFilter(Literal):
 	"""
 	A class to match and process words during parsing.
-	
+
 	The regarded fields, when not null, are:
 		- word form
 		- lemma entry form
@@ -579,7 +579,7 @@ class WordFilter(Literal):
 
 	def __hash__(self):
 		def dict_hash(x, i):
-			if x is None: 
+			if x is None:
 				return 0
 			else:
 				return len(x) << i & maxint
@@ -589,7 +589,7 @@ class WordFilter(Literal):
 		"""
 		Verify that a word can be processed.
 		If the internal values are C{None} or equal to those of the instantiation, equivalence is proven.
-		
+
 		@param word: The word to check.
 		@type word: lexicon.Word
 		@rtype: bool
@@ -616,7 +616,7 @@ class WordFilter(Literal):
 	def process(self, word):
 		"""
 		Process the word and return it for tagging.
-		
+
 		@param word: The object to process.
 		@type word: lexicon.Word
 		@rtype: lexicon.Word
@@ -668,13 +668,13 @@ class WordCategoryFilter(WordFilter):
 	The regarded fields, when not null, are:
 		- lemma part of speech
 		- lemma categories
-		- word categories	
+		- word categories
 	"""
 	def __init__(self, p_o_s = None, lemma_categories = None, categories = None):
 		"""
 		Create a word category filter.
 		Irrelevant fields can be left null.
-		
+
 		@param p_o_s: The part of speech to match.
 		@type p_o_s: str
 		@param lemma_categories: The lemma category to match.
@@ -742,14 +742,14 @@ class CategoryFilter(object):
 	def test(filter_categories, categories):
 		"""
 		Compare filters and values.
-		
+
 		@param filter_categories: The filters to match.
 		@type filter_categories: tuple of str/CategoryFilter
 		@param categories: The values to check.
 		@type categories: tuple of str/CategoryFilter
 		@return: true if all filters are verified.
 		@rtype: bool
-		"""	
+		"""
 		if filter_categories is not None:
 			for i, test in enumerate(filter_categories):
 				if test is not None and i < len(categories):
@@ -788,7 +788,7 @@ class CategoryFilter(object):
 		@return: True if the value matches the filter.
 		"""
 		test, r = self.FUNCTIONS[self.operator]
-		return test(value, self.parameter)	
+		return test(value, self.parameter)
 
 	def __repr__(self):
 		"""
@@ -800,7 +800,7 @@ class CategoryFilter(object):
 		if len(self.parameter)>1:
 			z = "("+z+")"
 		return rpr % z
-		
+
 
 def __test():
 
@@ -828,14 +828,14 @@ def __test():
 	print `lx2`
 	print `lx3`
 	print lx1.match(w), lx2.match(w), lx3.match(w)
-	
+
 
 	cf = CategoryFilter("in", ("A","B"))
 	cf2 = CategoryFilter("ni", ("A","B"))
 	print `cf`
 	print "Yes", cf.match("A"), CategoryFilter.test((cf2,), ("C",))
 	print "No", cf.match("C"), CategoryFilter.test((cf2,), ("A",))
-	
+
 	homo = Lexeme(u"man", 1, "noun", ("m",), "Uomo")
 	print homo.entry_form.__doc__
 	try:
@@ -843,10 +843,10 @@ def __test():
 	except AttributeError, a:
 		print a
 	try:
-		del homo.entry_form 
+		del homo.entry_form
 	except AttributeError, a:
 		print a
-	
-	
+
+
 if __name__ == "__main__":
 	__test()
