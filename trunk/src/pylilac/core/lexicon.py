@@ -430,7 +430,7 @@ class Lexicon(object):
 				if CategoryFilter.test(categories, w.categories):
 					yield w
 		else:
-			for k in self.__indexed_words.itervalues():
+			for k in self.__indexed_words.values():
 				for w in k:
 					yield w
 	#}
@@ -495,7 +495,7 @@ class Lexicon(object):
 		@return: The iterator to the lemmas matching the conditions.
 		@rtype: iterator of Lemma
 		"""
-		for i in self.__lemmas.itervalues():
+		for i in self.__lemmas.values():
 			if entry_form is not None and entry_form != i.entry_form:
 				continue
 			if id is not None and id != i.id:
@@ -541,14 +541,14 @@ class Lexicon(object):
 		d = {}
 		for p in lect.get_p_o_s_names():
 			d[p] = lect.get_categories(p)
-		for hw in self.__lemmas.itervalues():
+		for hw in self.__lemmas.values():
 			if hw.p_o_s not in d:
 				err.add(hw)
 				if corrective_p_o_s:
 					hw.p_o_s = corrective_p_o_s
 			if hw.p_o_s in d:
 				check_length(hw, len(d[hw.p_o_s][0]), err, corrective_p_o_s)
-		for wz in self.__words.itervalues():
+		for wz in self.__words.values():
 			for w in wz:
 				p_o_s = w.lemma.p_o_s
 				if p_o_s in d:

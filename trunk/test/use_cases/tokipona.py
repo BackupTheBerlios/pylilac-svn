@@ -7,7 +7,7 @@ A module to create Tokipona lect file.
 from pylilac.core.lect import Lect
 from pylilac.core.grammar import Grammar
 from pylilac.core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from pylilac.core.lexicon import Lexicon, Particle, Word, Lexeme, WordCategoryFilter, WordFilter, CategoryFilter
+from pylilac.core.lexicon import Lexicon, Particle, Word, Lexeme, WordCategoryFilter, WordFilter
 
 
 def prepare():
@@ -38,7 +38,7 @@ def run():
 			print "%d. " % i, x	
 	l = prepare()
 	print l.grammar
-	l.save("test/tko.lct", False)
+	l.save("data/tko.lct", False)
 
 	show("mi moku")
 #	show("telo li pona")

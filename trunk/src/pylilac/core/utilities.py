@@ -78,7 +78,7 @@ class Utilities(object):
 	def dict_str(map):
 		z = ["{"]
 		s = []
-		for key, value in map.iteritems():
+		for key, value in map.items():
 			s.append("%s: %s" % (str(key), str(value)))
 		z.append(", ".join(s))
 		z.append("}")
@@ -115,15 +115,15 @@ class SortedDict(object):
 		del self.__dict[key]
 		self.__sort.remove(key)
 
-	def iterkeys(self):
+	def __iter__(self):
 		for key in self.__sort:
 			yield key
 
-	def itervalues(self):
+	def values(self):
 		for key in self.__sort:
 			yield self[key]
 	
-	def iteritems(self):
+	def items(self):
 		for key in self.__sort:
 			yield (key, self[key])
 

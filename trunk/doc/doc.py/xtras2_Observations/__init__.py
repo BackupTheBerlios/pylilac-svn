@@ -335,7 +335,7 @@ class Languages:
 								- Person, Number and Gender (C{person}), as possessive: C{1s}, C{2}, C{3s}, C{1d}, C{1+2+3}, exclusive I{we} (C{1+3}), C{3pl}, C{0}
 						- Verbs (C{v}), with their transitiveness/arguments: intransitive (C{0}), transitive (C{Acc}), nominal predicates (C{Nom}), dative constructs (C{Acc+Dat})
 								- Mode, Tense and Aspect (C{tense}): present (C{pres}), aorist (C{hab}), past (C{past}), perfect (C{pp}), future (C{fut}), imperative (C{imp}), infinite (C{inf}), passive participle (C{pass-part}), active participle (C{act-part})
-								- Person, Number and Gender (C{person}): C{1s}, C{2s}, formal you C{2sf}, C{3s}, C{3sm}, C{3sf}, C{1d}, C{1+2+3}, exclusive I{we} (C{1+3}), C{2+3}, C{3pl}, plain singular (C{S}), plain plural C{pl}, plain dual C{d})
+								- Person, Number and Gender (C{person}): C{1s}, C{2s}, formal I{you} C{2sF}, C{3s}, C{3sm}, C{3sf}, C{1d}, C{1+2+3}, exclusive I{we} (C{1+3}), C{2+3}, C{3pl}, plain singular (C{s}), plain plural (C{pl}), plain dual (C{d})
 								- Object Person, Number and Gender (C{object person}): C{1s}, C{2s}, formal you C{2sf}, C{3s}, C{2+3}, C{3pl}, C{0}
 						- Adjectives (C{adj}), with their arguments: closed (C{0}), dative (C{Dat})
 								- Number (C{number}): Singular (C{s}), Plural (or Partitive) (C{pl}), Dual (C{d})
@@ -401,12 +401,12 @@ class Languages:
 						Clause with transitive verb.
 				    >>> <clause> ::= (<VsD> | <SVD>) <C>*
 						Clause with intransitive dative verb.
-				    >>> <clause> ::= (<VsoD> | <VsD O> | <SV O D>) <C>*
+				    >>> <clause> ::= (<VsoD> | <VsOD> | <S V OD>) <C>*
 						Clause with transitive dative verb.
 
 				Some indirect complements, such as the locative complement, can also be a generic circumstantial complements:
 
-				    >>> <clause> ::= (<VsoL> | <VsL O> | <SVL O> | <SV O L>) <-L>*
+				    >>> <clause> ::= (<VsoL> | <VsOL> | <S V OL>) <-L>*
 						Clause with transitive locative verb.
 
 
@@ -414,8 +414,8 @@ class Languages:
 				-----------------
 				Nominal clauses have a more fixed structure, ending with the copula:
 
-				    >>> <clause> ::= (<N Vs> | <SN V>) <C>*
-				    >>> <clause> ::= (<ND Vs> | <SND V>) <C>*
+				    >>> <clause> ::= (<N Vs> | <S N V>) <C>*
+				    >>> <clause> ::= (<N DVs> | <S N DV>) <C>*
 
 				For third persons, usually the copula is understood:
 

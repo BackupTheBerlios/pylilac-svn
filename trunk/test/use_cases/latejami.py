@@ -7,9 +7,9 @@ A module to create Latejami lect file.
 
 from pylilac.core.lect import Lect
 from pylilac.core.grammar import Grammar
-from pylilac.core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
+from pylilac.core.bnf import Reference, KLEENE_CLOSURE, OPTIONAL_CLOSURE
 from pylilac.core.lexicon import Lexicon, Particle, Word, Lexeme, WordCategoryFilter, WordFilter, CategoryFilter
-from pylilac.core.interlingua import Interlingua, Concept
+from pylilac.core.interlingua import Interlingua
 
 def run():
 	def show(s):
@@ -34,7 +34,7 @@ def run():
 	l.properties["capitalization"] = 2 #Only lexical
 	print repr(l.grammar)
 	print l.lexicon
-	l.save("test/ltq.lct", True)
+	l.save("data/ltq.lct", True)
 
 
 	show(u"kokwacala kokwabegi")
@@ -48,7 +48,7 @@ def build_word(w0):
 
 def build_words():
 	w = {}
-	ltj = Interlingua("data/Latejami.csv")
+	ltj = Interlingua("../src/data/Latejami.csv")
 	ltj.load()
 
 	for t in ltj.taxonomy:

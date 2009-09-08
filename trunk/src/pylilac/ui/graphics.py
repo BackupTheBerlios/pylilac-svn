@@ -168,4 +168,4 @@ T>d\xd8x\xb9uT,w,\xcf\xdb\xb6\xf3\x11zw$Jq=d\x86\x11\xb8\xe1\xe29\xdb\xee*{d\
 		Return an iterator on images.
 		@rtype: iterator of (ID, client, size)
 		"""
-		return ArtProvider.__data.iterkeys()
+		return ArtProvider.__data

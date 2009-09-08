@@ -77,7 +77,7 @@ class Tokenizer(Parser):
 		fsa.add_state("")
 		fsa.set_initial("")
 		fsa.set_final("")
-		for k, v in dict.iteritems():
+		for k, v in dict.items():
 			if not isinstance(v, list):
 				raise TypeError(v)
 			add_key(fsa, k)

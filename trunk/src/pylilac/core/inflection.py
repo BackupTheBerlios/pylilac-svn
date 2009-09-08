@@ -224,7 +224,7 @@ class Inflection(object):
 
 		@rtype: iterator of tuple (str, SortedDict)
 		"""
-		return self.__forms.iteritems()
+		return self.__forms.items()
 
 	def do_form(self, lemma, categories, words = ()):
 		"""
@@ -294,7 +294,7 @@ class Inflection(object):
 		@raise TransformSyntaxError: If the substitution pattern in some step can not be compiled.
 		"""
 		table = SortedDict()
-		for categories in self.__forms.iterkeys():
+		for categories in self.__forms:
 			word = self.do_form(lemma, categories, words)
 			if word.form <> DEFECTIVE:
 				table[word.categories] = word

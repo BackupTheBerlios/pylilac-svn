@@ -317,7 +317,7 @@ class FSA(object):
 		@return: An iterator on all transitions.
 		@rtype: iteration of hashable
 		"""
-		for state, transitions in self.__transitions.iteritems():
+		for state, transitions in self.__transitions.items():
 			for transition in transitions:
 				yield (state, transition[0], transition[1], transition[2])
 
@@ -392,7 +392,7 @@ class FSA(object):
 		@return: True if the FSA is reduced.
 		@rtype: bool
 		"""
-		for transitions in self.__transitions.itervalues():
+		for transitions in self.__transitions.values():
 			t = set()
 			for label, e, tag in transitions:
 				if label == EPSILON:
@@ -414,13 +414,13 @@ class FSA(object):
 		"""
 		EXIT = None
 		start_dict = {}
-		for start, transitions in self.__transitions.iteritems():
+		for start, transitions in self.__transitions.items():
 			start_dict[start] = transitions[:]
 		for state in self.__final_states:
 			start_dict[state].append(EXIT)
 
 		t = set()
-		for v in start_dict.itervalues():
+		for v in start_dict.values():
 			fv = frozenset(v)
 			if fv in t:
 				return False
@@ -472,7 +472,7 @@ class FSA(object):
 					nfa_states.append((node, k))
 				dfa.add_transition(dfa_state, exit, node, tag)
 			index += 1
-		for grouping, state in groupings.iteritems():
+		for grouping, state in groupings.items():
 			if grouping & self.__final_states:
 				dfa.set_final(state)
 		return dfa
@@ -500,14 +500,14 @@ class FSA(object):
 		was_minimized = False
 		while not was_minimized:
 			start_dict = {} #dictionary of transitions
-			for start, transitions in current_transitions.iteritems():
+			for start, transitions in current_transitions.items():
 				if start in current_final_states:
 					start_dict[start] = frozenset(transitions + [EXIT])
 				else:
 					start_dict[start] = frozenset(transitions)
 
 			adj_dict = {} # a dictionary associating all adjacencies and the states that have them
-			for start, adj in start_dict.iteritems():
+			for start, adj in start_dict.items():
 				adj_dict.setdefault(adj, []).append(start)
 
 			eq_dict = {} # a dictionary for equivalence classes
@@ -522,12 +522,12 @@ class FSA(object):
 
 
 			#get(x,x) for disconnected states
-			last_final_states = set([eq_dict.get(f,f) for f in current_final_states])
-			last_initial_state = eq_dict.get(current_initial_state, current_initial_state)
-			last_states = set([eq_dict.get(f,f) for f in current_states])
+			last_final_states = set([eq_dict[f] for f in current_final_states if f in eq_dict])
+			last_initial_state = eq_dict[current_initial_state]
+			last_states = set([eq_dict[f] for f in current_states if f in eq_dict])
 			last_transitions = {}
 			for start in last_states:
-				last_transitions[start] = [(label, eq_dict.get(end, end), tag) for label, end, tag in current_transitions[start]]
+				last_transitions[start] = [(label, eq_dict[end], tag) for label, end, tag in current_transitions[start] if end in eq_dict]
 
 			if was_minimal:
 				mfa = self.__instance()
@@ -554,7 +554,7 @@ class FSA(object):
 		cp.__initial_state = self.__initial_state
 		cp.__final_states = self.__final_states.copy()
 		cp.__states = self.__states.copy()
-		for state, transitions in self.__transitions.iteritems():
+		for state, transitions in self.__transitions.items():
 			cp.__transitions[state] = transitions[:]
 		return cp
 	#}
@@ -675,3 +675,5 @@ class Parser(object):
 		@rtype: tag
 		"""
 		return token
+	def __repr__(self):
+		return "Parse:"+`self.__fsa`

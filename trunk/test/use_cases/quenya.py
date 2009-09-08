@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-A module to create Quenya language file.
-Yo.
+A module to create and test Quenya language.
 """
 
 from pylilac.core.bnf import KLEENE_CLOSURE
@@ -88,7 +87,7 @@ def run():
 					proper = 2
 			else:
 				proper = 0
-			for w in ft.itervalues():
+			for w in ft.values():
 				if proper == 0 or (proper == 1 and w.categories[0] == "s" and w.categories[2] == "0")or (proper == 2 and w.categories[0] == "pl" and w.categories[2] == "0"):
 					l.add_word(w)
 
@@ -106,14 +105,14 @@ def run():
 			ft = f(lemma, words)
 			if lemma.entry_form == u"na":
 				lemma = Lexeme(u"ná", 1, lemma.p_o_s, lemma.categories, lemma.gloss)
-				for k in ft.iterkeys():
+				for k in ft:
 					ft[k] = ft[k].copy(lemma)
 				ft[("aor", "s", "0")] = Word(u"ná", lemma, ("aor", "s", "0"))
 				ft[("past", "s", "0")] = Word(u"né", lemma, ("past", "s", "0"))
 
 			correct_table(ft)
 			l.add_lemma(lemma)
-			for w in ft.itervalues():
+			for w in ft.values():
 				l.add_word(w)
 
 		for h in adjs():
@@ -135,7 +134,7 @@ def run():
 			correct_table(ft)
 
 			l.add_lemma(lemma)
-			for w in ft.itervalues():
+			for w in ft.values():
 				l.add_word(w)
 
 			if h[0][-1] == u"a":
@@ -155,7 +154,7 @@ def run():
 
 
 	def correct_word(table, old, new):
-		for k, v in table.iteritems():
+		for k, v in table.items():
 			if re.search(old, v.form, re.I):
 				v2 = Word(re.sub(old, new, v.form, re.I), v.lemma, v.categories)
 				table[k] = v2
@@ -439,7 +438,7 @@ def run():
 			z.append_step(u"$", POSS[person])
 			return z
 
-		for p in POSS.iterkeys():
+		for p in POSS:
 			c = add_personal("s", "Nom", p)
 
 			c = add_personal("s", "Gen", p)
@@ -712,7 +711,7 @@ def run():
 			SUBJ2 = {"1s":u"ne", "2s":u"cce", "3s":u"rye", "3sm":u"ro", "3sf":u"re", "1+2+3": u"lve", "2+3":u"le", "1+3": u"lme", "1d": u"mme", "3pl":u"nte"}
 			OBJ = {"1s":u"n", "2s":u"c", "3s":u"s", "2+3":u"l", "3pl":u"t"}
 			for t in TENSE:
-				for k, v in SUBJ.iteritems():
+				for k, v in SUBJ.items():
 					c = f.create_transform((t, k, "0"), (t, "s", "0"))
 					if t == u"aor":
 						c.append_step(u"e$", u"i")
@@ -722,8 +721,8 @@ def run():
 						c.append_step(u"$", v[1])
 
 				if transitive:
-					for k, v in SUBJ2.iteritems():
-						for k1, v1 in OBJ.iteritems():
+					for k, v in SUBJ2.items():
+						for k1, v1 in OBJ.items():
 							if k <> k1:
 								c = f.create_transform((t, k, k1), (t, "s", "0"))
 								if t == u"aor":
@@ -731,7 +730,7 @@ def run():
 								c.append_step(u"$", v + v1)
 
 			if transitive:
-				for k1, v1 in OBJ.iteritems():
+				for k1, v1 in OBJ.items():
 					c = f.create_transform(("inf", "0", k1), BASED_ON_ENTRY_FORM)
 					c.append_step(u"(?<=[^au])$", u"i")
 					c.append_step(u"$", u"ta" + v1)
@@ -984,6 +983,10 @@ def run():
 		fin = CategoryFilter("in", ("pres", "past", "perf", "aor", "fut"))
 		n0 = CategoryFilter("ni", "0")
 		pers = CategoryFilter("in", ("s", "pl", "d"))
+		pers_s = CategoryFilter("in", ("1s", "2s", "3s", "s"))
+		pers_pl = CategoryFilter("in", ("1+2+3", "1+3", "2+3", "3pl", "pl"))
+		pers_d = CategoryFilter("in", ("1d", "d"))
+
 
 		def auto_noun_phrase(gr):
 			for case in ("Nom", "Gen", "Poss", "Dat", "Loc", "Instr", "Resp"):
@@ -1042,6 +1045,43 @@ def run():
 		gr["S V OD"] = Reference("S/d") + F("Dat", "tr", "V/d") + free_order(Reference("O"), Reference("D"))
 
 
+		gr["clause"] = (Reference("VsL") | Reference("SVL")) + Reference("C-L") * KLEENE_CLOSURE
+		gr["clause"] = (Reference("VsoL") | Reference("VsOL") | Reference("S V OL")) + Reference("C-L") * KLEENE_CLOSURE
+		gr["VsL"] = free_order(F("Loc", "intr", "Vs"), Reference("L"))
+		gr["SVL"] = free_order(Reference("S/s"), F("Loc", "intr", "V/s"), Reference("L"))
+		gr["SVL"] = free_order(Reference("S/p"), F("Loc", "intr", "V/p"), Reference("L"))
+		gr["SVL"] = free_order(Reference("S/d"), F("Loc", "intr", "V/d"), Reference("L"))
+		gr["VsoL"] = free_order(F("Loc", "tr", "Vso"), Reference("L"))
+		gr["VsOL"] = free_order(F("Loc", "tr", "Vs"), Reference("O"), Reference("L"))
+		gr["S V OL"] = Reference("S/s") + F("Loc", "tr", "V/s") + free_order(Reference("O"), Reference("L"))
+		gr["S V OL"] = Reference("S/p") + F("Loc", "tr", "V/p") + free_order(Reference("O"), Reference("L"))
+		gr["S V OL"] = Reference("S/d") + F("Loc", "tr", "V/d") + free_order(Reference("O"), Reference("L"))
+
+		gr["clause"] = (Reference("N Vs") | Reference("S N V")) + Reference("C") * KLEENE_CLOSURE
+		gr["clause"] = Reference("S N") + Reference("C") * KLEENE_CLOSURE
+
+		gr["clause"] = (Reference("N DVs") | Reference("S N DV")) + Reference("C") * KLEENE_CLOSURE
+		
+		gr["N Vs"] = Reference("N/s") +  WordCategoryFilter("v", ("Nom", ), (fin, pers_s, "0"))
+		gr["N Vs"] = Reference("N/p") +  WordCategoryFilter("v", ("Nom", ), (fin, pers_pl, "0"))
+		gr["N Vs"] = Reference("N/d") +  WordCategoryFilter("v", ("Nom", ), (fin, pers_d, "0"))
+		gr["S N V"] =  Reference("S/s")+Reference("N/s") + F("Nom", "intr", "V/s")
+		gr["S N V"] =  Reference("S/p")+ Reference("N/p") + F("Nom", "intr", "V/p")
+		gr["S N V"] =  Reference("S/d")+ Reference("N/d") + F("Nom", "intr", "V/d")
+		gr["S N"] =  Reference("S/s") + Reference("N/s")
+		gr["S N"] =  Reference("S/p") + Reference("N/p")
+		gr["S N"] =  Reference("S/d") + Reference("N/d")
+		gr["N DVs"] = Reference("N/s") + free_order(Reference("D"),  WordCategoryFilter("v", ("Nom+Dat", ), (fin, pers_s, "0")))
+		gr["N DVs"] = Reference("N/p") + free_order(Reference("D"),  WordCategoryFilter("v", ("Nom+Dat", ), (fin, pers_pl, "0")))
+		gr["N DVs"] = Reference("N/p") + free_order(Reference("D"),  WordCategoryFilter("v", ("Nom+Dat", ), (fin, pers_d, "0")))
+		gr["S N DV"] =  Reference("S/s")+ Reference("N/s") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/s"))
+		gr["S N DV"] =  Reference("S/p")+ Reference("N/p") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/p"))
+		gr["S N DV"] =  Reference("S/d")+ Reference("N/d") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/d"))
+
+		gr["N/s"] = WordCategoryFilter("adj", (), ("s", "Nom", None))|(Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/s"))
+		gr["N/p"] = WordCategoryFilter("adj", (), ("pl", "Nom", None))|(Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/p"))
+		gr["N/d"] = WordCategoryFilter("adj", (), ("d", "Nom", None))|(Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/d"))
+
 		gr["O"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Nom") + Reference("nC") * KLEENE_CLOSURE
 		gr["D"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Dat") + Reference("nC") * KLEENE_CLOSURE
 		gr["S/s"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/s") + Reference("nC") * KLEENE_CLOSURE
@@ -1062,6 +1102,7 @@ def run():
 		gr["P"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Poss")
 		gr["G"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Gen")
 		gr["C"] = Reference("adverb") | Reference("I") | Reference("L")
+		gr["C-L"] = Reference("adverb") | Reference("I")
 		gr["L"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Loc")
 		gr["I"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Instr")
 		gr["adverb"] = WordCategoryFilter("adv")
@@ -1287,6 +1328,8 @@ def run():
 	show(u"melin lóme")
 	show(u"melin lóme")
 	show(u"lantar laurie lassi þúrinen")
+	show(u"nér nan")
+	show(u"yerna nan")
 	#lome = l.read(u"melin lóme")[0].subtree(('nucleus', 'Vs O', 'O', 'noun-phrase,Nom', 'noun-phrase,s,Nom', 'n'))
 	#for i in lome.iter_items():
 	#	print i.form

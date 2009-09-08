@@ -139,7 +139,7 @@ class ParseTree(object):
 		@return: The child trees below a given position.
 		@rtype: iterator of ParseTree
 		"""
-		return self.__elements.iteritems()
+		return self.__elements.items()
 
 	def subtree(self, path):
 		"""
