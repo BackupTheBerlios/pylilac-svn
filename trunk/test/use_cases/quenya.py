@@ -22,7 +22,7 @@ import re
 def report_words():
 	vc = open("test/words.txt", "r")
 	from pylilac.core.interlingua import Interlingua
-	il = Interlingua("data/Latejami.csv")
+	il = Interlingua("trunk/src/data/Latejami.csv")
 	il.load()
 	tx = il.taxonomy
 	for riga in vc:
@@ -96,7 +96,7 @@ def run():
 				id = h[4]
 			else:
 				id = 1
-			lemma = Lexeme(h[0], id, "v", (h[1], ), h[2])
+			lemma = Lexeme(h[0], id, "v", (h[1],), h[2])
 			words = []
 			if len(h) > 3:
 				for j in h[3]:
@@ -123,7 +123,7 @@ def run():
 			if len(h) > 4:
 				arguments = h[4]
 			else:
-				arguments = ("0",)
+				arguments = ("0", )
 			lemma = Lexeme(h[0], id, "adj", arguments, h[1])
 			words = []
 			if len(h) > 2:
@@ -523,7 +523,7 @@ def run():
 
 		#verbs
 		def add_verb_inflection(args, transitive):
-			f = fl.create_inflection("v", None, (args, ))
+			f = fl.create_inflection("v", None, (args,))
 
 			c = f.create_transform(("aor", "s", "0"), BASED_ON_ENTRY_FORM, u"a$")
 			c = f.create_transform(("aor", "s", "0"), BASED_ON_ENTRY_FORM, u"u$")
@@ -1007,17 +1007,17 @@ def run():
 			else:
 				acc = "Acc+" + case
 			V = {}
-			V[("intr", "V")] = WordCategoryFilter("v", (case, ), (fin, pers, "0"))
-			V[("tr", "V")] = WordCategoryFilter("v", (acc, ), (fin, pers, "0"))
-			V[("intr", "Vs")] = WordCategoryFilter("v", (case, ), (fin, n0, "0"))
-			V[("tr", "Vs")] = WordCategoryFilter("v", (acc, ), (fin, n0, "0"))
-			V[("tr", "Vso")] = WordCategoryFilter("v", (acc, ), (fin, n0, n0))
-			V[("intr", "V/s")] = WordCategoryFilter("v", (case, ), (fin, "s", "0"))
-			V[("intr", "V/p")] = WordCategoryFilter("v", (case, ), (fin, "pl", "0"))
-			V[("intr", "V/d")] = WordCategoryFilter("v", (case, ), (fin, "d", "0"))
-			V[("tr", "V/s")] = WordCategoryFilter("v", (acc, ), (fin, "s", "0"))
-			V[("tr", "V/p")] = WordCategoryFilter("v", (acc, ), (fin, "pl", "0"))
-			V[("tr", "V/d")] = WordCategoryFilter("v", (acc, ), (fin, "d", "0"))
+			V[("intr", "V")] = WordCategoryFilter("v", (case,), (fin, pers, "0"))
+			V[("tr", "V")] = WordCategoryFilter("v", (acc,), (fin, pers, "0"))
+			V[("intr", "Vs")] = WordCategoryFilter("v", (case,), (fin, n0, "0"))
+			V[("tr", "Vs")] = WordCategoryFilter("v", (acc,), (fin, n0, "0"))
+			V[("tr", "Vso")] = WordCategoryFilter("v", (acc,), (fin, n0, n0))
+			V[("intr", "V/s")] = WordCategoryFilter("v", (case,), (fin, "s", "0"))
+			V[("intr", "V/p")] = WordCategoryFilter("v", (case,), (fin, "pl", "0"))
+			V[("intr", "V/d")] = WordCategoryFilter("v", (case,), (fin, "d", "0"))
+			V[("tr", "V/s")] = WordCategoryFilter("v", (acc,), (fin, "s", "0"))
+			V[("tr", "V/p")] = WordCategoryFilter("v", (acc,), (fin, "pl", "0"))
+			V[("tr", "V/d")] = WordCategoryFilter("v", (acc,), (fin, "d", "0"))
 			return V[(tr, nick)]
 
 		gr["clause"] = (Reference("Vs") | Reference("SV")) + Reference("C") * KLEENE_CLOSURE
@@ -1062,25 +1062,25 @@ def run():
 
 		gr["clause"] = (Reference("N DVs") | Reference("S N DV")) + Reference("C") * KLEENE_CLOSURE
 		
-		gr["N Vs"] = Reference("N/s") +  WordCategoryFilter("v", ("Nom", ), (fin, pers_s, "0"))
-		gr["N Vs"] = Reference("N/p") +  WordCategoryFilter("v", ("Nom", ), (fin, pers_pl, "0"))
-		gr["N Vs"] = Reference("N/d") +  WordCategoryFilter("v", ("Nom", ), (fin, pers_d, "0"))
-		gr["S N V"] =  Reference("S/s")+Reference("N/s") + F("Nom", "intr", "V/s")
-		gr["S N V"] =  Reference("S/p")+ Reference("N/p") + F("Nom", "intr", "V/p")
-		gr["S N V"] =  Reference("S/d")+ Reference("N/d") + F("Nom", "intr", "V/d")
-		gr["S N"] =  Reference("S/s") + Reference("N/s")
-		gr["S N"] =  Reference("S/p") + Reference("N/p")
-		gr["S N"] =  Reference("S/d") + Reference("N/d")
-		gr["N DVs"] = Reference("N/s") + free_order(Reference("D"),  WordCategoryFilter("v", ("Nom+Dat", ), (fin, pers_s, "0")))
-		gr["N DVs"] = Reference("N/p") + free_order(Reference("D"),  WordCategoryFilter("v", ("Nom+Dat", ), (fin, pers_pl, "0")))
-		gr["N DVs"] = Reference("N/p") + free_order(Reference("D"),  WordCategoryFilter("v", ("Nom+Dat", ), (fin, pers_d, "0")))
-		gr["S N DV"] =  Reference("S/s")+ Reference("N/s") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/s"))
-		gr["S N DV"] =  Reference("S/p")+ Reference("N/p") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/p"))
-		gr["S N DV"] =  Reference("S/d")+ Reference("N/d") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/d"))
+		gr["N Vs"] = Reference("N/s") + WordCategoryFilter("v", ("Nom",), (fin, pers_s, "0"))
+		gr["N Vs"] = Reference("N/p") + WordCategoryFilter("v", ("Nom",), (fin, pers_pl, "0"))
+		gr["N Vs"] = Reference("N/d") + WordCategoryFilter("v", ("Nom",), (fin, pers_d, "0"))
+		gr["S N V"] = Reference("S/s") + Reference("N/s") + F("Nom", "intr", "V/s")
+		gr["S N V"] = Reference("S/p") + Reference("N/p") + F("Nom", "intr", "V/p")
+		gr["S N V"] = Reference("S/d") + Reference("N/d") + F("Nom", "intr", "V/d")
+		gr["S N"] = Reference("S/s") + Reference("N/s")
+		gr["S N"] = Reference("S/p") + Reference("N/p")
+		gr["S N"] = Reference("S/d") + Reference("N/d")
+		gr["N DVs"] = Reference("N/s") + free_order(Reference("D"), WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_s, "0")))
+		gr["N DVs"] = Reference("N/p") + free_order(Reference("D"), WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_pl, "0")))
+		gr["N DVs"] = Reference("N/p") + free_order(Reference("D"), WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_d, "0")))
+		gr["S N DV"] = Reference("S/s") + Reference("N/s") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/s"))
+		gr["S N DV"] = Reference("S/p") + Reference("N/p") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/p"))
+		gr["S N DV"] = Reference("S/d") + Reference("N/d") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/d"))
 
-		gr["N/s"] = WordCategoryFilter("adj", (), ("s", "Nom", None))|(Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/s"))
-		gr["N/p"] = WordCategoryFilter("adj", (), ("pl", "Nom", None))|(Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/p"))
-		gr["N/d"] = WordCategoryFilter("adj", (), ("d", "Nom", None))|(Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/d"))
+		gr["N/s"] = WordCategoryFilter("adj", (), ("s", "Nom", None)) | (Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/s"))
+		gr["N/p"] = WordCategoryFilter("adj", (), ("pl", "Nom", None)) | (Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/p"))
+		gr["N/d"] = WordCategoryFilter("adj", (), ("d", "Nom", None)) | (Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/d"))
 
 		gr["O"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Nom") + Reference("nC") * KLEENE_CLOSURE
 		gr["D"] = Reference("article") * OPTIONAL_CLOSURE + Reference("Dat") + Reference("nC") * KLEENE_CLOSURE
@@ -1297,7 +1297,7 @@ def run():
 		d.append((u"vára", "cinjuvo", [(u"anwára", ("s", "Nom", "abs"))]))   #dirty
 		d.append((u"laurea", "todapyu taykocivo")) #golden
 		d.append((u"ilya", "bikavo")) #all, whole
-		d.append((u"mára", u"zoykopa", [], 2, ("Dat", ))) #like
+		d.append((u"mára", u"zoykopa", [], 2, ("Dat",))) #like
 		return d
 
 	def adv():
@@ -1308,24 +1308,23 @@ def run():
 	l = Lect(u"qya")
 	l.name = u"Quenya"
 	l.english_name = "Neo-Quenya"
-	l.append_p_o_s("v", ("arguments", ), ("tense", "person", "object person"))
+	l.append_p_o_s("v", ("arguments",), ("tense", "person", "object person"))
 	l.append_p_o_s("n", (), ("number", "case", "person"))
-	l.append_p_o_s("adj", ("arguments", ), ("number", "case", "degree"))
+	l.append_p_o_s("adj", ("arguments",), ("number", "case", "degree"))
 	l.append_p_o_s("adv", (), ())
-	l.append_p_o_s("prep", ("argument", ), ("object person", ))
+	l.append_p_o_s("prep", ("argument",), ("object person",))
 	build_inflections(l.inflections)
 	build_lexicon(l.lexicon, l.inflections)
 	print str(l.lexicon)
 	build_grammar(l.grammar)
 	l.properties["capitalization"] = 2 #lexical
 	l.properties["separator"] = u" " #lexical
-	l.save("data/qya.lct")
+	l.save("trunk/src/data/qya.lct")
 	print "now compiling"
 	l.compile()
 	print "compiled"
 	show(u"melin fion ringa")
 	show(u"cor vanya mele i lauca alda")
-	show(u"melin lóme")
 	show(u"melin lóme")
 	show(u"lantar laurie lassi þúrinen")
 	show(u"nér nan")

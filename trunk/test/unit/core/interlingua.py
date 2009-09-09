@@ -11,7 +11,7 @@
 from pylilac.core.interlingua import *
 
 def run():
-	il = Interlingua("../src/data/Latejami.csv")
+	il = Interlingua("trunk/src/data/Latejami.csv")
 	il.load()
 	tx = il.taxonomy
 	print tx.get("byukigi")

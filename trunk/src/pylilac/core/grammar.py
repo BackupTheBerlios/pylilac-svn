@@ -64,7 +64,6 @@ class Grammar(object):
 		self.start = None
 		self.__symbols = []
 		self.__rules = {}
-		self.ignore_recursion = False
 		self.__compiled = None
 		self.__valid = False
 
@@ -163,7 +162,7 @@ class Grammar(object):
 
 			- No start symbol defined
 			- Unresolved references
-			- Cyclic references (if the grammar does not ignore recursion)
+			- Cyclic references
 
 		@returns: The maximum depth with no recursion
 		@rtype: int
@@ -178,10 +177,7 @@ class Grammar(object):
 			for dep in rhs.dependencies():
 				d = 0
 				if dep in ancestors:
-					if not self.ignore_recursion:
-						raise CyclicReferenceError(symbol, dep)
-					else:
-						d = 1# don't descend to avoid endless loop
+					raise CyclicReferenceError(symbol, dep)
 				else:
 					d = descend(dep, ancestors + (symbol,)) + 1
 				if d > max_depth:
@@ -201,8 +197,6 @@ class Grammar(object):
 
 		The algorithm calls recursively the L{bnf.NormalExpression.insert_transitions} method.
 
-		In case a recursive rule is encountered and the flag C{ignore_recursion} is on, the grammar tries to crawl down the recursion.
-
 		If the C{force} flag is off and the grammar was already compiled and was not updated, the old result is taken with no recompiling.
 
 		@see: L{Finite State Automaton<fsa.FSA>}
@@ -217,12 +211,7 @@ class Grammar(object):
 		if force or not self.__valid and self.__compiled is None:
 			self.__valid = False
 
-			depth = self.browse()
-			if self.ignore_recursion:
-				max_levels = int(depth * 1.8 + 4) #pretty deep, but it should take seconds
-			else:
-				max_levels = 100 #very very deep, endless, a technological limit
-
+			self.browse()
 			nfa = FSA()
 			initial = nfa.add_state()
 			nfa.set_initial(initial)
@@ -230,7 +219,7 @@ class Grammar(object):
 			nfa.set_final(final)
 
 			s = self.__rules[self.start]
-			s.insert_transitions(self, nfa, initial, final, (), max_levels)
+			s.insert_transitions(self, nfa, initial, final, ())
 			#rewriting to save memory
 			nfa = nfa.reduced()
 			nfa = nfa.minimized()

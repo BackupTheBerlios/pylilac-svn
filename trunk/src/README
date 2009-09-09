@@ -1,4 +1,4 @@
-﻿PyLilac Python Linguistic Laboratory
+PyLilac Python Linguistic Laboratory
 ====================================
 
   Copyright: Paolo Olmino (2009)
@@ -27,7 +27,7 @@
     Running Language Architect
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
     Locate and run "language_architect.py" by double-clicking or calling it from python.
-    
+
 
     Calling pylilac as a library
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -36,7 +36,7 @@
      3. Run python.
      4. Enter:
           >>> from sys import path
-          >>> path.insert(0, 'pylilac.pyz')  
+          >>> path.insert(0, 'pylilac.pyz')
      5. Import the modules (pylilac...)
 
 
@@ -50,7 +50,7 @@
     - Packaging bug on Windows fixed
     - <inflections.Form> was simplified into a list.
     - More compact string representation for category tuples.
-  
+
 
    License
    -------

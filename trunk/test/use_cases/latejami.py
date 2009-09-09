@@ -48,7 +48,7 @@ def build_word(w0):
 
 def build_words():
 	w = {}
-	ltj = Interlingua("../src/data/Latejami.csv")
+	ltj = Interlingua("trunk/src/data/Latejami.csv")
 	ltj.load()
 
 	for t in ltj.taxonomy:
@@ -115,8 +115,6 @@ def build_grammar(w):
 	g["heavy-topicalization-particle"] = WordFilter(build_word(w["xojopa"]))
 	g["reference-switching-particle"] = WordFilter(build_word(w["zunjopa"]))
 	g["valency-terminator"] = WordFilter(build_word(w["jojope"]))
-
-	g.ignore_recursion = True
 	g.compile(True)
 
 	return g

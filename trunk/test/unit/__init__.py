@@ -25,7 +25,6 @@ def run():
 	bnf.run()
 	expression.run()
 	fsa.run()
-	grammar.run()
 	inflection.run()
 	interlingua.run()
 	lect.run()
@@ -33,3 +32,4 @@ def run():
 	optiontree.run()
 	tokenizer.run()
 	utilities.run()
+	grammar.run()

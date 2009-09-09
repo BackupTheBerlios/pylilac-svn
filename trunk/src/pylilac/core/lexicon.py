@@ -639,7 +639,7 @@ class WordFilter(Literal):
 		r.append("}")
 		return "".join(r)
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 40):
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
 		"""
 		Insert a sub-FSA in a L{FSA<fsa.FSA>} according to the rules in a L{grammar<grammar.Grammar>}.
 
@@ -653,8 +653,6 @@ class WordFilter(Literal):
 		@param final: The state in which the sub-graph ends.
 		@type tag: FSA tag
 		@param tag: The initial tag for the arcs.
-		@type max_levels: int
-		@param max_levels: The maximum number of levels of recursion to accept.
 		@todo: Word tagging.
 			Instead of C{fsa.add_transition(initial, self, final, tag + (None,))}, it may be useful storing more than 'word' field
 		"""
@@ -709,7 +707,7 @@ class WordCategoryFilter(WordFilter):
 		r.append("}")
 		return "".join(r)
 
-	def insert_transitions(self, grammar, fsa, initial, final, tag = None, max_levels = 40):
+	def insert_transitions(self, grammar, fsa, initial, final, tag = None):
 		"""
 		Insert a sub-FSA in a L{FSA<fsa.FSA>} according to the rules in a L{grammar<grammar.Grammar>}.
 
@@ -723,8 +721,6 @@ class WordCategoryFilter(WordFilter):
 		@param final: The state in which the sub-graph ends.
 		@type tag: FSA tag
 		@param tag: The initial tag for the arcs.
-		@type max_levels: int
-		@param max_levels: The maximum number of levels of recursion to accept.
 		@todo: Word tagging.
 			Instead of C{fsa.add_transition(initial, self, final, tag + (None,))}, it may be useful storing more than 'word' field
 		"""

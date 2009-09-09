@@ -4,10 +4,18 @@
 """
 A module to create Tokipona lect file.
 """
-from pylilac.core.lect import Lect
+from pylilac.core.bnf import KLEENE_CLOSURE
+from pylilac.core.bnf import OPTIONAL_CLOSURE
+from pylilac.core.bnf import POSITIVE_CLOSURE
+from pylilac.core.bnf import Reference
 from pylilac.core.grammar import Grammar
-from pylilac.core.bnf import Reference, POSITIVE_CLOSURE, KLEENE_CLOSURE, OPTIONAL_CLOSURE
-from pylilac.core.lexicon import Lexicon, Particle, Word, Lexeme, WordCategoryFilter, WordFilter
+from pylilac.core.lect import Lect
+from pylilac.core.lexicon import Lexeme
+from pylilac.core.lexicon import Lexicon
+from pylilac.core.lexicon import Particle
+from pylilac.core.lexicon import Word
+from pylilac.core.lexicon import WordCategoryFilter
+from pylilac.core.lexicon import WordFilter
 
 
 def prepare():
@@ -16,7 +24,7 @@ def prepare():
 	l = Lect("tko")
 	l.name = u"toki pona"
 	l.english_name = "Toki Pona"
-	l.append_p_o_s ("v", ("arguments",), ())
+	l.append_p_o_s ("v", ("arguments", ), ())
 	l.append_p_o_s ("n", (), ())
 	l.append_p_o_s ("mod", (), ())
 	l.append_p_o_s ("prep", (), ())
@@ -38,7 +46,7 @@ def run():
 			print "%d. " % i, x	
 	l = prepare()
 	print l.grammar
-	l.save("data/tko.lct", False)
+	l.save("trunk/src/data/tko.lct", False)
 
 	show("mi moku")
 #	show("telo li pona")
@@ -72,10 +80,10 @@ def build_word(w0):
 		cat = ()
 		if pos == "vt":
 			pos = "v"
-			cat = ("tr",)
+			cat = ("tr", )
 		if pos == "vi":
 			pos = "v"
-			cat = ("intr",)
+			cat = ("intr", )
 		return Word(unicode(w0[0]), Lexeme(unicode(w0[0]), w0[1], pos, cat, w0[3]))
 
 def build_words():
@@ -421,8 +429,8 @@ def build_grammar(w):
 		"""
 		<xs> ::= <x> + (<conj> + <x>)*
 		"""
-		g[name+"s"] = Reference(name) + Reference(name+"-extension") * KLEENE_CLOSURE
-		g[name+"-extension"] = WordFilter(build_word(w[sep_key])) + Reference(name)
+		g[name + "s"] = Reference(name) + Reference(name + "-extension") * KLEENE_CLOSURE
+		g[name + "-extension"] = WordFilter(build_word(w[sep_key])) + Reference(name)
 
 	g = Grammar("toki pona")
 
@@ -439,10 +447,10 @@ def build_grammar(w):
 	g["noun-phrase"] = WordCategoryFilter("n") + WordFilter(build_word(w["pi_sep"])) + WordCategoryFilter("n") + Reference("adjectives")
 
 	add_phrase("predicate", "li_sep")
-	g["predicate"] =  Reference("intransitive-predicate") | Reference("transitive-predicate") | Reference("copulative-predicate")
+	g["predicate"] = Reference("intransitive-predicate") | Reference("transitive-predicate") | Reference("copulative-predicate")
 	
-	g["intransitive-predicate"] = WordCategoryFilter("v", ("intr",)) + Reference("adverbs") * OPTIONAL_CLOSURE + Reference("complement") * KLEENE_CLOSURE
-	g["transitive-predicate"] = WordCategoryFilter("v", ("tr",)) + Reference("adverbs") * OPTIONAL_CLOSURE + Reference("direct-object") * POSITIVE_CLOSURE + Reference("complement") * KLEENE_CLOSURE
+	g["intransitive-predicate"] = WordCategoryFilter("v", ("intr", )) + Reference("adverbs") * OPTIONAL_CLOSURE + Reference("complement") * KLEENE_CLOSURE
+	g["transitive-predicate"] = WordCategoryFilter("v", ("tr", )) + Reference("adverbs") * OPTIONAL_CLOSURE + Reference("direct-object") * POSITIVE_CLOSURE + Reference("complement") * KLEENE_CLOSURE
 	g["copulative-predicate"] = Reference("noun-phrase") | Reference("adjectives") * OPTIONAL_CLOSURE + Reference("complement") * KLEENE_CLOSURE
 
 	add_phrase("adjective", "en_conj")
