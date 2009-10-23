@@ -40,7 +40,7 @@ def report_words():
 def run():
 	def show(s):
 		print
-		print s
+		print `s`
 		for i, x in enumerate(l.read(s)):
 			print u"%d. " % i, x
 
@@ -81,10 +81,7 @@ def run():
 			correct_table(ft)
 			l.add_lemma(lemma)
 			if ord(h[0][0]) < 91:
-				if h[0] not in (u"Mumba", u"Sanga"):
-					proper = 1
-				else:
-					proper = 2
+				proper = 1
 			else:
 				proper = 0
 			for w in ft.values():
@@ -577,8 +574,8 @@ def run():
 				c.append_step(u"a([sv]ya)$", u"á\\1")
 				c.append_step(u"e([sv]ya)$", u"é\\1")
 				c.append_step(u"o([sv]ya)$", u"ó\\1")
-				c.append_step(u"([^aeiouáíéóú])i([sv]ya)$", u"\\1í\\2")
-				c.append_step(u"([^aeiouáíéóú])u([sv]ya)$", u"\\1ú\\2")
+				c.append_step(u"([^aeiouáíéóú])i([sþv]ya)$", u"\\1í\\2")
+				c.append_step(u"([^aeiouáíéóú])u([sþv]ya)$", u"\\1ú\\2")
 				c.append_step(u"$", u"e")
 				c = f.create_transform(("past", "s", "0"), BASED_ON_ENTRY_FORM, u"ya$")
 				c.append_step(u"ya$", u"ne")
@@ -1000,7 +997,6 @@ def run():
 						gr[case] = WordCategoryFilter("adj", (), (num, "Nom", None)) + WordCategoryFilter("n", (), (num, case, None))
 						gr[case] = WordCategoryFilter("n", (), (num, case, None))
 
-
 		def F(case, tr, nick):
 			if case == "0":
 				acc = "Acc"
@@ -1197,21 +1193,22 @@ def run():
 		d.append((u"Anar", u"Anar", "Lakitisi")) #sun
 		d.append((u"Vintamurta", u"Vintamurta", "Laryoxodugi")) #New York City
 		d.append((u"Colindor", u"Colindor", "Ladyadugi")) #India
-		d.append((u"Marasildor", u"Marasildor", "Lazidugi")) #Brazil
-		d.append((u"Rusindor", u"Rusindor", "Larudugi")) #Russia
+		d.append((u"Hindien", u"Hindien", "Ladyadugi")) #India
+		d.append((u"Yúlanor", u"Yúlanor", "Lazidugi")) #Brazil
+		d.append((u"Vandanor", u"Vandanor", "Larudugi")) #Russia
 		d.append((u"Canata", u"Canata", "Lakadugi")) #Canada
-		d.append((u"Mornerdor", u"Mornerdor", "Lajidugi")) #Nigeria
-		d.append((u"Endor", u"Endor", "Lacundugi")) #China
-		d.append((u"Formenherosto", u"Formenherosto", "Lacunxodugi")) #Peking
-		d.append((u"Mexicosto", u"Mexicosto", "Laxixodugi")) #Mexico City
-		d.append((u"Mumba", u"Mumbai", "Labunxodugi", [(u"Mumbai", ("pl", "Nom", "0"))])) #Bombay
-		d.append((u"Sampaulo", u"Sampaulo", "Lapawxodugi")) #São Paulo
-		d.append((u"Sanga", u"Sangai", "Lazanxodugi", [(u"Sangai", ("pl", "Nom", "0"))])) #Shanghai
-		d.append((u"Masiqua", u"Masiqua", "Laruxodugi")) #Moscow
+		d.append((u"Nigird", u"Nigir", "Lajidugi")) #Nigeria
+		d.append((u"Tyena", u"Tyena", "Lacundugi")) #China
+		d.append((u"Forméro", u"Forméro", "Lacunxodugi")) #Peking
+		d.append((u"Tenótiþan", u"Mésicosto", "Laxixodugi")) #Mexico City
+		d.append((u"Tollilónar", u"Mumba", "Labunxodugi")) #Bombay
+		d.append((u"Ainapityonosto", u"Ainapityonosto", "Lapawxodugi")) #São Paulo
+		d.append((u"Orear", u"Orear", "Lazanxodugi")) #Shanghai
+		d.append((u"Mosiqua", u"Mosiqua", "Laruxodugi")) #Moscow
 		d.append((u"Iþil", u"Iþil", "Labatisi")) #moon
 		d.append((u"kuiveyulda", u"kuiveyulda", "cafefupi")) #coffee
-		d.append((u"vilyacirya", u"vilyacirya", "datimi")) #airplane
-		d.append((u"vilyahopasse", u"vilyahopasse", "dakigi")) #airport
+		d.append((u"wilyacirya", u"wilyacirya", "datimi")) #airplane
+		d.append((u"wilyahopasse", u"wilyahopasse", "dakigi")) #airport
 		d.append((u"sarno", u"sarno", "bujisi")) #table
 		d.append((u"yáve", u"yáve", "babemi")) #fruit (a -)
 		d.append((u"olpe", u"olpe", "finzipi")) #bottle
@@ -1219,9 +1216,9 @@ def run():
 		d.append((u"lambe", u"lambe", "tejami")) #language
 		d.append((u"quetta", u"quetta", "tekusi")) #word
 		d.append((u"tów", u"tó", "twazopi")) #wool
-		d.append((u"þúri", u"þúre", "dafepi")) #leaf
+		d.append((u"þúri", u"þúre", "dafepi")) #wind
 
-		d.append((u"varil", u"varil", "byukigi"))  #hotel, inn, hospice, roadhouse
+		d.append((u"varind", u"varin", "byukigi"))  #hotel, inn, hospice, roadhouse
 		#d.append( (u"norolle liéva", u"norolle liéva", "zetimi") ) #bus
 		#d.append( (u"...", u"...", "jatimi") )  #taxi/taxicab
 		d.append((u"caimasse", u"caimasse", "bijoykigi"))  #hospital
@@ -1268,6 +1265,9 @@ def run():
 		d.append((u"sam", u"Acc", "ximunza", [(u"sáme", ("past", "s", "0"))]))  #have
 		d.append((u"ten", "0", "zogipa"))  #arrive
 		d.append((u"ten", "Loc", "zogimba", [], 2))  #arrive at
+		d.append((u"um", "Nom", "jutamu dapa", [(u"úma", ("pres", "s", "0")), (u"úme", ("past", "s", "0")), (u"úmie", ("perf", "s", "0")), (u"úva", ("fut", "s", "0"))])) #not be
+		d.append((u"um", "Inf", "jutamu", [(u"úma", ("pres", "s", "0")), (u"úme", ("past", "s", "0")), (u"úmie", ("perf", "s", "0")), (u"úva", ("fut", "s", "0"))], 2))  #not
+		d.append((u"pol", "Inf", "dovu"))  #can
 
 
 		return d
@@ -1278,8 +1278,7 @@ def run():
 		d.append((u"sina", "baso")) #this
 		d.append((u"tana", "zaso")) #that
 		d.append((u"alwa", "joykepo")) #healthy
-		d.append((u"mára", "cakemo")) #good
-		d.append((u"olca", "cafomo")) #bad, evil
+		d.append((u"ulca", "cafomo", [(u"ulda", ("s", "Nom", "rel"))])) #bad, evil
 		d.append((u"pitya", "fomo")) #small
 		d.append((u"alta", "kemo")) #big
 		d.append((u"yára", "zonculo")) #old (vs.young)
@@ -1293,16 +1292,19 @@ def run():
 		d.append((u"hlaiwa", "joykolo")) #sick
 		d.append((u"lauca", "feculo")) #warm
 		d.append((u"ringa", "fedelo")) #cold
-		d.append((u"vanya", "kekaykemo", [(u"ambanya", ("s", "Nom", "abs"))]))   #beautiful
-		d.append((u"vára", "cinjuvo", [(u"anwára", ("s", "Nom", "abs"))]))   #dirty
+		d.append((u"vanya", "kekaykemo", [(u"valda", ("s", "Nom", "rel")), (u"ambanya", ("s", "Nom", "abs"))]))   #beautiful
+		d.append((u"muhtea", "cinjuvo"))   #dirty
 		d.append((u"laurea", "todapyu taykocivo")) #golden
 		d.append((u"ilya", "bikavo")) #all, whole
-		d.append((u"mára", u"zoykopa", [], 2, ("Dat",))) #like
+		d.append((u"mára", "cakemo",  [(u"melda", ("s", "Nom", "rel"))], 1)) #good
+		d.append((u"mára", "zoykopa",  [(u"melda", ("s", "Nom", "rel"))], 2, ("Dat",))) #like
 		return d
 
 	def adv():
 		d = []
 		d.append((u"ehtala", "dipe-tovay")) #tomorrow
+		d.append((u"bape", "bape")) #now
+		d.append((u"lá", "jutamu")) #not
 		return d
 
 	l = Lect(u"qya")
