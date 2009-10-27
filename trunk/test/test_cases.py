@@ -1,5 +1,4 @@
 import unittest
-import pylilac
 import unit
 import use_cases.quenya as qya
 import use_cases.latejami as ltq

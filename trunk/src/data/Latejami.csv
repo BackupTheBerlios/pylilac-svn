@@ -967,7 +967,6 @@ Lacinbitisi,N,P-s,Antarctica,bitisi,PREFIXED,,3155
 Lakawbitisi,N,P-s,Australia,bitisi,PREFIXED,,3159
 Lababitisi,N,P-s,North America,bitisi,PREFIXED,,3096;ERGANE:924
 Larobitisi,N,P-s,Europe,bitisi,PREFIXED,,3114;ERGANE:52833
-Lazyabitisi,N,P-s,Asia,bitisi,PREFIXED,,3165
 bokentisi,N,P-s,"shore/shoreline, coast/coastline, strand, waterfront",tisi,MODIFIED,,1616
 cutisi,N,P-s,"ground, planet surface",tisi,MODIFIED,,651
 daxutisi,N,P-s,"horizon, skyline",tisi,MODIFIED,,1461;ERGANE:16689
@@ -5125,3 +5124,15 @@ fawcapi,N,P-s,"waste, leavings, refuse",capi,MODIFIED,,321;ERGANE:38801
 twacapi,N,P-s,"cloth, fabric, textile",capi,MODIFIED,,375
 joycapi,N,P-s,"salve, ointment",capi,MODIFIED,,339
 byecapi,N,P-s,"stuff, material, synthetic or artificial substance or material",capi,MODIFIED,,274;ERGANE:42197
+Lazidugi,N,P-s,Brazil,dugi,PREFIXED,,
+Larudugi,N,P-s,Russia,dugi,PREFIXED,,
+Lakadugi,N,P-s,Canada,dugi,PREFIXED,,
+Lajidugi,N,P-s,Nigeria,dugi,PREFIXED,,
+Lacundugi,N,P-s,China,dugi,PREFIXED,,
+Lacunxodugi,N,P-s,Peking,xodugi,PREFIXED,,
+Laxixodugi,N,P-s,Mexico City,xodugi,PREFIXED,,
+Labunxodugi,N,P-s,Bombay,xodugi,PREFIXED,,
+Lapawxodugi,N,P-s,Sao Paulo,xodugi,PREFIXED,,
+Lazanxodugi,N,P-s,Shanghai,xodugi,PREFIXED,,
+Laruxodugi,N,P-s,Moscow,xodugi,PREFIXED,,
+Laryoxodugi,N,P-s,New York City,xodugi,PREFIXED,,

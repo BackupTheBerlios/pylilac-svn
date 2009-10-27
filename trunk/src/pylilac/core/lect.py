@@ -78,7 +78,7 @@ class Lect(object):
 		f = utilities.ZipFile(filename, "wb", 5)
 		if reset:
 			self.reset()
-		pickle.dump(self.__tuple(), f, 2)
+		pickle.dump(self.__tuple(), f, -1)
 		f.flush()
 		f.close()
 

@@ -997,11 +997,15 @@ def run():
 						gr[case] = WordCategoryFilter("adj", (), (num, "Nom", None)) + WordCategoryFilter("n", (), (num, case, None))
 						gr[case] = WordCategoryFilter("n", (), (num, case, None))
 
-		def F(case, tr, nick):
+		def add_verb(gr, case, tr, nick):
 			if case == "0":
 				acc = "Acc"
 			else:
 				acc = "Acc+" + case
+			if tr == "tr":
+				n2 = ":"+acc
+			else:
+				n2 = ":"+case
 			V = {}
 			V[("intr", "V")] = WordCategoryFilter("v", (case,), (fin, pers, "0"))
 			V[("tr", "V")] = WordCategoryFilter("v", (acc,), (fin, pers, "0"))
@@ -1014,65 +1018,95 @@ def run():
 			V[("tr", "V/s")] = WordCategoryFilter("v", (acc,), (fin, "s", "0"))
 			V[("tr", "V/p")] = WordCategoryFilter("v", (acc,), (fin, "pl", "0"))
 			V[("tr", "V/d")] = WordCategoryFilter("v", (acc,), (fin, "d", "0"))
-			return V[(tr, nick)]
+			gr[nick+n2] = V[(tr, nick)]
 
 		gr["clause"] = (Reference("Vs") | Reference("SV")) + Reference("C") * KLEENE_CLOSURE
 		gr["clause"] = (Reference("Vso") | Reference("VsO") | Reference("S V O")) + Reference("C") * KLEENE_CLOSURE
 		gr["clause"] = (Reference("VsD") | Reference("SVD")) + Reference("C") * KLEENE_CLOSURE
 		gr["clause"] = (Reference("VsoD") | Reference("VsOD") | Reference("S V OD")) + Reference("C") * KLEENE_CLOSURE
-		gr["Vs"] = F("0", "intr", "Vs")
-		gr["SV"] = free_order(Reference("S/s"), F("0", "intr", "V/s"))
-		gr["SV"] = free_order(Reference("S/p"), F("0", "intr", "V/p"))
-		gr["SV"] = free_order(Reference("S/d"), F("0", "intr", "V/d"))
-		gr["Vso"] = F("0", "tr", "Vso")
-		gr["VsO"] = free_order(F("0", "tr", "Vs"), Reference("O"))
-		gr["S V O"] = Reference("S/s") + F("0", "tr", "V/s") + Reference("O")
-		gr["S V O"] = Reference("S/p") + F("0", "tr", "V/p") + Reference("O")
-		gr["S V O"] = Reference("S/d") + F("0", "tr", "V/d") + Reference("O")
+		add_verb(gr, "0", "intr", "Vs")
+		gr["Vs"] = Reference("Vs:0")
+		for pers in "spd":
+			add_verb(gr, "0", "intr", "V/"+pers)
+			gr["SV"] = free_order(Reference("S/"+pers), Reference("V/"+pers+":0"))
+		add_verb(gr, "0", "tr", "Vso")
+		gr["Vso"] = Reference("Vso:Acc")
+		add_verb(gr, "0", "tr", "Vs")
+		gr["VsO"] = free_order(Reference("Vs:Acc"), Reference("O"))
+		for pers in "spd":
+			add_verb(gr, "0", "tr", "V/"+pers)
+			gr["S V O"] = Reference("S/"+pers) + Reference("V/"+pers+":Acc") + Reference("O")
 
-		gr["VsD"] = free_order(F("Dat", "intr", "Vs"), Reference("D"))
-		gr["SVD"] = free_order(Reference("S/s"), F("Dat", "intr", "V/s"), Reference("D"))
-		gr["SVD"] = free_order(Reference("S/p"), F("Dat", "intr", "V/p"), Reference("D"))
-		gr["SVD"] = free_order(Reference("S/d"), F("Dat", "intr", "V/d"), Reference("D"))
-		gr["VsoD"] = free_order(F("Dat", "tr", "Vso"), Reference("D"))
-		gr["VsOD"] = free_order(F("Dat", "tr", "Vs"), Reference("O"), Reference("D"))
-		gr["S V OD"] = Reference("S/s") + F("Dat", "tr", "V/s") + free_order(Reference("O"), Reference("D"))
-		gr["S V OD"] = Reference("S/p") + F("Dat", "tr", "V/p") + free_order(Reference("O"), Reference("D"))
-		gr["S V OD"] = Reference("S/d") + F("Dat", "tr", "V/d") + free_order(Reference("O"), Reference("D"))
+		add_verb(gr, "Dat", "intr", "Vs")
+		gr["VsD"] = free_order(Reference("Vs:Dat"), Reference("D"))
+		add_verb(gr, "Dat", "intr", "V/s")
+		gr["SVD"] = free_order(Reference("S/s"), Reference("V/s:Dat"), Reference("D"))
+		for pers in "spd":
+			add_verb(gr, "Dat", "intr", "V/"+pers)
+			gr["SVD"] = Reference("S/"+pers) + Reference("V/"+pers+":Dat") + Reference("D")
+
+		add_verb(gr, "Dat", "tr", "Vso")
+		gr["VsoD"] = free_order(Reference("Vso:Acc+Dat"), Reference("D"))
+
+		add_verb(gr, "Dat", "tr", "Vs")
+		gr["VsOD"] = free_order(Reference("Vs:Acc+Dat"), Reference("O"), Reference("D"))
+
+		for pers in "spd":
+			add_verb(gr, "Dat", "tr", "V/"+pers)
+			gr["S V OD"] = Reference("S/"+pers) +Reference("V/"+pers+":Acc+Dat") + free_order(Reference("O"), Reference("D"))
 
 
 		gr["clause"] = (Reference("VsL") | Reference("SVL")) + Reference("C-L") * KLEENE_CLOSURE
 		gr["clause"] = (Reference("VsoL") | Reference("VsOL") | Reference("S V OL")) + Reference("C-L") * KLEENE_CLOSURE
-		gr["VsL"] = free_order(F("Loc", "intr", "Vs"), Reference("L"))
-		gr["SVL"] = free_order(Reference("S/s"), F("Loc", "intr", "V/s"), Reference("L"))
-		gr["SVL"] = free_order(Reference("S/p"), F("Loc", "intr", "V/p"), Reference("L"))
-		gr["SVL"] = free_order(Reference("S/d"), F("Loc", "intr", "V/d"), Reference("L"))
-		gr["VsoL"] = free_order(F("Loc", "tr", "Vso"), Reference("L"))
-		gr["VsOL"] = free_order(F("Loc", "tr", "Vs"), Reference("O"), Reference("L"))
-		gr["S V OL"] = Reference("S/s") + F("Loc", "tr", "V/s") + free_order(Reference("O"), Reference("L"))
-		gr["S V OL"] = Reference("S/p") + F("Loc", "tr", "V/p") + free_order(Reference("O"), Reference("L"))
-		gr["S V OL"] = Reference("S/d") + F("Loc", "tr", "V/d") + free_order(Reference("O"), Reference("L"))
+
+		add_verb(gr, "Loc", "intr", "Vs")
+		gr["VsL"] = free_order(Reference("Vs:Loc"), Reference("L"))
+		
+		for pers in "spd":
+			add_verb(gr, "Loc", "intr", "V/"+pers)
+			gr["SVL"] = free_order(Reference("S/s"), Reference("V/"+pers+":Loc"), Reference("L"))
+		
+
+		add_verb(gr, "Loc", "tr", "Vso")
+		gr["VsoL"] = free_order(Reference("Vso:Acc+Loc"), Reference("L"))
+		add_verb(gr, "Loc", "tr", "Vs")
+		gr["VsOL"] = free_order(Reference("Vs:Acc+Loc"), Reference("O"), Reference("L"))
+
+		for pers in "spd":
+			add_verb(gr, "Loc", "tr", "V/"+pers)
+			gr["S V OL"] = Reference("S/"+pers) + Reference("V/"+pers+":Acc+Loc") + free_order(Reference("O"), Reference("L"))
 
 		gr["clause"] = (Reference("N Vs") | Reference("S N V")) + Reference("C") * KLEENE_CLOSURE
 		gr["clause"] = Reference("S N") + Reference("C") * KLEENE_CLOSURE
 
 		gr["clause"] = (Reference("N DVs") | Reference("S N DV")) + Reference("C") * KLEENE_CLOSURE
-		
-		gr["N Vs"] = Reference("N/s") + WordCategoryFilter("v", ("Nom",), (fin, pers_s, "0"))
-		gr["N Vs"] = Reference("N/p") + WordCategoryFilter("v", ("Nom",), (fin, pers_pl, "0"))
-		gr["N Vs"] = Reference("N/d") + WordCategoryFilter("v", ("Nom",), (fin, pers_d, "0"))
-		gr["S N V"] = Reference("S/s") + Reference("N/s") + F("Nom", "intr", "V/s")
-		gr["S N V"] = Reference("S/p") + Reference("N/p") + F("Nom", "intr", "V/p")
-		gr["S N V"] = Reference("S/d") + Reference("N/d") + F("Nom", "intr", "V/d")
+
+		gr["V-s:Nom"] = WordCategoryFilter("v", ("Nom",), (fin, pers_s, "0"))
+		gr["V-p:Nom"] = WordCategoryFilter("v", ("Nom",), (fin, pers_pl, "0"))
+		gr["V-d:Nom"] = WordCategoryFilter("v", ("Nom",), (fin, pers_d, "0"))
+		gr["N Vs"] = Reference("N/s") + Reference("V-s:Nom")
+		gr["N Vs"] = Reference("N/p") + Reference("V-p:Nom")
+		gr["N Vs"] = Reference("N/d") + Reference("V-d:Nom")
+
+
+		for pers in "spd":
+			add_verb(gr, "Nom", "intr", "V/"+pers)
+			gr["S N V"] = Reference("S/s") + Reference("N/s") + Reference("V/"+pers+":Nom")
+			
 		gr["S N"] = Reference("S/s") + Reference("N/s")
 		gr["S N"] = Reference("S/p") + Reference("N/p")
 		gr["S N"] = Reference("S/d") + Reference("N/d")
-		gr["N DVs"] = Reference("N/s") + free_order(Reference("D"), WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_s, "0")))
-		gr["N DVs"] = Reference("N/p") + free_order(Reference("D"), WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_pl, "0")))
-		gr["N DVs"] = Reference("N/p") + free_order(Reference("D"), WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_d, "0")))
-		gr["S N DV"] = Reference("S/s") + Reference("N/s") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/s"))
-		gr["S N DV"] = Reference("S/p") + Reference("N/p") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/p"))
-		gr["S N DV"] = Reference("S/d") + Reference("N/d") + free_order(Reference("D"), F("Nom+Dat", "intr", "V/d"))
+
+		gr["V-s:Nom+Dat"] = WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_s, "0"))
+		gr["V-p:Nom+Dat"] = WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_pl, "0"))
+		gr["V-d:Nom+Dat"] = WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_d, "0"))
+		gr["N DVs"] = Reference("N/s") + free_order(Reference("D"), Reference("V-s:Nom+Dat"))
+		gr["N DVs"] = Reference("N/p") + free_order(Reference("D"), Reference("V-p:Nom+Dat"))
+		gr["N DVs"] = Reference("N/d") + free_order(Reference("D"), Reference("V-d:Nom+Dat"))
+
+		for pers in "spd":
+			add_verb(gr, "Nom+Dat", "intr", "V/"+pers)
+			gr["S N DV"] = Reference("S/s") + Reference("N/s") + free_order(Reference("D"), Reference("V/"+pers+":Nom+Dat"))
 
 		gr["N/s"] = WordCategoryFilter("adj", (), ("s", "Nom", None)) | (Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/s"))
 		gr["N/p"] = WordCategoryFilter("adj", (), ("pl", "Nom", None)) | (Reference("article") * OPTIONAL_CLOSURE + Reference("Nom/p"))
