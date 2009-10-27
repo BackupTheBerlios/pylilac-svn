@@ -1234,8 +1234,8 @@ def run():
 		d.append((u"Nigird", u"Nigir", "Lajidugi")) #Nigeria
 		d.append((u"Tyena", u"Tyena", "Lacundugi")) #China
 		d.append((u"Forméro", u"Forméro", "Lacunxodugi")) #Peking
-		d.append((u"Tenótiþan", u"Mésicosto", "Laxixodugi")) #Mexico City
-		d.append((u"Tollilónar", u"Mumba", "Labunxodugi")) #Bombay
+		d.append((u"Tenótiþan", u"Tenótiþan", "Laxixodugi")) #Mexico City
+		d.append((u"Tollilónar", u"Tollilónar", "Labunxodugi")) #Bombay
 		d.append((u"Ainapityonosto", u"Ainapityonosto", "Lapawxodugi")) #São Paulo
 		d.append((u"Orear", u"Orear", "Lazanxodugi")) #Shanghai
 		d.append((u"Mosiqua", u"Mosiqua", "Laruxodugi")) #Moscow
