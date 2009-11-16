@@ -3,6 +3,8 @@
 
 """
 A module to create Tokipona lect file.
+U{http://aiki.pbworks.com/TP+Vocabulary}
+
 """
 from pylilac.core.bnf import KLEENE_CLOSURE
 from pylilac.core.bnf import OPTIONAL_CLOSURE
@@ -113,7 +115,7 @@ def build_words():
 	w["awen_vi"] = ("awen", 5, "vi", "zogisa")	#(stay)
 	w["e_sep"] = ("e", 1, "sep", "")	#()
 	w["en_conj"] = ("en", 1, "conj", "sye")	#(and)
-	#w["esun_n"] = ("esun", 1, "n", "doykigi")	#(shop)
+	w["esun_n"] = ("esun", 1, "n", "doykigi")	#(shop)
 	w["ijo_n"] = ("ijo", 1, "n", "byezumi")	  #(object)
 	w["ijo_mod"] = ("ijo", 2, "mod", "[ijo]")	#(of something)
 	w["ijo_vt"] = ("ijo", 3, "vt", "byezumapa")	#(objectify)
@@ -272,7 +274,7 @@ def build_words():
 	w["pali_vi"] = ("pali", 4, "vi", "joykava")	#(act, work, function)
 	w["palisa_n"] = ("palisa", 1, "n", "jikigi")	#(long, mostly hard object, e.g. rod, stick, branch)
 	w["palisa_n_1"] = ("palisa", 2, "n", "jitevi")	#(stick)
-	#w["pan_n"] = ("pan", 1, "n", "josepi")			#(bread)
+	w["pan_n"] = ("pan", 1, "n", "josepi")			#(bread)
 	w["pana_n"] = ("pana", 1, "n", "ximenvi")	#(giving, transfer, exchange)
 	w["pana_vt"] = ("pana", 2, "vt", "cema")	#(give, put, send, place, release, emit, cause)
 	w["pana_vt_1"] = ("pana", 3, "vt", "ximimba")	#(give, put, send, place, release, emit, cause)

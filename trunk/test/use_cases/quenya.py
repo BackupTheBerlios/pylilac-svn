@@ -106,6 +106,7 @@ def run():
 					ft[k] = ft[k].copy(lemma)
 				ft[("aor", "s", "0")] = Word(u"ná", lemma, ("aor", "s", "0"))
 				ft[("past", "s", "0")] = Word(u"né", lemma, ("past", "s", "0"))
+				ft[("fut", "s", "0")] = Word(u"nauva", lemma, ("fut", "s", "0"))
 
 			correct_table(ft)
 			l.add_lemma(lemma)
@@ -531,6 +532,8 @@ def run():
 			c.append_step(u"$", u"r")
 			c = f.create_transform(("aor", "pl", "0"), BASED_ON_ENTRY_FORM)
 			c.append_step(u"$", u"ir")
+			c = f.create_transform(("aor", "d", "0"), BASED_ON_ENTRY_FORM, u"[au]$")
+			c.append_step(u"$", u"t")
 			c = f.create_transform(("aor", "d", "0"), BASED_ON_ENTRY_FORM)
 			c.append_step(u"$", u"it")
 
@@ -1018,7 +1021,28 @@ def run():
 			V[("tr", "V/s")] = WordCategoryFilter("v", (acc,), (fin, "s", "0"))
 			V[("tr", "V/p")] = WordCategoryFilter("v", (acc,), (fin, "pl", "0"))
 			V[("tr", "V/d")] = WordCategoryFilter("v", (acc,), (fin, "d", "0"))
-			gr[nick+n2] = V[(tr, nick)]
+			V[("intr", "V-s")] = WordCategoryFilter("v", (case,), (fin, pers_s, "0"))
+			V[("intr", "V-p")] = WordCategoryFilter("v", (case,), (fin, pers_pl, "0"))
+			V[("intr", "V-d")] = WordCategoryFilter("v", (case,), (fin, pers_d, "0"))
+
+			w = V[(tr, nick)]
+			if nick == "Vso":
+				n3 = "Vio"
+				n4 = "Vs"
+			else:
+				n3 = "Vi"
+				n4 = nick
+			
+			yy=n4+":Inf"
+			if yy not in gr:
+				gr[yy] = WordCategoryFilter("v", ("Inf",), (fin, w.categories()[1], "0"))
+			if "Vi:Inf" not in gr:
+				gr["Vi:Inf"] = WordCategoryFilter("v", ("Inf",), ("inf", "0", "0"))
+			if n3+n2 not in gr:
+				gr[n3+n2]  = WordCategoryFilter("v", w.lemma_categories(), ("inf", "0", w.categories()[2]))
+			if  nick+n2 not in gr:
+				gr[nick+n2] = w
+				gr[nick+n2] = Reference(yy)+Reference("Vi:Inf")* KLEENE_CLOSURE+Reference(n3+n2)
 
 		gr["clause"] = (Reference("Vs") | Reference("SV")) + Reference("C") * KLEENE_CLOSURE
 		gr["clause"] = (Reference("Vso") | Reference("VsO") | Reference("S V O")) + Reference("C") * KLEENE_CLOSURE
@@ -1081,12 +1105,9 @@ def run():
 
 		gr["clause"] = (Reference("N DVs") | Reference("S N DV")) + Reference("C") * KLEENE_CLOSURE
 
-		gr["V-s:Nom"] = WordCategoryFilter("v", ("Nom",), (fin, pers_s, "0"))
-		gr["V-p:Nom"] = WordCategoryFilter("v", ("Nom",), (fin, pers_pl, "0"))
-		gr["V-d:Nom"] = WordCategoryFilter("v", ("Nom",), (fin, pers_d, "0"))
-		gr["N Vs"] = Reference("N/s") + Reference("V-s:Nom")
-		gr["N Vs"] = Reference("N/p") + Reference("V-p:Nom")
-		gr["N Vs"] = Reference("N/d") + Reference("V-d:Nom")
+		for pers in "spd":
+			add_verb(gr, "Nom", "intr", "V-"+pers)
+			gr["N Vs"] = Reference("N/"+pers) + Reference("V-"+pers+":Nom")
 
 
 		for pers in "spd":
@@ -1097,12 +1118,9 @@ def run():
 		gr["S N"] = Reference("S/p") + Reference("N/p")
 		gr["S N"] = Reference("S/d") + Reference("N/d")
 
-		gr["V-s:Nom+Dat"] = WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_s, "0"))
-		gr["V-p:Nom+Dat"] = WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_pl, "0"))
-		gr["V-d:Nom+Dat"] = WordCategoryFilter("v", ("Nom+Dat",), (fin, pers_d, "0"))
-		gr["N DVs"] = Reference("N/s") + free_order(Reference("D"), Reference("V-s:Nom+Dat"))
-		gr["N DVs"] = Reference("N/p") + free_order(Reference("D"), Reference("V-p:Nom+Dat"))
-		gr["N DVs"] = Reference("N/d") + free_order(Reference("D"), Reference("V-d:Nom+Dat"))
+		for pers in "spd":
+			add_verb(gr, "Nom+Dat", "intr", "V-"+pers)
+			gr["N DVs"] = Reference("N/"+pers) + free_order(Reference("D"), Reference("V-"+pers+":Nom+Dat"))
 
 		for pers in "spd":
 			add_verb(gr, "Nom+Dat", "intr", "V/"+pers)
@@ -1226,17 +1244,16 @@ def run():
 		d.append((u"Cemen", u"Cemen", "Ladijotisi")) #earth
 		d.append((u"Anar", u"Anar", "Lakitisi")) #sun
 		d.append((u"Vintamurta", u"Vintamurta", "Laryoxodugi")) #New York City
-		d.append((u"Colindor", u"Colindor", "Ladyadugi")) #India
 		d.append((u"Hindien", u"Hindien", "Ladyadugi")) #India
 		d.append((u"Yúlanor", u"Yúlanor", "Lazidugi")) #Brazil
 		d.append((u"Vandanor", u"Vandanor", "Larudugi")) #Russia
 		d.append((u"Canata", u"Canata", "Lakadugi")) #Canada
-		d.append((u"Nigird", u"Nigir", "Lajidugi")) #Nigeria
+		d.append((u"Nigir", u"Nigir", "Lajidugi")) #Nigeria
 		d.append((u"Tyena", u"Tyena", "Lacundugi")) #China
 		d.append((u"Forméro", u"Forméro", "Lacunxodugi")) #Peking
-		d.append((u"Tenótiþan", u"Tenótiþan", "Laxixodugi")) #Mexico City
-		d.append((u"Tollilónar", u"Tollilónar", "Labunxodugi")) #Bombay
-		d.append((u"Ainapityonosto", u"Ainapityonosto", "Lapawxodugi")) #São Paulo
+		d.append((u"Tenótihlan", u"Tenótihlan", "Laxixodugi")) #Mexico City
+		d.append((u"Tolliotso", u"Tolliotso", "Labunxodugi")) #Bombay
+		d.append((u"Ainapityon", u"Ainapityon", "Lapawxodugi")) #São Paulo
 		d.append((u"Orear", u"Orear", "Lazanxodugi")) #Shanghai
 		d.append((u"Mosiqua", u"Mosiqua", "Laruxodugi")) #Moscow
 		d.append((u"Iþil", u"Iþil", "Labatisi")) #moon
@@ -1270,7 +1287,7 @@ def run():
 
 	def verbs():
 		d = []
-		d.append((u"na", "Nom", "dapa", [(u"ne", ("past", "s", "0"))]))
+		d.append((u"na", "Nom", "dapa", [(u"ne", ("past", "s", "0")), (u"nauva", ("fut", "s", "0"))]))
 		d.append((u"ea", "0", "kava", [(u"ea", ("pres", "s", "0")), (u"engie", ("perf", "s", "0")), (u"enge", ("past", "s", "0"))]))  #esserci(?)
 		d.append((u"ea", "Loc", "zoga", [(u"ea", ("pres", "s", "0")), (u"engie", ("perf", "s", "0")), (u"enge", ("past", "s", "0"))], 2)) #trovarsi
 
@@ -1316,7 +1333,7 @@ def run():
 		d.append((u"pitya", "fomo")) #small
 		d.append((u"alta", "kemo")) #big
 		d.append((u"yára", "zonculo")) #old (vs.young)
-		d.append((u"silque", "cinzigo")) #white
+		d.append((u"fána", "cinzigo")) #white
 		d.append((u"more", "kunzigo")) #black
 		d.append((u"neþþa", "zondelo")) #young
 		d.append((u"carne", "zozigo")) #red
