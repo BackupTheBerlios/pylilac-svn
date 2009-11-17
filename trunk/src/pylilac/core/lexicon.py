@@ -577,13 +577,26 @@ class WordFilter(Literal):
 			raise TypeError(word)
 		Literal.__init__(self, (word.form, word.lemma.entry_form, word.lemma.id, None, None, word.categories))
 
+	def form(self):
+		return self._content[0]
+	def lemma_entry_form(self):
+		return self._content[1]
+	def lemma_id(self):
+		return self._content[2]
+	def p_o_s(self):
+		return self._content[3]
+	def lemma_categories(self):
+		return self._content[4]
+	def categories(self):
+		return self._content[5]
+
 	def __hash__(self):
 		def dict_hash(x, i):
 			if x is None:
 				return 0
 			else:
 				return len(x) << i & maxint
-		return hash(self.content[:-2]) ^ dict_hash(self.content[4], 2) ^ dict_hash(self.content[5], 4)
+		return hash(self._content[:-2]) ^ dict_hash(self._content[4], 2) ^ dict_hash(self._content[5], 4)
 
 	def match(self, word):
 		"""
@@ -599,17 +612,17 @@ class WordFilter(Literal):
 			if v is None: return True
 			else: return v == w
 
-		if not none_or_equal(self.content[0], word.form):
+		if not none_or_equal(self.form(), word.form):
 			return False
-		if not none_or_equal(self.content[1], word.lemma.entry_form):
+		if not none_or_equal(self.lemma_entry_form(), word.lemma.entry_form):
 			return False
-		if not none_or_equal(self.content[2], word.lemma.id):
+		if not none_or_equal(self.lemma_id(), word.lemma.id):
 			return False
-		if not none_or_equal(self.content[3], word.lemma.p_o_s):
+		if not none_or_equal(self.p_o_s(), word.lemma.p_o_s):
 			return False
-		if not CategoryFilter.test(self.content[4], word.lemma.categories):
+		if not CategoryFilter.test(self.lemma_categories(), word.lemma.categories):
 			return False
-		if not CategoryFilter.test(self.content[5], word.categories):
+		if not CategoryFilter.test(self.categories(), word.categories):
 			return False
 		return True
 
@@ -630,11 +643,11 @@ class WordFilter(Literal):
 		Return a verbose string representation.
 		@rtype: str
 		"""
-		form, entry_form, id = self.content[0:3]
-		categories = self.content[5]
+		form, entry_form, id = self._content[0:3]
+		categories = self.categories()
 		r = ["{"]
 		r.append(Utilities.unidecode(form)+"@"+Utilities.unidecode(entry_form)+"."+str(id))
-		if self.content[5]:
+		if self.categories():
 			r.append(categories)
 		r.append("}")
 		return "".join(r)
@@ -656,7 +669,7 @@ class WordFilter(Literal):
 		@todo: Word tagging.
 			Instead of C{fsa.add_transition(initial, self, final, tag + (None,))}, it may be useful storing more than 'word' field
 		"""
-		fsa.add_transition(initial, self, final, tag + (self.content[0],))
+		fsa.add_transition(initial, self, final, tag + (self.form(),))
 
 
 class WordCategoryFilter(WordFilter):
@@ -691,7 +704,7 @@ class WordCategoryFilter(WordFilter):
 		Return a verbose string representation.
 		@rtype: str
 		"""
-		p_o_s, lemma_categories, categories = self.content[3:6]
+		p_o_s, lemma_categories, categories = self._content[3:6]
 		r = []
 		r.append("{")
 		if p_o_s:
@@ -724,7 +737,7 @@ class WordCategoryFilter(WordFilter):
 		@todo: Word tagging.
 			Instead of C{fsa.add_transition(initial, self, final, tag + (None,))}, it may be useful storing more than 'word' field
 		"""
-		fsa.add_transition(initial, self, final, tag + (self.content[3],))
+		fsa.add_transition(initial, self, final, tag + (self.p_o_s(),))
 
 class CategoryFilter(object):
 	"""

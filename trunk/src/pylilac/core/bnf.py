@@ -356,7 +356,7 @@ class Literal(NormalExpression):
 		@param content: An object to wrap in th symbol.
 		@type content: object
 		"""
-		self.content = content
+		self._content = content
 
 	def __eq__(self, other):
 		"""
@@ -368,17 +368,17 @@ class Literal(NormalExpression):
 		@return: True if the two contents are equal.
 		"""
 		if isinstance(other, Literal):
-			return self.content == other.content
+			return self._content == other._content
 		elif other is None:
 			return False
 		else:
 			return NotImplemented
 
 	def __hash__(self):
-		return hash(self.__class__) ^ hash(self.content)
+		return hash(self.__class__) ^ hash(self._content)
 
 	def __repr__(self):
-		return `self.content`
+		return `self._content`
 
 	def match(self, token):
 		"""
@@ -392,7 +392,7 @@ class Literal(NormalExpression):
 		@rtype: bool
 		@return: True if the content is equal to the token.
 		"""
-		return self.content == token
+		return self._content == token
 
 	def process(self, token):
 		"""
