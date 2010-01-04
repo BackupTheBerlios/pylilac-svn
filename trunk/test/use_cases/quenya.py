@@ -64,6 +64,8 @@ def run():
 				correct_word(table, w[i] + u"x", v[i] + u"x")
 				correct_word(table, w[i] + u"([^lnhcgr])y", v[i] + u"\\1y")
 				correct_word(table, w[i] + u"([^lnhgr])w", v[i] + u"\\1w")
+				correct_word(table, v[i] + u"llv", v[i] + u"lv")
+				correct_word(table, v[i] + u"llm", v[i] + u"lm")
 
 		for h in nouns():
 			if len(h) > 4:
