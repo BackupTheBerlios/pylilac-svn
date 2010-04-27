@@ -8,6 +8,7 @@ A module for serialization and management of a language variety.
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
 @version: Alpha 0.1.6
 """
+import pylilac.core.tokenizer
 
 __docformat__ = "epytext en"
 
@@ -153,7 +154,9 @@ class Lect(object):
 			raise TypeError("%s is not Unicode" % repr(expression))
 
 		tokenizer = self.lexicon.compile(self.properties, False)
+                # @type tokenizer pylilac.core.tokenizer.Tokenizer
 		parser = self.grammar.compile(False)
+                # @type parser pylilac.core.fsa.Parser
 		er = ExpressionReader(tokenizer, parser)
 		return er(expression)
 

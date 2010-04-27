@@ -17,10 +17,10 @@ import graphics
 import os
 import sys
 from optparse import OptionParser
-from ..core.interlingua import Interlingua, Concept
-from ..core.utilities import Utilities
-from ..core.lect import Lect
-from ..core.lexicon import Lemma, Word
+from pylilac.core.interlingua import Interlingua, Concept
+from pylilac.core.utilities import Utilities
+from pylilac.core.lect import Lect
+from pylilac.core.lexicon import Word
 
 class AppData:
 	"""

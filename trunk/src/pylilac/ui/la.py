@@ -15,14 +15,17 @@ the active code is in the L{code behind<lacodebehind.LACodeBehind>} class.
 
 __docformat__ = "epytext en"
 
+import wxversion
+wxversion.select("2.8-unicode")
 import wx
 import wx.grid
 import wx.gizmos
-import graphics
-import os
-import sys
 from lacodebehind import LACodeBehind, CBCodeBehind
 from lawidgets import StockBitmapButton, CategoryPanelComboCtrl
+
+#import graphics
+#import os
+#import sys
 
 
 class LAFrame(wx.Frame):

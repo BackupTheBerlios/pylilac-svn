@@ -32,15 +32,20 @@ The library is contained in the L{pylilac.core} package, while the implementatio
 
 __docformat__ = "epytext en"
 
-from ui.la import LAApp
 
 def run_la():
 	"""
 	Run the Language Architect GUI.
 	@see: U{Graphical User documentation<http://pylilac.berlios.de/doc/Tools.Language_Architect-module.html>}.
 	"""
+        from ui.la import LAApp
 	app = LAApp(0)
 	app.MainLoop()
 
 if __name__ == "__main__":
-	run_la()
+	"""
+	Initialize pylilac library.
+	@see: U{Graphical User documentation<http://pylilac.berlios.de/doc/Tools.Language_Architect-module.html>}.
+	"""
+	pass
+
