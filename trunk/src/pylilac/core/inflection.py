@@ -81,7 +81,7 @@ Complete example
 __docformat__ = "epytext en"
 
 import re
-from lexicon import Word, Lexicon, CategoryFilter, DEFECTIVE
+from lexicon import Word, CategoryFilter, DEFECTIVE
 from utilities import SortedDict, Utilities
 
 BASED_ON_ENTRY_FORM = "-"

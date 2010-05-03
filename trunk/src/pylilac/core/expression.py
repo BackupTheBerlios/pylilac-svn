@@ -14,7 +14,7 @@ The module offers the high-level interfaces to internal structures.
 
 __docformat__ = "epytext en"
 
-from fsa import ParseError, Parser
+from fsa import ParseError
 from utilities import SortedDict, Utilities
 
 
