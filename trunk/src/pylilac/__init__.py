@@ -29,18 +29,8 @@ The library is contained in the L{pylilac.core} package, while the implementatio
 @license: U{GNU GPL GNU General Public License<http://www.gnu.org/licenses/gpl.html>}
 @version: Alpha 0.1.6
 """
-
 __docformat__ = "epytext en"
 
-
-def run_la():
-	"""
-	Run the Language Architect GUI.
-	@see: U{Graphical User documentation<http://pylilac.berlios.de/doc/Tools.Language_Architect-module.html>}.
-	"""
-        from ui.la import LAApp
-	app = LAApp(0)
-	app.MainLoop()
 
 if __name__ == "__main__":
 	"""
@@ -48,4 +38,3 @@ if __name__ == "__main__":
 	@see: U{Graphical User documentation<http://pylilac.berlios.de/doc/Tools.Language_Architect-module.html>}.
 	"""
 	pass
-

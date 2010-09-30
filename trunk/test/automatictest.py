@@ -14,10 +14,5 @@ class AutomaticTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    from os import chdir
-    from sys import path
-    chdir("../..")
-    path.append("trunk/src")
-    #TODO: this above doesn't work!
     unittest.main()
 

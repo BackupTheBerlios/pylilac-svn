@@ -304,7 +304,7 @@ class Languages:
 	class Quenya:
 		"""
 		Quenya is the famous artificial language used by J. R. R. Tolkien.
-		The one we develop here is an unofficial version based on the direct reading of his work and on the (enourmous) corpus of resources on the internet.
+		The one we develop here is an unofficial version inspired by the enourmous corpus of resources on the internet.
 		See also U{Ambar Eldaron<http://www.ambar-eldaron.com/english/>} and U{Ardalambion<http://www.uib.no/people/hnohf>}.
 
 		ISO codes::
@@ -353,8 +353,8 @@ class Languages:
 				Nouns
 				-----
 				The creation of the lexicon for nouns is based on the lemma entry form (stem-form) and, often, on the singular nominative (basic-form).
-				Sometimes, some exceptions must be specified.
-				In the nous system, some mobile vowels or consonants: I{toron}C{(s Nom 0)}->I{torno}C{(s Gen 0)}; they will be modeled as C{toron}.
+				Sometimes, exceptions in declension must be specified.
+				In the noun system, we encounter some mobile vowels or consonants: I{toron}C{(s Nom 0)}->I{torno}C{(s Gen 0)}.
 
 				Verb
 				----
@@ -442,7 +442,7 @@ class Languages:
 
 		>>> Babel Text
 		... 1. Ilya ambar sinte lambe er ar yuhtanes quetie er.
-		... 2. Ar martane, lelyientasse rómenna, i hirnente nanda nóresse Shinar; ar marnante tasse.
+		... 2. Ar martane, lelyentasse rómenna, i hirnente nanda nóresse Shinar; ar marnante tasse.
 		... 3. Ar quentante ilenilenen, "Lel, karealve telar, ar urtealve te ilyave." Ar arnente telar ve ondo, ar (*bitumen*) arnente ve (*mortar*).
 		... 4. Ar quentente, "Lel, karealve osto, ar mindon, yo telme na menelenna, ar karealve esselva; ikoi ú rernar nealve or ilya ambarwa."
 		... 5. Ar Eru nu-lende vélienna i-osto ar i-mindon, ya i-atanion híni akarnente.
@@ -453,7 +453,7 @@ class Languages:
 
 
 
-		@summary: The most famous artificial language in those developed by J. R. R. Tolkien.
+		@summary: The elvish fictional language.
 
 		"""
 		pass

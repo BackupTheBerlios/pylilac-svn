@@ -4,7 +4,6 @@ This is a way to save the startup time when running img2py on lots of
 files...
 """
 
-import sys
 
 from wx.tools import img2py
 
