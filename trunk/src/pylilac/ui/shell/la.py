@@ -12,13 +12,25 @@ Module for the shell based application.
 __docformat__ = "epytext en"
 
 from application import App
+from shell import Shell
 
 
 class LAApp(App):
 	def __init__(self):
 		App.__init__(self, "pylilac Language Architect")
-		self.add_page("pylilac Language Architect", "Welcome world")
-		self.add_action("ll", self.load_lect)
+		self.data = LAFacade(self)
+		self.shell = Shell()
+		self.add_screen(Form("Home", "Who are you?", (("Nome",""),("Cognome",Link("Cognome")),("Età",EtaChooser()))
+		self.add_screen(Screen("Cognome", (("Nome",""),("Cognome",Link("Cognome")),("Età",EtaChooser()))
+		self.add_screen(Screen("Bye", ))
 
+class LAFacade(object):
+	def __init__(self, app):
+		self.app = app
 	def load_lect(self):
 		pass
+	def parse_lect(self):
+		pass
+
+
+

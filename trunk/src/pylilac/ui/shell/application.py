@@ -11,6 +11,7 @@ Module for the shell based application.
 
 __docformat__ = "epytext en"
 
+from shell import Shell
 from os.path import expanduser
 
 try:
@@ -18,50 +19,63 @@ try:
 except ImportError:
 	pass
 
-class Page(object):
-	def __init__(self, title, caption, app, page_actions = {}):
-		self.title = title
-		self.caption = caption
-		self.app = app
-		merged_actions = app.actions.copy()
-		merged_actions.update(page_actions)
-		self.actions = merged_actions
+class Prompt(object):
+	def __init__(self, message = ">>> "):
+		self.__message = message
+	def show(self, shell):
+		line = Shell.read(self.__message)
+		return line
 
-	def show(self):
-		print "-" * self.app.state["screen width"]
-		print self.title
-		print self.caption
-		try:
-			line = raw_input(">>> ")+" "
-		except EOFError:
-			raise KeyboardInterrupt
-		return line.split(" ")[:-1]
+class Screen(object):
+	def __init__(self, bc, caption, prompt):
+		self.app = None
+		self.breadcrumbs = bc
+		self.caption = caption
+		self.prompt = prompt
+		self.actions = {}
+
+	def attach(self, app):
+		self.app = None
+		self.actions = app.actions.copy()
+
+	def show(self, shell):
+		shell.header(self.breadcrumbs[-1])
+		shell.write(" > ".join(self.breadcrumbs))
+		shell.write(self.caption)
+		gesture = self.prompt.show(shell)
+		if self.app.execute(gesture):
+			return true
+		else:
+			return self.execute(gesture)
+
+	def execute(self, gesture):
+		return true
 
 	def __repr__(self):
-		return "<Page "+self.title+">"
+		return "<Page "+self.breadcrumbs[-1]+">"
 
 class App(object):
 	def __init__(self, name):
 		self.name = name
-		self.pages = {}
+		self.screens = {}
 		self.actions = {}
 		self.__history = []
 		self.__index = None
 		self.__location = None
-		self.state = {"screen width": 40}
+		self.state = {"screen width": 80}
 		self.add_action("!", self.do_history)
 		self.add_action("?", self.display)
 		self.add_action("", self.show_actions)
 		self.add_action("quit", lambda: "quit")
-		self.add_action("save", self.save)
-		self.add_action("load", self.load)
+		self.add_action("settings", lambda: "settings")
+		self.add_action("index", lambda: "index")
 
 	def set_index(self, index):
 		self.__index = index
 		if self.__location is None:
 			self.__location = index
 
-	def add_action(self, verb, action):
+	def add_action(self, gesture, action):
 		self.actions[verb] = action
 
 	def show(self, page):
@@ -81,18 +95,19 @@ class App(object):
 				return f(parm[0], parm[1], parm[2])
 			elif (len(parm) == 4):
 				return f(parm[0], parm[1], parm[2], parm[3])
-			elif (len(parm) == 5):
+			elif (len(parm) == 5):Page(title, caption, self, page_actions)
 				return f(parm[0], parm[1], parm[2], parm[3], parm[4])
 			else:
 				raise NotImplementedError("Too many parameters (%i>5)" % len(parm))
 		if gesture[0] not in self.actions:
-			raise KeyError(gesture[0], "unknown gesture")
+			raise KeyError(gesture[0], "unknown gesture")Page(title, caption, self, page_actions)
 		return varcall(self.actions[gesture[0]], gesture[1:])
 
-	def add_page(self, title, caption, page_actions = {}):
-		self.pages[title] = Page(title, caption, self, page_actions)
+	def add_page(self, page):
+		self.pages[page.title] = page
+		page.app = self
 		if self.__index is None:
-			self.set_index(title)
+			self.set_index(page.title)
 
 	def main_loop(self):
 		while(self.__location <> "quit"):
@@ -103,10 +118,9 @@ class App(object):
 				page = self(gesture)
 				if page is not None: self.__location = page
 			except KeyboardInterrupt:
-				print
 				break
 			except Exception, e:
-				print "[!!] " +`e`
+				Shell.show_message(`e`, 1)
 				raise
 
 
@@ -120,7 +134,7 @@ class App(object):
 	def show_actions(self):
 		page = self.pages[self.__location]
 		for g in page.actions.iterkeys():
-			print g
+			Shell.write_line(g)
 
 	def __repr__(self):
 		return "<Application "+self.name+": "+`self.pages.values()`+", "+`self.state`+">"
